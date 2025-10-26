@@ -8,7 +8,7 @@ return new class extends Migration
 {
 public function up(): void
 {
-    Schema::create('ocorrencias_fiscalizacoes', function (Blueprint $table) {
+    Schema::create('ocorrencias_fiscalizacao', function (Blueprint $table) {
         $table->id();
         $table->foreignId('contrato_id')->constrained('contratos');
         $table->date('data_ocorrencia')->nullable();

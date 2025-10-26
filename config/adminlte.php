@@ -300,7 +300,7 @@ return [
 
 'menu' => [
 
-    // 🔍 Barra superior (topnav)
+    // 🔍 Barra superior
     [
         'type' => 'navbar-search',
         'text' => 'Buscar...',
@@ -311,91 +311,116 @@ return [
         'topnav_right' => true,
     ],
 
-    // 📚 Pesquisa interna no sidebar
+    // 🔎 Pesquisa lateral
     [
         'type' => 'sidebar-menu-search',
         'text' => 'Procurar menu',
     ],
 
-    // 🏠 Seção principal
-    ['header' => 'MÓDULOS DO SISTEMA'],
-
+    // =============================
+    // 📊 Seções principais
+    // =============================
     [
         'text' => 'Dashboard',
-        'url'  => '/',
-        'icon' => 'fas fa-fw fa-tachometer-alt',
+        'url' => 'dashboard',
+        'icon'  => 'fas fa-fw fa-tachometer-alt',
     ],
-
     [
         'text' => 'Empresas',
-        'url'  => 'empresas',
+        'url' => 'empresas.index',
         'icon' => 'fas fa-fw fa-building',
     ],
-
     [
         'text' => 'Contratos',
-        'url'  => 'contratos',
+        'url' => 'contratos.index',
         'icon' => 'fas fa-fw fa-file-contract',
     ],
-
     [
         'text' => 'Medições (APF)',
-        'url'  => 'medicoes',
+        'url' => 'medicoes.index',
         'icon' => 'fas fa-fw fa-chart-line',
     ],
-
     [
         'text' => 'Documentos',
-        'url'  => 'documentos',
+        'url' => 'documentos.index',
         'icon' => 'fas fa-fw fa-folder-open',
     ],
 
+    // =============================
+    ['header' => 'FISCALIZAÇÃO E MONITORAMENTO'],
+    // =============================
+
     [
-        'text' => 'Fiscalização',
-        'url'  => 'ocorrencias',
+        'text' => 'Ocorrências e Fiscalização',
+        'url' => 'ocorrencias.index',
         'icon' => 'fas fa-fw fa-clipboard-check',
     ],
+    [
+        'text' => 'Monitoramento de Conexões',
+        'icon' => 'fas fa-fw fa-network-wired',
+        'submenu' => [
+            [
+                'text' => 'IPs e Links',
+                'url' => 'monitoramentos/index',
+                'icon' => 'fas fa-fw fa-server',
+            ],
+            [
+                'text' => 'Logs Históricos',
+                'url' => 'monitoramentos/logs',
+                'icon' => 'fas fa-fw fa-history',
+            ],
+            [
+                'text' => 'Dashboard de SLA',
+                'url' => 'monitoramentos/dashboard',
+                'icon' => 'fas fa-fw fa-chart-bar',
+            ],
+        ],
+    ],
 
-    // ⚙️ Administração
+    // =============================
     ['header' => 'CONFIGURAÇÕES'],
+    // =============================
 
     [
         'text' => 'Usuários',
-        'url'  => 'usuarios',
+        'url' => 'usuarios.index',
         'icon' => 'fas fa-fw fa-users',
     ],
-
     [
         'text' => 'Perfil',
-        'url'  => 'admin/profile',
+        'url' => 'admin.profile',
         'icon' => 'fas fa-fw fa-user-circle',
     ],
-
     [
         'text' => 'Alterar Senha',
-        'url'  => 'admin/password',
+        'url' => 'admin.password',
         'icon' => 'fas fa-fw fa-lock',
     ],
 
-    // 🔗 Submenu exemplo (multi-nível)
+    // =============================
+    ['header' => 'RELATÓRIOS'],
+    // =============================
+
     [
         'text' => 'Relatórios',
         'icon' => 'fas fa-fw fa-chart-pie',
         'submenu' => [
             [
                 'text' => 'Por Contrato',
-                'url'  => 'relatorios/contratos',
+                'url' => 'relatorios.contratos',
                 'icon' => 'fas fa-fw fa-file-alt',
             ],
             [
                 'text' => 'Por Empresa',
-                'url'  => 'relatorios/empresas',
+                'url' => 'relatorios.empresas',
                 'icon' => 'fas fa-fw fa-building',
             ],
         ],
     ],
 
+    // =============================
     ['header' => 'SUPORTE'],
+    // =============================
 
     [
         'text' => 'Ajuda',
@@ -407,7 +432,8 @@ return [
 
 
 
-    /*
+
+/*
     |--------------------------------------------------------------------------
     | Menu Filters
     |--------------------------------------------------------------------------
@@ -529,7 +555,7 @@ return [
 
     'iframe' => [
         'default_tab' => [
-            'url' => null,
+           'url' => null,
             'title' => null,
         ],
         'buttons' => [

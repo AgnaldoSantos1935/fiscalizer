@@ -7,6 +7,7 @@ use App\Http\Controllers\MedicaoController;
 use App\Http\Controllers\FuncaoSistemaController;
 use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\OcorrenciaFiscalizacaoController;
+use App\Http\Controllers\MonitoramentoController;
 
 
 Route::get('/', function () {
@@ -42,3 +43,5 @@ Route::resource('medicoes', MedicaoController::class);
 Route::resource('funcoes', FuncaoSistemaController::class);
 Route::resource('documentos', DocumentoController::class);
 Route::resource('ocorrencias', OcorrenciaFiscalizacaoController::class);
+Route::get('monitoramentos', [MonitoramentoController::class, 'index'])->name('monitoramentos/index');
+Route::get('monitoramentos/dashboard', [MonitoramentoController::class, 'dashboard'])->name('monitoramentos/dashboard');
