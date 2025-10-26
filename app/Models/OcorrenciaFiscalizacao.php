@@ -4,72 +4,53 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class OcorrenciaFiscalizacao extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
-    // 👇 Corrige o nome da tabela (evita erro de pluralização)
     protected $table = 'ocorrencias_fiscalizacao';
 
-    /**
-     * Campos que podem ser preenchidos em massa (fillable)
-     */
     protected $fillable = [
-        'fiscalizacao_id',
+        'contrato_id',
+        'data_ocorrencia',
         'tipo',
         'descricao',
-        'data_ocorrencia',
-        'status',
-        'responsavel',
-        'anexo',
+        'responsavel_id',
+        'created_by',
+        'updated_by',
     ];
 
     /**
-     * Tipos de status possíveis
-     * (pode ser útil em select/dropdown)
+     * Uma ocorrência pertence a um contrato.
      */
-    public const STATUS = [
-        'pendente' => 'Pendente',
-        'em_analise' => 'Em Análise',
-        'resolvido' => 'Resolvido',
-    ];
-
-    /**
-     * Relacionamentos
-     */
-
-    // 👇 Cada ocorrência pertence a uma fiscalização
-    public function fiscalizacao()
+    public function contrato()
     {
-        return $this->belongsTo(Fiscalizacao::class);
-    }
-
-    // 👇 Caso exista vínculo com medição
-    public function medicao()
-    {
-        return $this->belongsTo(Medicao::class);
-    }
-
-    // 👇 Caso o fiscal seja um usuário autenticado
-    public function usuario()
-    {
-        return $this->belongsTo(User::class, 'responsavel', 'id');
+        return $this->belongsTo(Contrato::class);
     }
 
     /**
-     * Acessores / Mutators (opcionais)
+     * Responsável (usuário ou fiscal) vinculado à ocorrência.
      */
-
-    // Retorna data formatada (pt-BR)
-    public function getDataOcorrenciaFormatadaAttribute()
+    public function responsavel()
     {
-        return \Carbon\Carbon::parse($this->data_ocorrencia)->format('d/m/Y');
+        return $this->belongsTo(User::class, 'responsavel_id');
     }
 
-    // Caminho completo do anexo (caso haja upload de arquivo)
-    public function getAnexoUrlAttribute()
+    /**
+     * Usuário que criou a ocorrência.
+     */
+    public function criador()
     {
-        return $this->anexo ? asset('storage/ocorrencias/' . $this->anexo) : null;
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * Usuário que atualizou a ocorrência.
+     */
+    public function atualizador()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 }

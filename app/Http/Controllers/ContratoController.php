@@ -13,7 +13,11 @@ class ContratoController extends Controller
         $contratos = Contrato::with('contratada')->get();
         return view('contratos.index', compact('contratos'));
     }
-
+  public function show()
+    {
+    $contratos = Contrato::with('contratada')->get();
+        return view('contratos.index', compact('contratos'));
+    }
     public function create()
     {
         $empresas = Empresa::all();

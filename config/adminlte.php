@@ -63,7 +63,7 @@ return [
     |
     */
 
-    'logo' => '<b>Admin</b>LTE',
+    'logo' => '<b>Fisca</b>LIZER',
     'logo_img' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
     'logo_img_class' => 'brand-image img-circle elevation-3',
     'logo_img_xl' => null,
@@ -134,7 +134,7 @@ return [
     */
 
     'usermenu_enabled' => true,
-    'usermenu_header' => false,
+    'usermenu_header' => true,
     'usermenu_header_class' => 'bg-primary',
     'usermenu_image' => false,
     'usermenu_desc' => false,
@@ -322,68 +322,45 @@ return [
     // =============================
     [
         'text' => 'Dashboard',
-        'url' => 'dashboard',
-        'icon'  => 'fas fa-fw fa-tachometer-alt',
+        'url' => '/dashboard',
+        'icon' => 'fas fa-fw fa-chart-pie',
     ],
     [
         'text' => 'Empresas',
-        'url' => 'empresas.index',
+        'url' => '/empresas',
         'icon' => 'fas fa-fw fa-building',
     ],
     [
         'text' => 'Contratos',
-        'url' => 'contratos.index',
+        'url' => '/contratos',
         'icon' => 'fas fa-fw fa-file-contract',
     ],
     [
         'text' => 'Medições (APF)',
-        'url' => 'medicoes.index',
+        'url' => '/medicoes',
         'icon' => 'fas fa-fw fa-chart-line',
     ],
     [
         'text' => 'Documentos',
-        'url' => 'documentos.index',
+        'url' => '/documentos',
         'icon' => 'fas fa-fw fa-folder-open',
     ],
 
-    // =============================
-    ['header' => 'FISCALIZAÇÃO E MONITORAMENTO'],
-    // =============================
-
     [
         'text' => 'Ocorrências e Fiscalização',
-        'url' => 'ocorrencias.index',
+        'url' => '/ocorrencias',
         'icon' => 'fas fa-fw fa-clipboard-check',
     ],
     [
         'text' => 'Monitoramento de Conexões',
         'icon' => 'fas fa-fw fa-network-wired',
-        'submenu' => [
-            [
-                'text' => 'IPs e Links',
-                'url' => 'monitoramentos/index',
-                'icon' => 'fas fa-fw fa-server',
-            ],
-            [
-                'text' => 'Logs Históricos',
-                'url' => 'monitoramentos/logs',
-                'icon' => 'fas fa-fw fa-history',
-            ],
-            [
-                'text' => 'Dashboard de SLA',
-                'url' => 'monitoramentos/dashboard',
-                'icon' => 'fas fa-fw fa-chart-bar',
-            ],
-        ],
-    ],
+        'url' => '/monitoramentos',
 
-    // =============================
-    ['header' => 'CONFIGURAÇÕES'],
-    // =============================
+    ],
 
     [
         'text' => 'Usuários',
-        'url' => 'usuarios.index',
+        'url' => '/usuarios',
         'icon' => 'fas fa-fw fa-users',
     ],
     [
@@ -397,30 +374,11 @@ return [
         'icon' => 'fas fa-fw fa-lock',
     ],
 
-    // =============================
-    ['header' => 'RELATÓRIOS'],
-    // =============================
-
     [
         'text' => 'Relatórios',
-        'icon' => 'fas fa-fw fa-chart-pie',
-        'submenu' => [
-            [
-                'text' => 'Por Contrato',
-                'url' => 'relatorios.contratos',
-                'icon' => 'fas fa-fw fa-file-alt',
-            ],
-            [
-                'text' => 'Por Empresa',
-                'url' => 'relatorios.empresas',
-                'icon' => 'fas fa-fw fa-building',
-            ],
-        ],
+        'url' => '/relatorios',
+       'icon' => 'fas fa-fw fa-file-alt',
     ],
-
-    // =============================
-    ['header' => 'SUPORTE'],
-    // =============================
 
     [
         'text' => 'Ajuda',

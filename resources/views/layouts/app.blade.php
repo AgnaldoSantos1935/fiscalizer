@@ -34,9 +34,21 @@
       <div class="navbar-nav">
         <a class="nav-link" href="{{ route('empresas.index') }}">Empresas</a>
         <a class="nav-link" href="{{ route('contratos.index') }}">Contratos</a>
+        @if (Route::has('login'))
+                    @auth
+                        <a class="nav-link" href="{{ url('/dashboard') }}">Dashboard </a>
+                    @else
+                        <a class="nav-link"  href="{{ route('login') }}">Log in</a>
+
+                        @if (Route::has('register'))
+                            <a class="nav-link"  href="{{ route('register') }}">Register</a>
+                        @endif
+                    @endauth
+            @endif
       </div>
     </div>
   </nav>
+
   <div class="container">
     @if(session('success'))
       <div class="alert alert-success">{{ session('success') }}</div>

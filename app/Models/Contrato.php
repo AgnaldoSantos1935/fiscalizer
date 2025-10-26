@@ -2,38 +2,65 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Contrato extends Model
 {
-    protected $table = 'contratos';          // nome da tabela
-    protected $primaryKey = 'id_contrato';   // nome correto da PK
-    public $incrementing = true;             // PK auto_increment
-    protected $keyType = 'int';              // tipo da chave
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'numero',
         'objeto',
         'contratada_id',
+        'fiscal_tecnico_id',
+        'fiscal_administrativo_id',
+        'gestor_id',
         'valor_global',
         'data_inicio',
         'data_fim',
         'situacao',
-        'gestor_id',
-        'fiscal_id',
-        'tipo'
+        'tipo',
+        'created_by',
+        'updated_by',
     ];
 
-    // ✅ Relacionamento com empresa (contratada)
-    public function contratada()
+    public $timestamps = true;
+
+    /**
+     * Relações
+     */
+    public function empresa()
     {
-        return $this->belongsTo(Empresa::class, 'contratada_id', 'id_empresa');
+        return $this->belongsTo(Empresa::class, 'contratada_id');
     }
 
-    // ✅ Relacionamento com medições
-    public function medicoes()
+    public function fiscalTecnico()
     {
-        return $this->hasMany(Medicao::class, 'contrato_id', 'id_contrato');
+        return $this->belongsTo(Pessoa::class, 'fiscal_tecnico_id');
+    }
+
+    public function fiscalAdministrativo()
+    {
+        return $this->belongsTo(Pessoa::class, 'fiscal_administrativo_id');
+    }
+
+    public function gestor()
+    {
+        return $this->belongsTo(Pessoa::class, 'gestor_id');
+    }
+
+    /**
+     * Auditoria
+     */
+    public function criador()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function atualizador()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 }
-

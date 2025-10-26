@@ -1,0 +1,21 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\Contrato;
+use App\Models\Empresa;
+use App\Models\Medicao;
+
+class DashboardController extends Controller
+{
+    public function index()
+    {
+        // Exemplo: estatísticas básicas do sistema Fiscalizer
+        $totalEmpresas = Empresa::count();
+        $totalContratos = Contrato::count();
+        $totalMedicoes = Medicao::count();
+
+        return view('dashboard_main', compact('totalEmpresas', 'totalContratos', 'totalMedicoes'));
+    }
+}

@@ -2,16 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
-namespace App\Models;
-
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Medicao extends Model
 {
-    protected $table = 'medicao'; // 👈 Força o nome correto da tabela
+    use HasFactory, SoftDeletes;
 
+    protected $table = 'medicoes';
     protected $fillable = [
         'contrato_id',
         'mes_referencia',
@@ -21,15 +20,38 @@ class Medicao extends Model
         'data_envio',
         'status',
         'observacao',
+        'created_by',
+        'updated_by',
     ];
 
+    public $timestamps = true;
+
+    /**
+     * Relação com o contrato
+     */
     public function contrato()
     {
-          return $this->belongsTo(Contrato::class, 'contrato_id', 'id_contrato');
+        return $this->belongsTo(Contrato::class, 'contrato_id');
     }
 
-    public function funcoes()
+    /**
+     * Auditoria
+     */
+    public function criador()
     {
-        return $this->hasMany(FuncaoSistema::class, 'medicao_id');
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function atualizador()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    /**
+     * Retorna o valor total calculado dinamicamente (opcional)
+     */
+    public function getValorCalculadoAttribute()
+    {
+        return $this->total_pf * $this->valor_unitario_pf;
     }
 }

@@ -45,4 +45,17 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    public function role()
+{
+    return $this->belongsTo(Role::class);
+}
+
+/**
+ * Verifica se o usuário possui o papel indicado
+ */
+public function hasRole($nomeRole)
+{
+    return $this->role && $this->role->nome === $nomeRole;
+}
+
 }
