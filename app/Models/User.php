@@ -55,7 +55,7 @@ class User extends Authenticatable
  */
 public function hasRole($nomeRole)
 {
-    return $this->role && $this->role->nome === $nomeRole;
+    return $this->role && $this->role->nome === $nomeRole; // Verifica papel único
 }
 
 }

@@ -13,7 +13,7 @@ class CheckRole
 
         if (!$user || !$user->role || !in_array($user->role->nome, $roles)) {
             //abort(403, 'Acesso negado.');
-            return redirect()->route('acesso.negado');
+            return redirect()->route('acesso.negado'); //  Redireciona para a rota de acesso negado
         }
 
         return $next($request);

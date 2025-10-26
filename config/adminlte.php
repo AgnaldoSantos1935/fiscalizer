@@ -329,11 +329,13 @@ return [
         'text' => 'Empresas',
         'url' => '/empresas',
         'icon' => 'fas fa-fw fa-building',
+        'can' => 'view-empresas',// Gate permission
     ],
     [
         'text' => 'Contratos',
         'url' => '/contratos',
         'icon' => 'fas fa-fw fa-file-contract',
+        'can' => 'view-contratos', // Gate permission
     ],
     [
         'text' => 'Medições (APF)',
