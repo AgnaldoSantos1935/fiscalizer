@@ -324,46 +324,51 @@ return [
         'text' => 'Dashboard',
         'url' => '/dashboard',
         'icon' => 'fas fa-fw fa-chart-pie',
+        'can' => 'view-dashboard', // Gate permission
     ],
     [
         'text' => 'Empresas',
         'url' => '/empresas',
         'icon' => 'fas fa-fw fa-building',
-        'can' => 'view-empresas',// Gate permission
+
     ],
     [
         'text' => 'Contratos',
         'url' => '/contratos',
         'icon' => 'fas fa-fw fa-file-contract',
-        'can' => 'view-contratos', // Gate permission
+
     ],
     [
         'text' => 'Medições (APF)',
         'url' => '/medicoes',
         'icon' => 'fas fa-fw fa-chart-line',
+        'can' => 'view-medicoes', // Gate permission
     ],
     [
         'text' => 'Documentos',
         'url' => '/documentos',
         'icon' => 'fas fa-fw fa-folder-open',
+        'can' => 'view-documentos', // Gate permission
     ],
 
     [
         'text' => 'Ocorrências e Fiscalização',
         'url' => '/ocorrencias',
         'icon' => 'fas fa-fw fa-clipboard-check',
+        'can' => 'view-ocorrencias', // Gate permission
     ],
     [
         'text' => 'Monitoramento de Conexões',
         'icon' => 'fas fa-fw fa-network-wired',
         'url' => '/monitoramentos',
-
+        'can' => 'view-monitoramentos', // Gate permission
     ],
 
     [
         'text' => 'Usuários',
         'url' => '/usuarios',
         'icon' => 'fas fa-fw fa-users',
+        'can' => 'view-usrregister', // Gate permission
     ],
     [
         'text' => 'Perfil',
@@ -374,12 +379,14 @@ return [
         'text' => 'Alterar Senha',
         'url' => 'admin.password',
         'icon' => 'fas fa-fw fa-lock',
+        'can' => 'view-pswreset', // Gate permission
     ],
 
     [
         'text' => 'Relatórios',
         'url' => '/relatorios',
        'icon' => 'fas fa-fw fa-file-alt',
+       'can' => 'view-relatorios', // Gate permission
     ],
 
     [

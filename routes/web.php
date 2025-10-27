@@ -1,5 +1,6 @@
 <?php
 
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\ContratoController;
@@ -14,11 +15,13 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\RelatorioController;
 
 // Página inicial (redireciona para login ou dashboard)
+
 Route::get('/', function () {
     return auth()->check()
-        ? redirect()->route('/dashboard')
+        ? redirect()->route('home')
         : redirect()->route('login');
 });
 
@@ -33,14 +36,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/password/reset', [ResetPasswordController::class, 'showResetForm'])->name('password.request');
     Route::post('/password/reset', [ResetPasswordController::class, 'reset'])->name('password.update');
+    Route::resource('relatorios', RelatorioController::class);
+    Route::get('relatorios-export/excel', [RelatorioController::class, 'exportExcel'])->name('relatorios.export.excel');
+    Route::get('relatorios-export/pdf', [RelatorioController::class, 'exportPdf'])->name('relatorios.export.pdf');
 
     // Home visível a qualquer usuário autenticado
     Route::resource('home', HomeController::class);
-
-Route::get('/acesso-negado', function () {
-    return view('errors.acesso_negado');
-})->name('acesso.negado');
-
 
     //  Monitoramentos acessíveis a todos os papéis
     Route::middleware('role:Administrador,Gestor de Contrato,Fiscal,Consulta')
@@ -61,12 +62,15 @@ Route::get('/acesso-negado', function () {
     // ⚙️ Acesso intermediário - Gestor e Fiscal
     Route::middleware('role:Gestor de Contrato,Fiscal')->group(function () {
         Route::resources([
+            'empresas'      => EmpresaController::class,
             'projetos'      => ProjetoController::class,
             'ocorrencias'   => OcorrenciaFiscalizacaoController::class,
             'documentos'    => DocumentoController::class,
             'contratos'     => ContratoController::class,
             'medicoes'      => MedicaoController::class,
             'funcoes'       => FuncaoSistemaController::class,
+            'monitoramentos' => MonitoramentoController::class,
+            'relatorios'    => RelatorioController::class,
         ]);
     });
 
@@ -75,3 +79,11 @@ Route::get('/acesso-negado', function () {
         Route::resource('monitoramentos', MonitoramentoController::class)->only(['index', 'show']);
     });
 });
+
+Route::get('/acesso-negado', function () {
+    return view('errors.acesso_negado');
+})->name('acesso.negado');
+/*
+Route::resource('/dashboard', DashboardController::class);
+Route::resource('/home', HomeController::class);
+Route::resource('/empresas', MonitoramentoController::class);*/

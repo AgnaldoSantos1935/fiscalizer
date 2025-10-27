@@ -1,0 +1,140 @@
+{
+    "sEmptyTable": "Nenhum registro encontrado",
+    "sLoadingRecords": "Carregando...",
+    "sProcessing": "Processando...",
+    "sLengthMenu": "Mostrar _MENU_ registros",
+    "sZeroRecords": "Nenhum registro encontrado",
+    "sInfo": "Mostrando de _START_ até _END_ de _TOTAL_ registros",
+    "sInfoEmpty": "Mostrando 0 até 0 de 0 registros",
+    "sInfoFiltered": "(Filtrados de _MAX_ registros)",
+    "sInfoPostFix": "",
+    "sSearch": "Buscar:",
+    "sUrl": "",
+    "sInfoThousands": ".",
+    "sDecimal": ",",
+    "oPaginate": {
+        "sFirst": "Primeiro",
+        "sLast": "Último",
+        "sNext": "Próximo",
+        "sPrevious": "Anterior"
+    },
+    "oAria": {
+        "sSortAscending": ": Ordenar colunas de forma ascendente",
+        "sSortDescending": ": Ordenar colunas de forma descendente"
+    },
+    "buttons": {
+        "copy": "Copiar",
+        "copyTitle": "Copiado para a área de transferência",
+        "copySuccess": {
+            "1": "1 linha copiada com sucesso",
+            "_": "%d linhas copiadas com sucesso"
+        },
+        "csv": "Exportar CSV",
+        "excel": "Exportar Excel",
+        "pdf": "Exportar PDF",
+        "print": "Imprimir",
+        "colvis": "Visibilidade das colunas",
+        "pageLength": {
+            "-1": "Mostrar todos",
+            "_": "Mostrar %d registros"
+        }
+    },
+    "select": {
+        "rows": {
+            "_": "%d linhas selecionadas",
+            "0": "Nenhuma linha selecionada",
+            "1": "1 linha selecionada"
+        }
+    },
+    "autoFill": {
+        "cancel": "Cancelar",
+        "fill": "Preencher todas as células com <i>%d<\/i>",
+        "fillHorizontal": "Preencher células horizontalmente",
+        "fillVertical": "Preencher células verticalmente"
+    },
+    "searchBuilder": {
+        "add": "Adicionar condição",
+        "button": {
+            "0": "Construtor de pesquisa",
+            "_": "Construtor de pesquisa (%d)"
+        },
+        "clearAll": "Limpar tudo",
+        "condition": "Condição",
+        "data": "Coluna",
+        "deleteTitle": "Excluir regra de filtro",
+        "logicAnd": "E",
+        "logicOr": "Ou",
+        "title": {
+            "0": "Construtor de pesquisa",
+            "_": "Construtor de pesquisa (%d)"
+        },
+        "value": "Valor",
+        "conditions": {
+            "date": {
+                "after": "Depois",
+                "before": "Antes",
+                "between": "Entre",
+                "empty": "Vazio",
+                "equals": "Igual",
+                "not": "Diferente",
+                "notBetween": "Fora do intervalo",
+                "notEmpty": "Não vazio"
+            },
+            "number": {
+                "between": "Entre",
+                "equals": "Igual",
+                "gt": "Maior que",
+                "gte": "Maior ou igual a",
+                "lt": "Menor que",
+                "lte": "Menor ou igual a",
+                "not": "Diferente"
+            },
+            "string": {
+                "contains": "Contém",
+                "empty": "Vazio",
+                "endsWith": "Termina com",
+                "equals": "Igual",
+                "not": "Diferente",
+                "notEmpty": "Não vazio",
+                "startsWith": "Começa com"
+            }
+        }
+    },
+    "searchPanes": {
+        "clearMessage": "Limpar tudo",
+        "collapse": {
+            "0": "Painéis de pesquisa",
+            "_": "Painéis de pesquisa (%d)"
+        },
+        "count": "{total}",
+        "countFiltered": "{shown} (filtrado de {total})",
+        "emptyPanes": "Sem painéis de pesquisa",
+        "loadMessage": "Carregando painéis...",
+        "title": "Filtros ativos"
+    },
+    "editor": {
+        "close": "Fechar",
+        "create": {
+            "button": "Novo",
+            "title": "Criar novo registro",
+            "submit": "Salvar"
+        },
+        "edit": {
+            "button": "Editar",
+            "title": "Editar registro",
+            "submit": "Atualizar"
+        },
+        "remove": {
+            "button": "Excluir",
+            "title": "Excluir",
+            "submit": "Confirmar",
+            "confirm": {
+                "_": "Tem certeza que deseja excluir %d registros?",
+                "1": "Tem certeza que deseja excluir 1 registro?"
+            }
+        },
+        "error": {
+            "system": "Ocorreu um erro no sistema (mais informações)"
+        }
+    }
+}

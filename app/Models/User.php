@@ -43,11 +43,15 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+
+        'name' => 'string',
+        'email' => 'string',
+        'role_id' => 'integer',
         ];
     }
     public function role()
 {
-    return $this->belongsTo(Role::class);
+    return $this->belongsTo(Role::class, 'role_id');
 }
 
 /**
