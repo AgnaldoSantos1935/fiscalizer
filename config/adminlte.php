@@ -322,45 +322,45 @@ return [
     // =============================
     [
         'text' => 'Dashboard',
-        'url' => '/dashboard',
+        'route' => 'home',
         'icon' => 'fas fa-fw fa-chart-pie',
         'can' => 'view-dashboard', // Gate permission
     ],
     [
         'text' => 'Empresas',
-        'url' => '/empresas',
+        'route' => 'empresas.index',
         'icon' => 'fas fa-fw fa-building',
-
+        'can' => 'view-empresas',
     ],
     [
         'text' => 'Contratos',
-        'url' => '/contratos',
+        'route' => 'contratos.index',
         'icon' => 'fas fa-fw fa-file-contract',
-
+        'can' => 'view-contratos',
     ],
     [
         'text' => 'Medições (APF)',
-        'url' => '/medicoes',
+        'route' => 'medicoes.index',
         'icon' => 'fas fa-fw fa-chart-line',
         'can' => 'view-medicoes', // Gate permission
     ],
     [
         'text' => 'Documentos',
-        'url' => '/documentos',
+        'route' => 'documentos.index',
         'icon' => 'fas fa-fw fa-folder-open',
         'can' => 'view-documentos', // Gate permission
     ],
 
     [
         'text' => 'Ocorrências e Fiscalização',
-        'url' => '/ocorrencias',
+        'route' => 'ocorrencias.index',
         'icon' => 'fas fa-fw fa-clipboard-check',
         'can' => 'view-ocorrencias', // Gate permission
     ],
     [
         'text' => 'Monitoramento de Conexões',
         'icon' => 'fas fa-fw fa-network-wired',
-        'url' => '/monitoramentos',
+        'route' => 'monitoramentos.index',
         'can' => 'view-monitoramentos', // Gate permission
     ],
 
@@ -372,19 +372,19 @@ return [
     ],
     [
         'text' => 'Perfil',
-        'url' => 'admin.profile',
+        'url' => '/profile',
         'icon' => 'fas fa-fw fa-user-circle',
     ],
     [
         'text' => 'Alterar Senha',
-        'url' => 'admin.password',
+        'route' => 'password.request',
         'icon' => 'fas fa-fw fa-lock',
         'can' => 'view-pswreset', // Gate permission
     ],
 
     [
         'text' => 'Relatórios',
-        'url' => '/relatorios',
+        'route' => 'relatorios.index',
        'icon' => 'fas fa-fw fa-file-alt',
        'can' => 'view-relatorios', // Gate permission
     ],

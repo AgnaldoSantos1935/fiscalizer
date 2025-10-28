@@ -9,9 +9,12 @@ class CheckRole
 {
     public function handle(Request $request, Closure $next, ...$roles)
     {
-        $user = auth()->user();
+        $user = $request->user();
 
-        if (!$user || !$user->role || !in_array($user->role->nome, $roles)) {
+        // Converte os roles de string para inteiros
+        $roleIds = array_map('intval', $roles);
+
+        if (!$user || !$user->role_id || !in_array($user->role_id, $roleIds)) {
             //abort(403, 'Acesso negado.');
             return redirect()->route('acesso.negado'); //  Redireciona para a rota de acesso negado
         }

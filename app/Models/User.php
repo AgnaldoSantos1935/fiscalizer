@@ -17,6 +17,7 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
+     protected $table = 'users';
     protected $fillable = [
         'name',
         'email',
@@ -56,10 +57,20 @@ class User extends Authenticatable
 
 /**
  * Verifica se o usuário possui o papel indicado
+ * @param string|array $nomeRole Nome do papel ou array de nomes de papéis
+ * @return bool
  */
 public function hasRole($nomeRole)
 {
-    return $this->role && $this->role->nome === $nomeRole; // Verifica papel único
+    if (!$this->role) {
+        return false;
+    }
+
+    if (is_array($nomeRole)) {
+        return in_array($this->role->nome, $nomeRole);
+    }
+
+    return $this->role->nome === $nomeRole;
 }
 
 }

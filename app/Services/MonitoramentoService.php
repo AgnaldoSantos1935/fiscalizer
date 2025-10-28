@@ -96,7 +96,7 @@ $falhasConsecutivas = $item->logs()
 
 if ($falhasConsecutivas >= 3) {
     // Dispara alerta
-    \Notification::route('mail', 'fiscal@seduc.pa.gov.br')
+    \Illuminate\Support\Facades\Notification::route('mail', 'fiscal@seduc.pa.gov.br')
         ->notify(new \App\Notifications\FalhaConsecutivaNotification($item, $falhasConsecutivas));
 }
 
