@@ -32,6 +32,7 @@
     @if(session('success'))
       <div class="alert alert-success">{{ session('success') }}</div>
     @endif
+@stack('scripts')
 
 @stop
 
@@ -66,15 +67,13 @@
 @push('css')
 <style type="text/css">
 
-
-    /*
     .card-header {
         border-bottom: none;
     }
     .card-title {
         font-weight: 600;
     }
-    */
 
 </style>
 @endpush
+

@@ -32,7 +32,7 @@ class AuthServiceProvider extends ServiceProvider
 
         // Permite múltiplos papéis (IDs: 1=Administrador, 2=Gestor de Contrato, 3=Fiscal)
         Gate::define('view-contratos', fn($user) => in_array($user->role_id, [1, 2, 3]));
-
+        Gate::define('view-dashboard', fn($user) => in_array($user->role_id, [1, 2, 3]));
         Gate::define('view-monitoramentos', fn($user) => in_array($user->role_id, [1, 2, 3]));
         Gate::define('view-documentos', fn($user) => in_array($user->role_id, [1, 2, 3]));
         Gate::define('view-ocorrencias', fn($user) => in_array($user->role_id, [1, 2, 3]));
@@ -44,7 +44,7 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('view-pswreset', fn($user) => in_array($user->role_id, [1, 2, 3]));
         // Permite papel único (ID 1=Administrador)
         Gate::define('view-empresas', fn($user) => $user->role_id === 2);
-
+        Gate::define('view-escolas', fn($user) => $user->role_id === 2);
 
 }
 }

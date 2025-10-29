@@ -317,9 +317,7 @@ return [
         'text' => 'Procurar menu',
     ],
 
-    // =============================
-    // 📊 Seções principais
-    // =============================
+
     [
         'text' => 'Dashboard',
         'route' => 'home',
@@ -352,16 +350,28 @@ return [
     ],
 
     [
-        'text' => 'Ocorrências e Fiscalização',
+        'text' => 'Ocorrências',
         'route' => 'ocorrencias.index',
         'icon' => 'fas fa-fw fa-clipboard-check',
         'can' => 'view-ocorrencias', // Gate permission
     ],
     [
-        'text' => 'Monitoramento de Conexões',
+        'text' => 'Conexões',
         'icon' => 'fas fa-fw fa-network-wired',
         'route' => 'monitoramentos.index',
         'can' => 'view-monitoramentos', // Gate permission
+    ],
+    [
+        'text' => 'Projetos',
+        'route' => 'projetos.index',
+        'icon' => 'fas fa-fw fa-project-diagram',
+        'can' => 'view-projetos', // Gate permission
+    ],
+      [
+        'text' => 'Escolas',
+        'route' => 'escolas.index',
+        'icon' => 'fas fa-fw fa-school',
+        'can' => 'view-escolas', // Gate permission
     ],
 
     [

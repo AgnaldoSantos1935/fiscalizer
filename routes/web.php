@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use App\Http\Controllers\EmpresaController;
+use App\Http\Controllers\EscolaController;
 use App\Http\Controllers\ContratoController;
 use App\Http\Controllers\MedicaoController;
 use App\Http\Controllers\FuncaoSistemaController;
@@ -12,207 +13,65 @@ use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\OcorrenciaFiscalizacaoController;
 use App\Http\Controllers\MonitoramentoController;
 use App\Http\Controllers\ProjetoController;
-use App\Http\Controllers\HomeController;
-
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\OcorrenciaController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\RelatorioController;
+
 use App\Models\User;
 use App\Models\Role;
 
 // Página inicial (redireciona para login ou dashboard)
 
 Route::get('/', function () {
-    if (Auth::check()) {
-        return redirect()->route('home');
-    } else {
-        return redirect()->route('login');
-    }
+    return view('site.index');
 });
 
-// 🔐 Login e Logout
-Route::middleware('guest')->group(function () {
-    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [LoginController::class, 'login'])->name('login.post');
-});
-
-Route::middleware('auth')->group(function () {
-    Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
-
-    Route::get('/password/reset', [ResetPasswordController::class, 'showResetForm'])->name('password.request');
-    Route::post('/password/reset', [ResetPasswordController::class, 'reset'])->name('password.update');
-    Route::resource('relatorios', RelatorioController::class);
-    Route::get('relatorios-export/excel', [RelatorioController::class, 'exportExcel'])->name('relatorios.export.excel');
-    Route::get('relatorios-export/pdf', [RelatorioController::class, 'exportPdf'])->name('relatorios.export.pdf');
 
     // Home visível a qualquer usuário autenticado
-    Route::resource('home', HomeController::class);
+    Route::resource('home', DashboardController::class);
+
+// Alias para evitar o erro "Route [home] not defined"
+Route::get('/home', [DashboardController::class, 'index'])->name('home');
+Route::resource('empresas', EmpresaController::class);
+Route::resource('contratos', ContratoController::class);
+Route::resource('medicoes', MedicaoController::class);
+Route::resource('funcoes-sistema', FuncaoSistemaController::class);
+Route::resource('documentos', DocumentoController::class);
+Route::resource('ocorrencias-fiscalizacao', OcorrenciaFiscalizacaoController::class);
+Route::resource('ocorrencias', OcorrenciaController::class);
+Route::resource('monitoramentos', MonitoramentoController::class);
+Route::resource('projetos', ProjetoController::class);
+
+Route::get('/escolas-data', [App\Http\Controllers\EscolaController::class, 'getData'])->name('escolas.data');
+Route::resource('escolas', EscolaController::class);
+Route::get('/escolas/{codigo}/detalhes', [App\Http\Controllers\EscolaController::class, 'show'])
+    ->name('escolas.detalhes');
 
 
+Route::get('relatorios/gerar', [RelatorioController::class, 'gerar'])->name('relatorios.gerar');
+Route::get('relatorios', [RelatorioController::class, 'index'])->name('relatorios.index');
 
-    //  Monitoramentos acessíveis a todos os papéis
-    Route::middleware('role:Administrador,Gestor de Contrato,Fiscal,Consulta')
-        ->resource('monitoramentos', MonitoramentoController::class);
+// Rotas de autenticação
+Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::post('login', [LoginController::class, 'login']);
+Route::post('logout', [LogoutController::class, 'logout'])->name('logout');
+Route::get('password/reset', [ResetPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('password/email', [ResetPasswordController::class, 'sendResetLinkEmail '])->name('password.email');
+Route::get('password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::post('password/reset', [ResetPasswordController::class, 'reset'])->name('password.update');
 
-    //  Acesso total - Administrador
-    Route::middleware('role:Administrador')->group(function () {
-        Route::resources([
-            'empresas'      => EmpresaController::class,
-            'contratos'     => ContratoController::class,
-            'medicoes'      => MedicaoController::class,
-            'funcoes'       => FuncaoSistemaController::class,
-            'documentos'    => DocumentoController::class,
-            'ocorrencias'   => OcorrenciaFiscalizacaoController::class,
-        ]);
-    });
-
-    // ⚙️ Acesso intermediário - Gestor e Fiscal
-    Route::middleware('role:Gestor de Contrato,Fiscal')->group(function () {
-        Route::resources([
-            'empresas'      => EmpresaController::class,
-            'projetos'      => ProjetoController::class,
-            'ocorrencias'   => OcorrenciaFiscalizacaoController::class,
-            'documentos'    => DocumentoController::class,
-            'contratos'     => ContratoController::class,
-            'medicoes'      => MedicaoController::class,
-            'funcoes'       => FuncaoSistemaController::class,
-            'monitoramentos' => MonitoramentoController::class,
-            'relatorios'    => RelatorioController::class,
-
-        ]);
-    });
-
-    // 👁️ Acesso de consulta (leitura)
-    Route::middleware('role:Consulta')->group(function () {
-        Route::resource('monitoramentos', MonitoramentoController::class)->only(['index', 'show']);
-    });
+// Rotas protegidas por middleware de autenticação
+Route::middleware(['auth'])->group(function () {
+    // Rotas protegidas aqui
 });
-
-
-Route::get('/debug-role', function () {
-    if (auth()->check()) {
-        $user = auth()->user();
-        $role = $user->role ? $user->role->nome : 'Sem papel';
-        $gates = [
-
-            'view-empresas' => Gate::allows('view-empresas'),
-            'view-contratos' => Gate::allows('view-contratos'),
-            'view-medicoes' => Gate::allows('view-medicoes'),
-            'view-documentos' => Gate::allows('view-documentos'),
-            'view-ocorrencias' => Gate::allows('view-ocorrencias'),
-        ];
-        return response()->json([
-            'user' => $user->name,
-            'email' => $user->email,
-            'role' => $role,
-            'role_id' => $user->role_id,
-            'gates' => $gates,
-        ]);
-    } else {
-        return response()->json(['error' => 'Usuário não autenticado'], 401);
-    }
-});
-
-Route::get('/debug-users', function () {
-    if (auth()->check()) {
-        $users = \App\Models\User::with('role')->get()->map(function($user) {
-            return [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'role_id' => $user->role_id,
-                'role' => $user->role ? $user->role->nome : 'Sem papel',
-            ];
-        });
-        $roles = \App\Models\Role::all();
-        return response()->json([
-            'users' => $users,
-            'roles' => $roles,
-        ]);
-    } else {
-        return response()->json(['error' => 'Usuário não autenticado'], 401);
-    }
-});
-
-Route::get('/fix-admin-role', function () {
-    if (auth()->check()) {
-        $user = auth()->user();
-        $adminRole = \App\Models\Role::where('role_id', '1')->first();
-
-        if (!$adminRole) {
-            return response()->json(['error' => 'Papel de Administrador não encontrado'], 404);
-        }
-
-        $user->role_id = $adminRole->id;
-        $user->save();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Papel atualizado para Administrador',
-            'user' => $user->name,
-            'email' => $user->email,
-            'role_id' => $user->role_id,
-            'role' => $user->role ? $user->role->nome : 'Sem papel',
-        ]);
-    } else {
-        return response()->json(['error' => 'Usuário não autenticado'], 401);
-    }
-});
-
-// Rota para diagnóstico detalhado de permissões
-Route::get('/debug-permissions', function () {
-    if (!Auth::check()) {
-        return response()->json(['error' => 'Usuário não autenticado']);
-    }
-
-    $user = Auth::user();
-
-    // Verificação direta de permissões
-    $directCheck = [
-        'is_admin' => $user->role_id === 1,
-        'is_gestor' => $user->role_id === 2,
-        'is_fiscal' => $user->role_id === 3
-    ];
-
-    // Verificação via Gate
-    $gateCheck = [
-
-        'view-empresas' => Gate::allows('view-empresas'),
-        'view-contratos' => Gate::allows('view-contratos'),
-        'view-medicoes' => Gate::allows('view-medicoes'),
-        'view-documentos' => Gate::allows('view-documentos'),
-        'view-ocorrencias' => Gate::allows('view-ocorrencias')
-    ];
-
-    // Verificação manual usando a lógica do Gate
-    $manualCheck = [
-
-        'view-empresas' => $user->role_id === 1,
-        'view-contratos' => in_array($user->role_id, [1, 2, 3]),
-        'view-medicoes' => in_array($user->role_id, [1, 2, 3]),
-        'view-documentos' => in_array($user->role_id, [1, 2, 3]),
-        'view-ocorrencias' => in_array($user->role_id, [1, 2, 3])
-    ];
-
-    // Verificar se o AuthServiceProvider está sendo carregado
-    $providers = app()->getLoadedProviders();
-    $authServiceProviderLoaded = isset($providers['App\\Providers\\AuthServiceProvider']);
-
-    return response()->json([
-        'user' => $user->name,
-        'email' => $user->email,
-        'role' => $user->role->nome ?? 'Sem papel',
-        'role_id' => $user->role_id,
-        'direct_check' => $directCheck,
-        'gate_check' => $gateCheck,
-        'manual_check' => $manualCheck,
-        'auth_service_provider_loaded' => $authServiceProviderLoaded,
-        'app_debug' => config('app.debug'),
-        'session_id' => session()->getId()
-    ]);
-});
-/*
-Route::resource('/dashboard', DashboardController::class);
-Route::resource('/home', HomeController::class);
-Route::resource('/empresas', MonitoramentoController::class);*/
+// Página de acesso negado
+Route::get('/403', function () {
+    return view('errors.403');
+})->name('403');
+// Página de não encontrado
+Route::get('/404', function () {
+    return view('errors.404');
+})->name('404');

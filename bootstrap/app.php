@@ -1,24 +1,43 @@
 <?php
 
-
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Foundation\Configuration\Exceptions;
-use App\Http\Middleware\CheckRole; // se você adicionou este middleware
+use App\Http\Middleware\CheckRole;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
-        web: __DIR__.'/../routes/web.php',
-        api: __DIR__.'/../routes/api.php',
-        commands: __DIR__.'/../routes/console.php',
-        health: '/up',
+        web: __DIR__ . '/../routes/web.php',
+        api: __DIR__ . '/../routes/api.php',
+        commands: __DIR__ . '/../routes/console.php',
+        health: '/up'
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Alias personalizados (acessíveis em routes/web.php)
         $middleware->alias([
-            'role' => CheckRole::class, // exemplo de middleware customizado
+            'role' => \App\Http\Middleware\CheckRole::class,
         ]);
+
+        // Middleware globais (se quiser aplicar a todos os requests)
+        // $middleware->append(\App\Http\Middleware\SomeGlobalMiddleware::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        // Deixe vazio, ou adicione tratamento customizado se quiser
+        /**
+         * Tratamento customizado de exceções
+         */
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
+            // Página de acesso negado (403)
+            if ($e->getStatusCode() === 403) {
+                return response()->view('errors.403', [], 403);
+            }
+
+            // Página não encontrada (404)
+            if ($e->getStatusCode() === 404) {
+                return response()->view('errors.404', [], 404);
+            }
+
+            return null;
+        });
     })
     ->create();
+

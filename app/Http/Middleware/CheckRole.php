@@ -4,19 +4,30 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class CheckRole
 {
-    public function handle(Request $request, Closure $next, ...$roles)
+    /**
+     * Verifica se o usuário autenticado possui um dos papéis exigidos.
+     */
+    public function handle(Request $request, Closure $next, ...$roles): Response
     {
         $user = $request->user();
 
-        // Converte os roles de string para inteiros
-        $roleIds = array_map('intval', $roles);
+        // se não houver usuário autenticado ou sem papel definido
+        if (!$user || !method_exists($user, 'role') && !isset($user->role)) {
+            abort(403, 'Acesso negado.');
+        }
 
-        if (!$user || !$user->role_id || !in_array($user->role_id, $roleIds)) {
-            //abort(403, 'Acesso negado.');
-            return redirect()->route('acesso.negado'); //  Redireciona para a rota de acesso negado
+        // obtém o nome do papel
+        $roleName = is_object($user->role)
+            ? ($user->role->nome ?? $user->role->name ?? null)
+            : $user->role;
+
+        // se o papel não estiver na lista permitida
+        if (!$roleName || !in_array($roleName, $roles)) {
+            abort(403, 'Acesso negado.');
         }
 
         return $next($request);
