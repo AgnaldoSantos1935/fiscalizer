@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Contrato extends Model
 {
-    use HasFactory, SoftDeletes;
+    use SoftDeletes;
+
+    protected $table = 'contratos';
 
     protected $fillable = [
         'numero',
@@ -26,41 +27,46 @@ class Contrato extends Model
         'updated_by',
     ];
 
-    public $timestamps = true;
+    protected $dates = ['data_inicio', 'data_fim'];
 
     /**
-     * Relações
+     * 🔹 Empresa contratada (chave estrangeira: contratada_id)
      */
-    public function empresa()
+    public function contratada()
     {
         return $this->belongsTo(Empresa::class, 'contratada_id');
     }
 
+    /**
+     * 🔹 Fiscal técnico responsável
+     */
     public function fiscalTecnico()
     {
         return $this->belongsTo(Pessoa::class, 'fiscal_tecnico_id');
     }
 
+    /**
+     * 🔹 Fiscal administrativo
+     */
     public function fiscalAdministrativo()
     {
         return $this->belongsTo(Pessoa::class, 'fiscal_administrativo_id');
     }
 
+    /**
+     * 🔹 Gestor do contrato
+     */
     public function gestor()
     {
         return $this->belongsTo(Pessoa::class, 'gestor_id');
     }
 
     /**
-     * Auditoria
+     * 🔹 Itens contratados (relacionamento 1:N)
      */
-    public function criador()
-    {
-        return $this->belongsTo(User::class, 'created_by');
-    }
+public function itens()
+{
+    return $this->hasMany(ContratoItem::class, 'contrato_id');
+}
 
-    public function atualizador()
-    {
-        return $this->belongsTo(User::class, 'updated_by');
-    }
 }

@@ -47,7 +47,8 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('view-index-dre', fn($user) => in_array($user->role_id, [1, 2, 3]));
         Gate::define('view-create-dre', fn($user) => in_array($user->role_id, [1, 2, 3]));
         // Permite papel único (ID 1=Administrador)
-        Gate::define('view-empresas', fn($user) => $user->role_id === 2);
+        Gate::define('view-index-empresas', fn($user) => $user->role_id === 2);
+        Gate::define('view-create-empresas', fn($user) => $user->role_id === 2);
         Gate::define('view-escolas', fn($user) => $user->role_id === 2);
 
 }

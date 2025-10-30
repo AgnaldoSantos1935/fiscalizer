@@ -326,9 +326,23 @@ return [
     ],
     [
         'text' => 'Empresas',
-        'route' => 'empresas.index',
-        'icon' => 'fas fa-fw fa-building',
-        'can' => 'view-empresas',
+        'route' => '',
+        'icon' => 'fas fa-fw fa-industry',
+                'submenu'=>
+        [
+            [
+                'text' => 'Empresas Cadastradas',
+                'route'  => 'empresas.index',
+                'icon'  => 'fas fa-fw fa-business',
+                'can' => 'view-index-empresas', // Gate permission
+            ],
+             [
+                'text' => 'Cadastrar Empresa',
+                'route'  => 'empresas.create',
+                'icon'  => 'fas fa-fw fa-business-plus',
+                'can' => 'view-create-empresas', // Gate permission
+            ],
+        ],
     ],
     [
         'text' => 'Contratos',

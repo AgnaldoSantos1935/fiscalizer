@@ -1,221 +1,271 @@
 @extends('layouts.app')
-@section('title', 'Empresas')
+@section('title', 'Empresas Cadastradas')
 
 @section('content')
-<br>
+<div class="container-fluid">
 
-<!-- Botão acima do card -->
-<div class="d-flex justify-content-end mb-3">
+    <!-- 🔹 Card de Filtros -->
+    <div class="card shadow-sm border-0 rounded-4 mb-4">
+        <div class="card-header bg-white border-0 d-flex align-items-center justify-content-between">
+            <h4 class="mb-0 text-secondary fw-semibold">
+                <i class="fas fa-search me-2 text-primary"></i>Filtros de Pesquisa
+            </h4>
+        </div>
 
+        <div class="card-body bg-white">
+            <form id="formFiltros" class="row g-3 bg-light p-3 rounded-4 shadow-sm">
+                <div class="col-md-3">
+                    <label for="filtroRazao" class="form-label fw-semibold text-secondary small">Razão Social</label>
+                    <input type="text" id="filtroRazao" class="form-control form-control-sm" placeholder="Ex: Montreal, Prodepa...">
+                </div>
+                <div class="col-md-3">
+                    <label for="filtroCNPJ" class="form-label fw-semibold text-secondary small">CNPJ</label>
+                    <input type="text" id="filtroCNPJ" class="form-control form-control-sm" placeholder="Somente números">
+                </div>
+                <div class="col-md-3">
+                    <label for="filtroCidade" class="form-label fw-semibold text-secondary small">Cidade</label>
+                    <input type="text" id="filtroCidade" class="form-control form-control-sm" placeholder="Belém, Santarém...">
+                </div>
+                <div class="col-md-3">
+                    <label for="filtroUF" class="form-label fw-semibold text-secondary small">UF</label>
+                    <input type="text" id="filtroUF" maxlength="2" class="form-control form-control-sm" placeholder="PA, AM, MA...">
+                </div>
 
-  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#novaEmpresaModal">
-    <i class="fas fa-plus-circle"></i> Empresa
-  </button>
+                <div class="col-12 text-end mt-2">
+                    <button type="button" id="btnAplicarFiltros" class="btn btn-primary btn-sm px-3 me-2">
+                        <i class="fas fa-filter me-1"></i> Aplicar
+                    </button>
+                    <button type="button" id="btnLimparFiltros" class="btn btn-outline-secondary btn-sm px-3">
+                        <i class="fas fa-undo me-1"></i> Limpar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 🔹 Card Principal -->
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header bg-white border-0 d-flex align-items-center justify-content-between">
+            <h4 class="mb-0 text-secondary fw-semibold">
+                <i class="fas fa-building me-2 text-primary"></i>Empresas Cadastradas
+            </h4>
+        </div>
+
+        <div class="card-body bg-white">
+            <!-- 🔹 Navbar de ações -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-light rounded-3 mb-4 shadow-sm">
+                <div class="container-fluid">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item me-3">
+                            <a id="navDetalhes" class="nav-link text-dark fw-semibold disabled" href="#">
+                                <i class="fas fa-eye text-info me-1"></i> Detalhes
+                            </a>
+                        </li>
+                        <li class="nav-item me-3">
+                            <a id="navEditar" class="nav-link text-dark fw-semibold disabled" href="#">
+                                <i class="fas fa-edit text-warning me-1"></i> Editar
+                            </a>
+                        </li>
+                        <li class="nav-item me-3">
+                            <a id="navExcluir" class="nav-link text-dark fw-semibold disabled" href="#">
+                                <i class="fas fa-trash text-danger me-1"></i> Excluir
+                            </a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a href="{{ route('empresas.create') }}" class="btn btn-primary btn-sm px-3">
+                                <i class="fas fa-plus-circle me-1"></i> Nova Empresa
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- 🔹 Tabela -->
+            <table id="tabelaEmpresas" class="table table-striped no-inner-borders w-100">
+                <thead class="bg-light text-secondary border-bottom">
+                    <tr>
+                        <th class="text-center" style="width: 45px;">#</th>
+                        <th>Razão Social</th>
+                        <th>CNPJ</th>
+                        <th>Email</th>
+                        <th>Telefone</th>
+                        <th>Cidade</th>
+                        <th>UF</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($empresas as $empresa)
+                    <tr class="hoverable-row">
+                        <td class="text-center">
+                            <input type="radio" name="empresaSelecionada" value="{{ $empresa->id }}">
+                        </td>
+                        <td class="fw-semibold text-dark">{{ $empresa->razao_social }}</td>
+                        <td>{{ $empresa->cnpj }}</td>
+                        <td class="text-muted small">{{ $empresa->email ?? '-' }}</td>
+                        <td class="text-muted small">{{ $empresa->telefone ?? '-' }}</td>
+                        <td>{{ $empresa->cidade ?? '-' }}</td>
+                        <td>{{ $empresa->uf ?? '-' }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
-<div class="card shadow-sm">
-  <div class="card-header bg-primary text-white">
-    <h2 class="mb-0"><i class="fas fa-building"></i> Empresas Cadastradas</h2>
-  </div>
-
-  <div class="card-body">
-    <table id="tabelaEmpresas" class="table table-bordered table-striped align-middle">
-      <thead class="table-light">
-        <tr>
-          <th>Razão Social</th>
-          <th>CNPJ</th>
-          <th>Email</th>
-          <th>Telefone</th>
-          <th class="text-center" style="width: 150px;">Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        @forelse ($empresas as $empresa)
-          <tr>
-            <td>{{ $empresa->razao_social }}</td>
-            <td>{{ $empresa->cnpj }}</td>
-            <td>{{ $empresa->email }}</td>
-            <td>{{ $empresa->telefone }}</td>
-            <td class="text-center">
-  <button class="btn btn-sm btn-info text-white"
-        data-toggle="modal"
-        data-target="#detalhesModal{{ $empresa->id }}">
-  <i class="fas fa-eye"></i>
-</button>
-
-<button type="button" class="btn btn-sm btn-warning text-white" data-toggle="modal" data-target="#editarModal{{ $empresa->id }}">
-    <i class="fas fa-edit"></i></button>
-            </td>
-          </tr>
-        @empty
-          <tr><td colspan="5" class="text-center text-muted">Nenhuma empresa cadastrada.</td></tr>
-        @endforelse
-      </tbody>
-    </table>
-  </div>
-</div>
-
-{{-- Modais (fora da tabela) --}}
-@foreach ($empresas as $empresa)
-  {{-- Modal de detalhes --}}
-  <div class="modal fade" id="detalhesModal{{ $empresa->id }}" tabindex="-1">
+<!-- 🔹 Modal Detalhes -->
+<div class="modal fade" id="modalDetalhesEmpresa" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header bg-info text-white">
-          <h5 class="modal-title"><i class="fas fa-eye"></i> Detalhes da Empresa</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header bg-primary text-white rounded-top-4">
+                <h5 class="modal-title" id="modalLabel">
+                    <i class="fas fa-info-circle me-2"></i>Detalhes da Empresa
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body bg-light">
+                <table class="table table-borderless">
+                    <tbody id="detalhesEmpresa"></tbody>
+                </table>
+            </div>
         </div>
-        <div class="modal-body">
-          <p><strong>Razão Social:</strong> {{ $empresa->razao_social }}</p>
-          <p><strong>CNPJ:</strong> {{ $empresa->cnpj }}</p>
-          <p><strong>Email:</strong> {{ $empresa->email }}</p>
-          <p><strong>Telefone:</strong> {{ $empresa->telefone }}</p>
-          <p><strong>Endereço:</strong> {{ $empresa->endereco ?? '-' }}</p>
-          <p><strong>Cidade:</strong> {{ $empresa->cidade ?? '-' }}</p>
-          <p><strong>UF:</strong> {{ $empresa->uf ?? '-' }}</p>
-          <p><strong>CEP:</strong> {{ $empresa->cep ?? '-' }}</p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-
-        </div>
-      </div>
     </div>
-  </div>
-
-  {{-- Modal de edição --}}
-  <div class="modal fade" id="editarModal{{ $empresa->id }}" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header bg-warning text-white">
-          <h5 class="modal-title"><i class="fas fa-edit"></i> Editar Empresa</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
-          <span aria-hidden="true">&times;</span>
-        </button>
-        </div>
-        <form method="POST" action="{{ route('empresas.update', $empresa->id) }}">
-          @csrf
-          @method('PUT')
-          <div class="modal-body">
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label>Razão Social</label>
-                <input type="text" name="razao_social" class="form-control" value="{{ $empresa->razao_social }}">
-              </div>
-              <div class="col-md-6 mb-3">
-                <label>CNPJ</label>
-                <input type="text" name="cnpj" class="form-control" value="{{ $empresa->cnpj }}">
-              </div>
-              <div class="col-md-6 mb-3">
-                <label>Email</label>
-                <input type="email" name="email" class="form-control" value="{{ $empresa->email }}">
-              </div>
-              <div class="col-md-6 mb-3">
-                <label>Telefone</label>
-                <input type="text" name="telefone" class="form-control" value="{{ $empresa->telefone }}">
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            <button type="submit" class="btn btn-warning text-white">Salvar Alterações</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-@endforeach
-
-{{-- Modal Nova Empresa --}}
-<div class="modal fade" id="novaEmpresaModal" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title"><i class="fas fa-plus-circle"></i> Nova Empresa</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <form method="POST" action="{{ route('empresas.store') }}">
-        @csrf
-        <div class="modal-body">
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <label>Razão Social</label>
-              <input type="text" name="razao_social" class="form-control" required>
-            </div>
-            <div class="col-md-6 mb-3">
-              <label>CNPJ</label>
-              <input type="text" name="cnpj" class="form-control" required>
-            </div>
-            <div class="col-md-6 mb-3">
-              <label>Email</label>
-              <input type="email" name="email" class="form-control">
-            </div>
-            <div class="col-md-6 mb-3">
-              <label>Telefone</label>
-              <input type="text" name="telefone" class="form-control">
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Salvar</button>
-        </div>
-      </form>
-    </div>
-  </div>
 </div>
 @endsection
 
 @section('css')
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap4.min.css">
-<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap4.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+<style>
+.nav-link.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+.table-borderless tbody tr:hover {
+    background-color: #f8f9fa;
+    transition: background-color 0.2s ease-in-out;
+}
+/* Bordas externas */
+table.dataTable {
+  border: 1px solid #dee2e6 !important;
+  border-collapse: collapse !important;
+}
+table.dataTable th, table.dataTable td {
+  border: none !important;
+  vertical-align: middle !important;
+  white-space: nowrap !important;
+}
+/* Responsividade */
+div.dataTables_wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+</style>
 @endsection
 
 @section('js')
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap4.min.js"></script>
-
-<script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap4.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
 
 <script>
-  // Evita reinit: destrói se já existir, depois inicializa 1 vez
-  function initEmpresasDT() {
-    var sel = '#tabelaEmpresas';
-    if ($.fn.DataTable.isDataTable(sel)) {
-      $(sel).DataTable().destroy();
-    }
-    $(sel).DataTable({
-      responsive: true,
-      pageLength: 10,
-      dom: '<"d-flex justify-content-between align-items-center mb-2"Bf>rtip',
-      buttons: [
-        { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Excel', className: 'btn btn-success btn-sm' },
-        { extend: 'pdfHtml5',   text: '<i class="fas fa-file-pdf"></i> PDF',   className: 'btn btn-danger btn-sm' },
-        { extend: 'csvHtml5',   text: '<i class="fas fa-file-csv"></i> CSV',   className: 'btn btn-secondary btn-sm' },
-        { extend: 'print',      text: '<i class="fas fa-print"></i> Imprimir', className: 'btn btn-dark btn-sm' }
-      ],
-      language: { url: '../datatables/i18n/pt-BR.json' }
+$(document).ready(function() {
+    const tabela = $('#tabelaEmpresas').DataTable({
+        language: { url: '/datatables/pt-BR.json' },
+        pageLength: 10,
+        order: [[1, 'asc']],
+        dom: 't<"bottom"p>'
     });
-  }
 
-  $(document).ready(function() {
-    initEmpresasDT();
-  });
+    let empresaSelecionada = null;
+
+    // Seleção de empresa
+    $('#tabelaEmpresas').on('change', 'input[name="empresaSelecionada"]', function() {
+        empresaSelecionada = $(this).val();
+        $('#navDetalhes, #navEditar, #navExcluir').removeClass('disabled');
+    });
+
+    // 🔹 Detalhes
+    $('#navDetalhes').on('click', function(e) {
+        e.preventDefault();
+        if (!empresaSelecionada) return;
+
+        fetch('{{ url("empresas") }}/' + empresaSelecionada)
+            .then(resp => resp.json())
+            .then(data => {
+                const e = data.empresa;
+                $('#detalhesEmpresa').html(`
+                    <tr><th>Razão Social</th><td>${e.razao_social}</td></tr>
+                    <tr><th>CNPJ</th><td>${e.cnpj}</td></tr>
+                    <tr><th>Email</th><td>${e.email ?? '-'}</td></tr>
+                    <tr><th>Telefone</th><td>${e.telefone ?? '-'}</td></tr>
+                    <tr><th>Cidade</th><td>${e.cidade ?? '-'}</td></tr>
+                    <tr><th>UF</th><td>${e.uf ?? '-'}</td></tr>
+                    <tr><th>Endereço</th><td>${e.endereco ?? '-'}</td></tr>
+                `);
+                new bootstrap.Modal(document.getElementById('modalDetalhesEmpresa')).show();
+            })
+            .catch(err => console.error('Erro ao carregar detalhes:', err));
+    });
+
+    // 🔹 Editar
+    $('#navEditar').on('click', function(e) {
+        e.preventDefault();
+        if (empresaSelecionada)
+            window.location.href = `/empresas/${empresaSelecionada}/edit`;
+    });
+
+    // 🔹 Excluir
+    $('#navExcluir').on('click', function(e) {
+        e.preventDefault();
+        if (!empresaSelecionada) return;
+        if (confirm('Deseja realmente excluir esta empresa?')) {
+            fetch(`/empresas/${empresaSelecionada}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(resp => resp.json())
+            .then(() => location.reload())
+            .catch(err => alert('Erro ao excluir empresa.'));
+        }
+    });
+
+    // 🔍 Filtros
+    $('#btnAplicarFiltros').on('click', function() {
+        const razao = $('#filtroRazao').val().toLowerCase();
+        const cnpj = $('#filtroCNPJ').val().toLowerCase();
+        const cidade = $('#filtroCidade').val().toLowerCase();
+        const uf = $('#filtroUF').val().toLowerCase();
+
+        $('#tabelaEmpresas tbody tr').each(function() {
+            const colRazao = $(this).find('td:nth-child(2)').text().toLowerCase();
+            const colCnpj = $(this).find('td:nth-child(3)').text().toLowerCase();
+            const colCidade = $(this).find('td:nth-child(6)').text().toLowerCase();
+            const colUf = $(this).find('td:nth-child(7)').text().toLowerCase();
+
+            if (
+                (razao === '' || colRazao.includes(razao)) &&
+                (cnpj === '' || colCnpj.includes(cnpj)) &&
+                (cidade === '' || colCidade.includes(cidade)) &&
+                (uf === '' || colUf.includes(uf))
+            ) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    });
+
+    // 🔄 Limpar filtros
+    $('#btnLimparFiltros').on('click', function() {
+        $('#formFiltros input').val('');
+        $('#tabelaEmpresas tbody tr').show();
+    });
+});
 </script>
-
-<style>
-/* Garante que o modal fique acima do overlay da sidebar */
-.modal-backdrop.show { z-index: 1040 !important; }
-.modal { z-index: 1050 !important; }
-</style>
 @endsection

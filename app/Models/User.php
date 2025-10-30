@@ -50,9 +50,10 @@ class User extends Authenticatable
         'role_id' => 'integer',
         ];
     }
-    public function role()
+
+public function role()
 {
-    return $this->belongsTo(Role::class, 'role_id');
+    return $this->belongsTo(Role::class);
 }
 
 /**

@@ -12,27 +12,54 @@ class EmpresaController extends Controller
         $empresas = Empresa::all();
         return view('empresas.index', compact('empresas'));
     }
-       public function show()
-    {
-        $empresas = Empresa::all();
-        return view('empresas.index', compact('empresas'));
-    }
 
-    public function create()
-    {
-        return view('empresas.create');
-    }
+  public function create()
+{
+    return view('empresas.create');
+}
 
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'razao_social' => 'required|string|max:200',
-            'cnpj' => 'required|string|max:14|unique:empresas',
-            'email' => 'nullable|email|max:150',
-            'telefone' => 'nullable|string|max:20',
-        ]);
+public function store(Request $request)
+{
+    $validated = $request->validate([
+        'razao_social' => 'required|string|max:255',
+        'cnpj' => 'required|string|max:20|unique:empresas,cnpj',
+    ]);
 
-        Empresa::create($validated);
-        return redirect()->route('empresas.index')->with('success', 'Empresa cadastrada com sucesso!');
+    Empresa::create($validated + $request->except(['_token']));
+    return redirect()->route('empresas.index')->with('success', 'Empresa cadastrada com sucesso!');
+}
+
+public function show(Empresa $empresa)
+{
+    return view('empresas.show', compact('empresa'));
+}
+
+
+    public function edit(Empresa $empresa)
+{
+    return view('empresas.edit', compact('empresa'));
+}
+
+public function update(Request $request, Empresa $empresa)
+{
+    $validated = $request->validate([
+        'razao_social' => 'required|string|max:255',
+        'cnpj' => 'required|string|max:20|unique:empresas,cnpj,' . $empresa->id,
+    ]);
+
+    $empresa->update($validated + $request->except(['_token', '_method']));
+    return redirect()->route('empresas.index')->with('success', 'Dados atualizados com sucesso!');
+}
+
+
+    public function destroy(Empresa $empresa)
+    {
+        $empresa->delete();
+
+        if (request()->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return redirect()->route('empresas.index')->with('success', 'Empresa excluída com sucesso!');
     }
 }

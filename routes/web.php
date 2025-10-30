@@ -30,13 +30,14 @@ Route::get('/', function () {
     return view('site.index');
 });
 
-
+// Rotas de autenticação
+Auth::routes(['register' => false, 'reset' => true]);
 
     // Home visível a qualquer usuário autenticado
-    Route::resource('home', DashboardController::class);
+    Route::get('home', [DashboardController::class, 'index'])->name('home');
 
 // Alias para evitar o erro "Route [home] not defined"
-Route::get('/home', [DashboardController::class, 'index'])->name('home');
+
 Route::resource('empresas', EmpresaController::class);
 Route::resource('contratos', ContratoController::class);
 Route::resource('medicoes', MedicaoController::class);
@@ -50,6 +51,13 @@ Route::resource('projetos', ProjetoController::class);
 Route::get('/escolas-data', [App\Http\Controllers\EscolaController::class, 'getData'])->name('escolas.data');
 
 Route::resource('escolas', EscolaController::class);
+
+Route::get('/contratos/{id}/itens', [App\Http\Controllers\ContratoController::class, 'itens'])
+    ->name('contratos.itens');
+
+
+Route::get('contratos/{id}/itens', [ContratoController::class, 'getItens'])
+    ->name('contratos.itens');
 
 
 
@@ -65,24 +73,9 @@ Route::resource('dres', DREController::class);
 Route::get('relatorios/gerar', [RelatorioController::class, 'gerar'])->name('relatorios.gerar');
 Route::get('relatorios', [RelatorioController::class, 'index'])->name('relatorios.index');
 
-// Rotas de autenticação
-Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
-Route::post('login', [LoginController::class, 'login']);
-Route::post('logout', [LogoutController::class, 'logout'])->name('logout');
-Route::get('password/reset', [ResetPasswordController::class, 'showLinkRequestForm'])->name('password.request');
-Route::post('password/email', [ResetPasswordController::class, 'sendResetLinkEmail '])->name('password.email');
-Route::get('password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
-Route::post('password/reset', [ResetPasswordController::class, 'reset'])->name('password.update');
-
-// Rotas protegidas por middleware de autenticação
-Route::middleware(['auth'])->group(function () {
-    // Rotas protegidas aqui
+Route::middleware(['auth', 'role:Administrador,Fiscal'])->group(function () {
+    Route::resource('empresas', EmpresaController::class);
 });
-// Página de acesso negado
-Route::get('/403', function () {
-    return view('errors.403');
-})->name('403');
-// Página de não encontrado
-Route::get('/404', function () {
-    return view('errors.404');
-})->name('404');
+Route::middleware(['auth', 'role:Administrador'])->group(function () {
+    Route::resource('usuarios', App\Http\Controllers\UsuarioController::class);
+});

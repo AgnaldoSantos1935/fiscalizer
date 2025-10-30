@@ -88,7 +88,7 @@
             </nav>
 
             <!-- 🔹 Tabela -->
-            <table id="tabelaDres" class="table table-hover table-borderless align-middle w-100">
+            <table id="tabelaDres" class="table table-striped no-inner-borders w-100">
                 <thead class="bg-light text-secondary border-bottom">
                     <tr>
                         <th class="text-center" style="width: 45px;">#</th>
@@ -161,6 +161,40 @@
 #formFiltros .btn {
     border-radius: 20px;
 }
+/* Bordas externas apenas */
+table.dataTable {
+  border: 1px solid #dee2e6 !important;
+  border-collapse: collapse !important;
+  width: 100% !important;
+}
+
+table.dataTable th,
+table.dataTable td {
+  border: none !important;
+  vertical-align: middle !important;
+  white-space: nowrap !important;
+}
+
+table.dataTable thead th {
+  background-color: #f8f9fa !important;
+  font-weight: 600;
+  color: #495057;
+}
+
+/* Scroll horizontal suave no modo responsivo */
+div.dataTables_wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Ajuste de layout do botão de exportação */
+.dt-buttons {
+  margin-bottom: 0.5rem;
+}
+
+/* Garante prioridade de exibição do modal sobre DataTables */
+.modal-backdrop.show { z-index: 1040 !important; }
+.modal { z-index: 1050 !important; }
 </style>
 @endsection
 
@@ -169,6 +203,8 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap4.min.css">
 
 <script>
 $(document).ready(function() {

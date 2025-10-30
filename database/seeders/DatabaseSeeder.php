@@ -40,6 +40,8 @@ Empresa::factory()->create([
                   OcorrenciaFiscalizacao::factory(100)->create();
                  // Gera 100 ocorrências de fiscalização
                   Projeto::factory(100)->create();
+                  $this->call(EmpresaSeeder::class);
+
 
     }
 }

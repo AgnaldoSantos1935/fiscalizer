@@ -4,37 +4,35 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Escola extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'escolas';
 
     protected $fillable = [
-        'id',
+        'codigo',
         'restricao_atendimento',
-        'Escola',
-        'inep',
+        'nome',
+        'codigo_inep',
         'uf',
-        'Municipio',
-        'Localizacao',
+        'municipio',
+        'localizacao',
         'localidade_diferenciada',
         'categoria_administrativa',
         'endereco',
-        'Telefone',
+        'telefone',
         'dependencia_administrativa',
         'categoria_escola_privada',
         'conveniada_poder_publico',
         'regulamentacao_conselho',
-        'porte_escola',
-        'etapas_modalidades_oferecidas',
-        'outras_ofertas_educacionais',
+        'porte',
+        'etapas_modalidades',
+        'outras_ofertas',
         'latitude',
         'longitude',
     ];
-      public function dre()
-    {
-        return $this->belongsTo(Dre::class, 'id');
-    }
+
 }
