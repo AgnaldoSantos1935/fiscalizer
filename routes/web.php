@@ -1,6 +1,6 @@
 <?php
 
-
+use App\Http\Controllers\MapaController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -19,6 +19,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\RelatorioController;
+use App\Http\Controllers\DREController;
 
 use App\Models\User;
 use App\Models\Role;
@@ -28,6 +29,7 @@ use App\Models\Role;
 Route::get('/', function () {
     return view('site.index');
 });
+
 
 
     // Home visível a qualquer usuário autenticado
@@ -46,11 +48,20 @@ Route::resource('monitoramentos', MonitoramentoController::class);
 Route::resource('projetos', ProjetoController::class);
 
 Route::get('/escolas-data', [App\Http\Controllers\EscolaController::class, 'getData'])->name('escolas.data');
+
 Route::resource('escolas', EscolaController::class);
-Route::get('/escolas/{codigo}/detalhes', [App\Http\Controllers\EscolaController::class, 'show'])
-    ->name('escolas.detalhes');
 
 
+
+// Rotas para o mapa
+
+
+Route::get('/mapa', [MapaController::class, 'index'])->name('mapa');
+Route::get('/api/escolas', [MapaController::class, 'escolasGeoJson'])->name('api.escolas');
+
+
+
+Route::resource('dres', DREController::class);
 Route::get('relatorios/gerar', [RelatorioController::class, 'gerar'])->name('relatorios.gerar');
 Route::get('relatorios', [RelatorioController::class, 'index'])->name('relatorios.index');
 

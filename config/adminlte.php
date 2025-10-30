@@ -369,10 +369,53 @@ return [
     ],
       [
         'text' => 'Escolas',
-        'route' => 'escolas.index',
+        'route' => '',
         'icon' => 'fas fa-fw fa-school',
-        'can' => 'view-escolas', // Gate permission
+
+        'submenu'=>
+        [
+            [
+                'text' => 'Lista de Escolas',
+                'route'  => 'escolas.index',
+                'icon'  => 'fas fa-fw fa-list',
+                'can' => 'view-escolas', // Gate permission
+            ],
+            [
+                'text' => 'Mapa de Escolas',
+                'route'  => 'mapa',
+                'icon'  => 'fas fa-fw fa-map',
+                'can' => 'view-mapa1', // Gate permission
+            ],
+                        [
+                'text' => 'Cadastrar Escola',
+                'route'  => 'escolas.create',
+                'icon'  => 'fas fa-fw fa-plus',
+                'can' => 'view-create-escola', // Gate permission
+            ],
+        ],
     ],
+[
+        'text' => 'Diretorias Regionais de Educação (DREs)',
+        'route' => '',
+        'icon' => 'fas fa-fw fa-school',
+
+        'submenu'=>
+        [
+            [
+                'text' => 'Lista de DREs',
+                'route'  => 'dres.index',
+                'icon'  => 'fas fa-fw fa-list',
+                'can' => 'view-index-dre', // Gate permission
+            ],
+             [
+                'text' => 'Cadastrar DRE',
+                'route'  => 'dres.create',
+                'icon'  => 'fas fa-fw fa-plus',
+                'can' => 'view-create-dre', // Gate permission
+            ],
+        ],
+    ],
+
 
     [
         'text' => 'Usuários',

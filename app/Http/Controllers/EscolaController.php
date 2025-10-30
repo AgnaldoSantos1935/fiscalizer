@@ -3,70 +3,93 @@
 namespace App\Http\Controllers;
 
 use App\Models\Escola;
+use App\Models\Dre;
 use Illuminate\Http\Request;
 
 class EscolaController extends Controller
 {
     /**
-     * Exibe a lista de escolas.
+     * Retorna dados para DataTables (AJAX)
      */
-    public function getData()
+public function getData()
 {
-    $escolas = Escola::select(['codigo', 'Escola', 'Municipio', 'UF', 'inep', 'Telefone'])
-        ->orderBy('Escola', 'asc')
-        ->get();
+    $escolas = Escola::select([
+        'id', 'inep', 'Escola', 'Municipio', 'UF', 'dre'
+    ])
+    ->with('dre:id,nome_dre')
+    ->orderBy('Escola', 'asc')
+    ->get()
+    ->map(function ($escola) {
+        return [
+            'id' => $escola->id,
+            'inep' => $escola->inep,
+            'Escola' => $escola->Escola,
+            'Municipio' => $escola->Municipio,
+            'UF' => $escola->UF,
+            'dre_nome' => $escola->dre->nome_dre ?? '-'
+        ];
+    });
 
     return response()->json(['data' => $escolas]);
 }
 
+
+
+    /**
+     * Lista as escolas
+     */
     public function index()
     {
-        // Busca todas as escolas ordenadas por nome
-        $escolas = Escola::all();
-
+        $escolas = Escola::with('dre')->orderBy('Escola')->get();
         return view('escolas.index', compact('escolas'));
     }
 
     /**
-     * Exibe o formulário de criação (caso precise página separada).
+     * Exibe formulário de criação
      */
     public function create()
     {
-        return view('escolas.create');
+        $dres = Dre::orderBy('nome_dre')->get(['id', 'nome_dre']);
+        return view('escolas.create', compact('dres'));
     }
 
     /**
-     * Armazena uma nova escola.
+     * Armazena nova escola (via AJAX)
      */
     public function store(Request $request)
     {
-        // ✅ Validação básica — você pode expandir conforme o schema
         $validated = $request->validate([
-            'codigo' => 'required|string|max:20|unique:escolas,codigo',
+            'inep' => 'required|string|max:20|unique:escolas',
             'nome' => 'required|string|max:255',
-            'municipio' => 'nullable|string|max:150',
+            'municipio' => 'nullable|string|max:100',
             'uf' => 'nullable|string|max:2',
-            'codigo_inep' => 'nullable|string|max:20',
             'telefone' => 'nullable|string|max:20',
+            'endereco' => 'nullable|string|max:255',
+            'dre' => 'nullable|exists:dres,id',
         ]);
 
-        // ✅ Criação direta via mass assignment
-        Escola::create($validated);
+        Escola::create([
+            'inep' => $validated['inep'],
+            'Escola' => $validated['nome'],
+            'Municipio' => $validated['municipio'] ?? null,
+            'UF' => strtoupper($validated['uf'] ?? 'PA'),
+            'Telefone' => $validated['telefone'] ?? null,
+            'Endereco' => $validated['endereco'] ?? null,
+            'dre_id' => $validated['dre'] ?? null,
+        ]);
 
-        return redirect()
-            ->route('escolas.index')
-            ->with('success', 'Escola cadastrada com sucesso!');
+        return response()->json(['success' => true]);
     }
 
     /**
-     * Exibe os detalhes de uma escola.
+     * Exibe detalhes da escola
      */
- public function show($id)
+public function show($id)
 {
-    $escola = Escola::findOrFail($id);
+    $escola = Escola::with('dre')->findOrFail($id);
 
     if (request()->ajax()) {
-        return response()->json($escola);
+        return response()->json(['escola' => $escola]); // ✅ sempre retorna JSON
     }
 
     return view('escolas.show', compact('escola'));
@@ -74,44 +97,55 @@ class EscolaController extends Controller
 
 
     /**
-     * Exibe o formulário de edição (não usado pois usa modal).
+     * Exibe formulário de edição
      */
     public function edit(Escola $escola)
     {
-        return view('escolas.edit', compact('escola'));
+        $dres = Dre::orderBy('nome_dre')->get(['id', 'nome_dre']);
+        return view('escolas.edit', compact('escola', 'dres'));
     }
 
     /**
-     * Atualiza uma escola existente.
+     * Atualiza dados
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Escola $escola)
     {
-        // ✅ Validação com regra de exclusão do próprio registro
         $validated = $request->validate([
-            'codigo' => 'required|string|max:20|unique:escolas,codigo,' . $id,
+            'inep' => 'required|string|max:20|unique:escolas,codigo,' . $escola->id,
             'nome' => 'required|string|max:255',
-            'municipio' => 'nullable|string|max:150',
+            'municipio' => 'nullable|string|max:100',
             'uf' => 'nullable|string|max:2',
-            'codigo_inep' => 'nullable|string|max:20',
             'telefone' => 'nullable|string|max:20',
+            'endereco' => 'nullable|string|max:255',
+            'dre' => 'nullable|exists:dres,id',
         ]);
 
-        $escola->update($validated);
+        $escola->update([
+            'inep' => $validated['inep'],
+            'Escola' => $validated['nome'],
+            'Municipio' => $validated['municipio'] ?? null,
+            'UF' => strtoupper($validated['uf'] ?? 'PA'),
+            'Telefone' => $validated['telefone'] ?? null,
+            'Endereco' => $validated['endereco'] ?? null,
+            'dre_id' => $validated['dre'] ?? null,
+        ]);
 
-        return redirect()
-            ->route('escolas.index')
-            ->with('success', 'Dados da escola atualizados com sucesso!');
+        return response()->json(['success' => true]);
     }
 
     /**
-     * Remove uma escola.
+     * Remove uma escola
      */
     public function destroy(Escola $escola)
     {
-        $escola->delete();
-
-        return redirect()
-            ->route('escolas.index')
-            ->with('success', 'Escola excluída com sucesso!');
+        try {
+            $escola->delete();
+            return response()->json(['success' => true]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao excluir: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

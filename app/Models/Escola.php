@@ -12,7 +12,7 @@ class Escola extends Model
     protected $table = 'escolas';
 
     protected $fillable = [
-        'codigo',
+        'id',
         'restricao_atendimento',
         'Escola',
         'inep',
@@ -33,4 +33,8 @@ class Escola extends Model
         'latitude',
         'longitude',
     ];
+      public function dre()
+    {
+        return $this->belongsTo(Dre::class, 'id');
+    }
 }

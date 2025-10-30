@@ -1,249 +1,254 @@
 @extends('layouts.app')
+
 @section('title', 'Escolas')
 
 @section('content')
-<br>
+<div class="container-fluid">
 
-<div class="d-flex justify-content-end mb-3">
-  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#novaEscolaModal">
-    <i class="fas fa-plus-circle"></i> Nova Escola
-  </button>
-</div>
-
-<div class="card shadow-sm">
-  <div class="card-header bg-primary text-white">
-    <h2 class="mb-0"><i class="fas fa-school"></i> Escolas Cadastradas</h2>
-  </div>
-
-  <div class="card-body">
-    <table id="tabelaEscolas" class="table table-bordered table-striped align-middle w-100">
-      <thead class="table-light">
-        <tr>
-          <th>Código</th>
-          <th>Nome</th>
-          <th>Município</th>
-          <th>UF</th>
-          <th>Cód. INEP</th>
-          <th>Telefone</th>
-          <th class="text-center">Ações</th>
-        </tr>
-      </thead>
-    </table>
-  </div>
-</div>
-{{-- Modal Detalhes --}}
-<div class="modal fade" id="modalDetalhesEscola" tabindex="-1" aria-labelledby="detalhesEscolaLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header bg-info text-white">
-        <h5 class="modal-title" id="detalhesEscolaLabel"><i class="fas fa-eye"></i> Detalhes da Escola</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div id="detalhesConteudo">
-          <div class="text-center py-4">
-            <div class="spinner-border text-info" role="status">
-              <span class="sr-only">Carregando...</span>
-            </div>
-            <p class="mt-2">Carregando informações...</p>
-          </div>
+    <!-- 🔍 Filtros -->
+    <div class="card shadow-sm border-0 rounded-4 mb-4">
+        <div class="card-header bg-white border-0">
+            <h5 class="mb-0 text-secondary fw-semibold">
+                <i class="fas fa-search me-2 text-primary"></i>Filtros de Pesquisa
+            </h5>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-      </div>
+
+        <div class="card-body bg-white">
+            <form id="formFiltros" class="row g-3 bg-light p-3 rounded-4 shadow-sm">
+                <div class="col-md-3">
+                    <label for="filtroCodigo" class="form-label fw-semibold small text-secondary">Código</label>
+                    <input type="text" id="filtroCodigo" class="form-control form-control-sm" placeholder="Ex: 001, 045...">
+                </div>
+
+                <div class="col-md-4">
+                    <label for="filtroNome" class="form-label fw-semibold small text-secondary">Nome da Escola</label>
+                    <input type="text" id="filtroNome" class="form-control form-control-sm" placeholder="Digite parte do nome">
+                </div>
+
+                <div class="col-md-3">
+                    <label for="filtroMunicipio" class="form-label fw-semibold small text-secondary">Município</label>
+                    <input type="text" id="filtroMunicipio" class="form-control form-control-sm" placeholder="Belém, Santarém...">
+                </div>
+
+                <div class="col-md-2">
+                    <label for="filtroUF" class="form-label fw-semibold small text-secondary">UF</label>
+                    <input type="text" id="filtroUF" class="form-control form-control-sm" maxlength="2" placeholder="PA">
+                </div>
+
+                <div class="col-12 text-end mt-2">
+                    <button type="button" id="btnAplicarFiltros" class="btn btn-primary btn-sm px-3 me-2">
+                        <i class="fas fa-filter me-1"></i> Aplicar
+                    </button>
+                    <button type="button" id="btnLimparFiltros" class="btn btn-outline-secondary btn-sm px-3">
+                        <i class="fas fa-undo me-1"></i> Limpar
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-  </div>
-</div>
-{{-- Modal Nova Escola --}}
-<div class="modal fade" id="novaEscolaModal" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title"><i class="fas fa-plus-circle"></i> Nova Escola</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <form method="POST" action="{{ route('escolas.store') }}" id="formNovaEscola">
-        @csrf
-        <div class="modal-body">
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <label>Código</label>
-              <input type="text" name="codigo" class="form-control" required>
-            </div>
-            <div class="col-md-6 mb-3">
-              <label>Nome</label>
-              <input type="text" name="nome" class="form-control" required>
-            </div>
-            <div class="col-md-4 mb-3">
-              <label>Município</label>
-              <input type="text" name="municipio" class="form-control">
-            </div>
-            <div class="col-md-2 mb-3">
-              <label>UF</label>
-              <input type="text" name="uf" maxlength="2" class="form-control">
-            </div>
-            <div class="col-md-3 mb-3">
-              <label>Cód. INEP</label>
-              <input type="text" name="codigo_inep" class="form-control">
-            </div>
-            <div class="col-md-3 mb-3">
-              <label>Telefone</label>
-              <input type="text" name="telefone" class="form-control">
-            </div>
-          </div>
+
+    <!-- 🏫 Lista de Escolas -->
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header bg-white border-0 d-flex align-items-center justify-content-between">
+            <h4 class="mb-0 text-secondary fw-semibold">
+                <i class="fas fa-school me-2 text-primary"></i>Escolas Cadastradas
+            </h4>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Salvar</button>
+
+        <div class="card-body bg-white">
+
+            <!-- 🔹 Navbar de ações -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-light rounded-3 mb-4 shadow-sm">
+                <div class="container-fluid">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item me-3">
+                            <a id="navDetalhes" class="nav-link text-dark fw-semibold disabled" href="#">
+                                <i class="fas fa-eye text-info me-1"></i> Detalhes
+                            </a>
+                        </li>
+                        <li class="nav-item me-3">
+                            <a id="navEditar" class="nav-link text-dark fw-semibold disabled" href="#">
+                                <i class="fas fa-edit text-warning me-1"></i> Editar
+                            </a>
+                        </li>
+                        <li class="nav-item me-3">
+                            <a id="navExcluir" class="nav-link text-dark fw-semibold disabled" href="#">
+                                <i class="fas fa-trash text-danger me-1"></i> Excluir
+                            </a>
+                        </li>
+                    </ul>
+
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a href="{{ route('escolas.create') }}" class="btn btn-primary btn-sm px-3">
+                                <i class="fas fa-plus-circle me-1"></i> Nova Escola
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- 🔹 Tabela -->
+            <table id="tabelaEscolas" class="table table-hover table-borderless align-middle w-100">
+                <thead class="bg-light text-secondary border-bottom">
+                    <tr>
+                        <th class="text-center" style="width: 45px;">#</th>
+                        <th>Inep</th>
+                        <th>Nome da Escola</th>
+                        <th>Município</th>
+                        <th>UF</th>
+                        <th>DRE</th>
+                    </tr>
+                </thead>
+            </table>
+
         </div>
-      </form>
     </div>
-  </div>
+</div>
+
+<!-- 🔹 Modal Detalhes -->
+<div class="modal fade" id="modalDetalhesEscola" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header bg-primary text-white rounded-top-4">
+                <h5 class="modal-title"><i class="fas fa-info-circle me-2"></i>Detalhes da Escola</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body bg-light">
+                <table class="table table-borderless">
+                    <tbody id="detalhesEscola"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
 
 @section('css')
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap4.min.css">
-<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap4.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+<style>
+.table-borderless tbody tr:hover {
+    background-color: #f8f9fa;
+    transition: background-color 0.2s ease-in-out;
+}
+.nav-link.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+#formFiltros input {
+  border-radius: 10px;
+}
+#formFiltros .btn {
+  border-radius: 20px;
+}
+</style>
 @endsection
 
 @section('js')
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap4.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap4.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
 
 <script>
-$(document).ready(function () {
-  // Inicializa DataTable com carregamento via AJAX
-  var tabela = $('#tabelaEscolas').DataTable({
-  ajax: '{{ route('escolas.data') }}',
-  columns: [
-    { data: 'codigo', title: 'Código' },
-    { data: 'Escola', title: 'Nome da Escola' },
-    { data: 'Municipio', title: 'Município' },
-    { data: 'UF', title: 'UF' },
-    { data: 'inep', title: 'Cód. INEP' },
-    { data: 'Telefone', title: 'Telefone' },
-    {
-      data: 'codigo',
-      title: 'Ações',
-      className: 'text-center',
-      orderable: false,
-      searchable: false,
-      render: function (data) {
-        return `
-          <button class="btn btn-sm btn-info text-white" onclick="verDetalhes(${data})"><i class="fas fa-eye"></i></button>
-          <button class="btn btn-sm btn-warning text-white" onclick="editarEscola(${data})"><i class="fas fa-edit"></i></button>
-          <button class="btn btn-sm btn-danger" onclick="excluirEscola(${data})"><i class="fas fa-trash"></i></button>
-        `;
-      }
-    }
-  ],
-  columnDefs: [
-    { width: "8%", targets: 0 },  // Código
-    { width: "25%", targets: 1 }, // Nome
-    { width: "20%", targets: 2 }, // Município
-    { width: "5%",  targets: 3 }, // UF
-    { width: "15%", targets: 4 }, // INEP
-    { width: "12%", targets: 5 }, // Telefone
-    { width: "15%", targets: 6 }  // Ações
-  ],
-  autoWidth: false,
-  responsive: true,
-  pageLength: 10,
-  dom: '<"d-flex justify-content-between align-items-center mb-2"Bf>rtip',
-  buttons: [
-    { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Excel', className: 'btn btn-success btn-sm' },
-    { extend: 'pdfHtml5',   text: '<i class="fas fa-file-pdf"></i> PDF',   className: 'btn btn-danger btn-sm' },
-    { extend: 'csvHtml5',   text: '<i class="fas fa-file-csv"></i> CSV',   className: 'btn btn-secondary btn-sm' },
-    { extend: 'print',      text: '<i class="fas fa-print"></i> Imprimir', className: 'btn btn-dark btn-sm' }
-  ],
-  language: { url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json' }
+$(document).ready(function() {
+    let escolaSelecionada = null;
+
+    // Inicializa DataTable
+   const tabela = $('#tabelaEscolas').DataTable({
+    ajax: '{{ route("escolas.data") }}',
+    searching: false, // 🔹 remove a pesquisa nativa
+    columns: [
+        {
+            data: 'id',
+            className: 'text-center',
+            orderable: false,
+            searchable: false,
+            render: id => `<input type="radio" name="escolaSelecionada" value="${id}">`
+        },
+        { data: 'inep', title: 'Inep' },
+        { data: 'Escola', title: 'Nome da Escola' },
+        { data: 'Municipio', title: 'Município' },
+        { data: 'UF', title: 'UF' },
+        { data: 'dre_nome', title: 'DRE' }
+    ],
+    order: [[2, 'asc']],
+    pageLength: 10,
+    responsive: true,
+    language: { url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json' }
 });
 
-  // Submissão do formulário de nova escola via AJAX
-  $('#formNovaEscola').submit(function (e) {
+$('#tabelaEscolas').on('change', 'input[name="escolaSelecionada"]', function() {
+    escolaSelecionada = $(this).val();
+    $('#navDetalhes, #navEditar, #navExcluir').removeClass('disabled');
+});
+
+// 🔹 Detalhes
+$('#navDetalhes').on('click', e => {
     e.preventDefault();
+    if (!escolaSelecionada) return;
 
-    $.ajax({
-      url: '{{ route('escolas.store') }}',
-      method: 'POST',
-      data: $(this).serialize(),
-      success: function (res) {
-        $('#novaEscolaModal').modal('hide');
-        tabela.ajax.reload(null, false);
-        alert('✅ Escola cadastrada com sucesso!');
-      },
-      error: function (xhr) {
-        alert('❌ Erro ao cadastrar: ' + xhr.responseJSON.message);
-      }
-    });
-  });
+     fetch(`{{ url("escolas") }}/${escolaSelecionada}`)
+
+        .then(r => r.json())
+        .then(({ escola }) => {
+            $('#detalhesEscola').html(`
+                <tr><th>Código</th><td>${escola.id}</td></tr>
+                <tr><th>Nome</th><td>${escola.Escola}</td></tr>
+                <tr><th>Município</th><td>${escola.Municipio ?? '-'}</td></tr>
+                <tr><th>UF</th><td>${escola.UF ?? '-'}</td></tr>
+                <tr><th>INEP</th><td>${escola.inep ?? '-'}</td></tr>
+                <tr><th>Telefone</th><td>${escola.Telefone ?? '-'}</td></tr>
+                <tr><th>Endereço</th><td>${escola.Endereco ?? '-'}</td></tr>
+                <tr><th>DRE</th><td>${escola.dre?.nome_dre ?? '-'}</td></tr>
+            `);
+
+            const modalDetalhes = new bootstrap.Modal(document.getElementById('modalDetalhesEscola'));
+                modalDetalhes.show();
+        })
+        .catch(() => alert('Erro ao carregar detalhes.'));
 });
 
-// Funções para ações (a serem expandidas)
 
-function verDetalhes(codigo) {
-  $('#modalDetalhesEscola').modal('show');
-  $('#detalhesConteudo').html(`
-    <div class="text-center py-4">
-      <div class="spinner-border text-info" role="status"></div>
-      <p class="mt-2">Carregando informações...</p>
-    </div>
-  `);
-
-  $.ajax({
-    url: '/escolas/${codigo}/detalhes',
-    type: 'GET',
-    success: function (data) {
-      $('#detalhesConteudo').html(`
-        <p><strong>Código:</strong> ${data.codigo ?? '-'}</p>
-        <p><strong>Nome:</strong> ${data.Escola ?? '-'}</p>
-        <p><strong>Município:</strong> ${data.Municipio ?? '-'}</p>
-        <p><strong>UF:</strong> ${data.UF ?? '-'}</p>
-        <p><strong>Cód. INEP:</strong> ${data.inep ?? '-'}</p>
-        <p><strong>Telefone:</strong> ${data.Telefone ?? '-'}</p>
-      `);
-    },
-    error: function () {
-      $('#detalhesConteudo').html('<p class="text-danger">Erro ao carregar os detalhes da escola.</p>');
-    }
-  });
-}
-
-
-function editarEscola(codigo) {
-  alert('Abrir modal de edição para escola ID: ' + codigo);
-}
-
-function excluirEscola(codigo) {
-  if (confirm('Tem certeza que deseja excluir esta escola?')) {
-    $.ajax({
-      url: '/escolas/' + codigo,
-      type: 'DELETE',
-      data: { _token: '{{ csrf_token() }}' },
-      success: function () {
-        $('#tabelaEscolas').DataTable().ajax.reload(null, false);
-        alert('🗑️ Escola excluída com sucesso!');
-      }
+    // 🔹 Editar
+    $('#navEditar').on('click', function(e) {
+        e.preventDefault();
+        if (escolaSelecionada)
+            window.location.href = `/escolas/${escolaSelecionada}/edit`;
     });
-  }
-}
-</script>
 
-<style>
-.modal-backdrop.show { z-index: 1040 !important; }
-.modal { z-index: 1050 !important; }
-</style>
+    // 🔹 Excluir
+    $('#navExcluir').on('click', function(e) {
+        e.preventDefault();
+        if (!escolaSelecionada) return;
+        if (confirm('Tem certeza que deseja excluir esta escola?')) {
+            fetch(`/escolas/${escolaSelecionada}`, {
+                method: 'DELETE',
+                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+            })
+            .then(resp => {
+                if (!resp.ok) throw new Error();
+                tabela.ajax.reload();
+                alert('Escola excluída com sucesso!');
+            })
+            .catch(() => alert('Erro ao excluir escola.'));
+        }
+    });
+
+    // 🔍 Filtros simples (client-side)
+    $('#btnAplicarFiltros').on('click', function() {
+        tabela.search(
+            $('#filtroCodigo').val() + ' ' +
+            $('#filtroNome').val() + ' ' +
+            $('#filtroMunicipio').val() + ' ' +
+            $('#filtroUF').val()
+        ).draw();
+    });
+
+    $('#btnLimparFiltros').on('click', function() {
+        $('#formFiltros input').val('');
+        tabela.search('').draw();
+    });
+});
+</script>
 @endsection
