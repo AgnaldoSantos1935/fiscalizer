@@ -8,7 +8,7 @@ class MapaController extends Controller
 {
     public function index()
     {
-        return view('mapa'); // view Blade que vai renderizar o mapa
+        return view('mapas.escolas'); // view Blade que vai renderizar o mapa
     }
 
     public function escolasGeoJson()

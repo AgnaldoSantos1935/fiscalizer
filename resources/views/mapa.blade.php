@@ -22,16 +22,9 @@
 @endsection
 
 @section('content')
-<div class="container-fluid">
-    <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-            <h4 class="mb-0"><i class="fas fa-map-marked-alt"></i> Mapa de Escolas do Estado do Pará</h4>
-        </div>
-        <div class="card-body p-2">
-            <div id="map"></div>
-        </div>
-    </div>
-</div>
+<iframe src="{{ asset('mapas/mapa_escolas_para_dre_cluster.html') }}"
+        width="100%" height="700px" style="border:none;"></iframe>
+
 @endsection
 
 @section('js')
