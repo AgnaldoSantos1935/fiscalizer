@@ -25,11 +25,12 @@ class ContratoController extends Controller
         $contratos = Contrato::with('contratada')->get();
         return view('contratos.index', compact('contratos'));
     }
-  public function show()
-    {
-    $contratos = Contrato::with('contratada')->get();
-        return view('contratos.index', compact('contratos'));
-    }
+public function show($id)
+{
+    $contrato = Contrato::with(['contratada', 'empenhos'])->findOrFail($id);
+    return view('contratos.show', compact('contrato'));
+}
+
     public function create()
     {
         $empresas = Empresa::all();

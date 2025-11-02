@@ -32,7 +32,7 @@ return new class extends Migration
             $table->decimal('longitude', 12, 8)->nullable();
 
             $table->timestamps();
-            $table->softDeletes(); // permite exclusão lógica
+
         });
     }
 

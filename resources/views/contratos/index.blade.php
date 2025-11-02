@@ -67,7 +67,7 @@
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item me-3">
                             <a id="navItens" class="nav-link text-dark fw-semibold disabled" href="#">
-                                <i class="fas fa-list text-primary me-1"></i> Itens Contratados
+                                <i class="fas fa-list text-primary me-1"></i>Mais informações
                             </a>
                         </li>
                         <li class="nav-item me-3">
@@ -75,11 +75,7 @@
                                 <i class="fas fa-edit text-warning me-1"></i> Editar
                             </a>
                         </li>
-                        <li class="nav-item me-3">
-                            <a id="navExcluir" class="nav-link text-dark fw-semibold disabled" href="#">
-                                <i class="fas fa-trash text-danger me-1"></i> Excluir
-                            </a>
-                        </li>
+
                     </ul>
 
                     <ul class="navbar-nav ms-auto">
@@ -119,10 +115,32 @@
                         <td>{{ \Carbon\Carbon::parse($contrato->data_inicio)->format('d/m/Y') }}</td>
                         <td>{{ \Carbon\Carbon::parse($contrato->data_fim)->format('d/m/Y') }}</td>
                         <td>
-                            <span class="badge bg-{{ $contrato->situacao === 'vigente' ? 'success' : ($contrato->situacao === 'encerrado' ? 'danger' : 'secondary') }}">
-                                {{ ucfirst($contrato->situacao) }}
-                            </span>
-                        </td>
+                    @php
+                        switch ($contrato->situacao) {
+                            case 'Vigente':
+                                $classe = 'bg-success';
+                                $texto = 'Vigente';
+                                break;
+                            case 'Encerrado':
+                                $classe = 'bg-danger';
+                                $texto = 'Encerrado';
+                                break;
+                            case 'pendente':
+                                $classe = 'bg-warning text-dark';
+                                $texto = 'Pendente';
+                                break;
+                            case 'cancelado':
+                                $classe = 'bg-danger';
+                                $texto = 'Cancelado';
+                                break;
+                            default:
+                                $classe = 'bg-light text-muted';
+                                $texto = 'Desconhecido';
+                                break;
+                        }
+                    @endphp
+                    <span class="badge {{ $classe }}">{{ $texto }}</span>
+                </td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -132,7 +150,7 @@
 </div>
 
 <!-- Modal de Itens Contratados -->
-<div class="modal fade" id="modalItensContrato" tabindex="-1" aria-hidden="true">
+<!--<div class="modal fade" id="modalItensContrato" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header bg-primary text-white">
@@ -155,7 +173,7 @@
       </div>
     </div>
   </div>
-</div>
+</div> -->
 
 @endsection
 
@@ -244,8 +262,15 @@ $(function() {
         $('#navItens, #navEditar, #navExcluir').removeClass('disabled');
     });
 
+
+$('#navItens').on('click', function(e) {
+    e.preventDefault();
+    if (!contratoSelecionado) return;
+   window.location.href = "{{ url('contratos') }}/" + contratoSelecionado;
+});
+
     // 🔹 Modal de Itens via AJAX
-    $('#navItens').on('click', function(e) {
+   /* $('#navItens').on('click', function(e) {
         e.preventDefault();
         if (!contratoSelecionado) return;
 
@@ -289,8 +314,7 @@ $(function() {
             });
 
         new bootstrap.Modal(document.getElementById('modalItensContrato')).show();
-    });
-
+    }); */
     // Filtros
     $('#btnAplicarFiltros').on('click', function() {
         const numero = $('#filtroNumero').val().toLowerCase();

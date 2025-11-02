@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mapa Painel — Escolas do Pará</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-sA+e2qkGk8G8b+g6r4x0f2m4s8kQ/3Y1Z8Gk6b5r9mM=" crossorigin=""/>
+  <style>
+    html,body,#map { height: 100%; margin: 0; padding: 0; }
+    .info { position: absolute; top: 10px; right: 10px; z-index: 1000; background: rgba(255,255,255,0.9); padding: 6px 10px; border-radius: 6px; font-family: Arial, sans-serif; font-size: 13px; }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<div class="info" id="info">Carregando...</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-XQoYMqMTK8LvdlxU/3g7k3s6ZQ+3u1Z2m3j6Z5q5mFU=" crossorigin=""></script>
+<script>
+// Lê parâmetros de query (dre, municipio) — a página pai define esses parâmetros quando existirem
+function getQueryParams() {
+  const params = {};
+  const qs = (location.search || '').replace(/^\?/, '');
+  qs.split('&').forEach(pair => {
+    if (!pair) return;
+    const [k, v] = pair.split('=');
+    params[decodeURIComponent(k)] = decodeURIComponent(v || '');
+  });
+  return params;
+}
+
+const params = getQueryParams();
+
+const map = L.map('map').setView([-3.8, -52.5], 5); // centro do Pará
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  attribution: '© OpenStreetMap contributors'
+}).addTo(map);
+
+const infoDiv = document.getElementById('info');
+
+function loadGeoJSON() {
+  infoDiv.textContent = 'Buscando dados...';
+  fetch('/api/escolas')
+    .then(resp => {
+      if (!resp.ok) throw new Error('Resposta da API: ' + resp.status);
+      return resp.json();
+    })
+    .then(geojson => {
+      let features = geojson.features || [];
+
+      // aplica filtros passados por query (se houver)
+      if (params.dre) {
+        const dre = params.dre.toLowerCase();
+        features = features.filter(f => (f.properties.dre || '').toLowerCase() === dre);
+      }
+      if (params.municipio) {
+        const mun = params.municipio.toLowerCase();
+        features = features.filter(f => (f.properties.municipio || '').toLowerCase().includes(mun));
+      }
+
+      if (features.length === 0) {
+        infoDiv.textContent = 'Nenhuma escola encontrada para os filtros aplicados.';
+        return;
+      }
+
+      infoDiv.textContent = features.length + ' escolas encontradas.';
+
+      const markers = L.featureGroup();
+
+      features.forEach(f => {
+        if (!f.geometry || !f.geometry.coordinates) return;
+        const [lon, lat] = f.geometry.coordinates;
+        const props = f.properties || {};
+        const marker = L.circleMarker([lat, lon], { radius: 6, color: '#2B8CBE', fillColor: '#7FB3D5', fillOpacity: 0.9 });
+        const popup = `<strong>${props.nome || props.escola || '—'}</strong><br/>
+                       Município: ${props.municipio || '—'}<br/>
+                       DRE: ${props.dre || '—'}<br/>
+                       ID: ${props.id_escola || '—'}`;
+        marker.bindPopup(popup);
+        marker.addTo(markers);
+      });
+
+      markers.addTo(map);
+      map.fitBounds(markers.getBounds(), { padding: [30, 30] });
+
+    })
+    .catch(err => {
+      console.error(err);
+      infoDiv.textContent = 'Erro ao carregar dados: ' + (err.message || err);
+    });
+}
+
+loadGeoJSON();
+</script>
+</body>
+</html>

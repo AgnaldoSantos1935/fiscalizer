@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Gate;
 use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\EscolaController;
 use App\Http\Controllers\ContratoController;
+use App\Http\Controllers\EmpenhoController;
 use App\Http\Controllers\MedicaoController;
 use App\Http\Controllers\FuncaoSistemaController;
 use App\Http\Controllers\DocumentoController;
@@ -48,9 +49,21 @@ Route::resource('ocorrencias', OcorrenciaController::class);
 Route::resource('monitoramentos', MonitoramentoController::class);
 Route::resource('projetos', ProjetoController::class);
 
-Route::get('/escolas-data', [App\Http\Controllers\EscolaController::class, 'getData'])->name('escolas.data');
 
+// 🔹 Rotas RESTful (CRUD completo)
 Route::resource('escolas', EscolaController::class);
+
+// Rotas para empenhos (CRUD)
+Route::resource('empenhos', EmpenhoController::class);
+// Rota API para DataTables / AJAX
+Route::get('/api/empenhos', [App\Http\Controllers\EmpenhoController::class, 'getData'])->name('api.empenhos');
+
+// 🔹 Rota Ajax específica para DataTables
+Route::get('/escolas-data', [EscolaController::class, 'getData'])->name('escolas.data');
+
+// 🔹 Rota auxiliar (JSON de detalhes para modal)
+Route::get('/escolas/{id}/detalhes', [EscolaController::class, 'detalhes'])
+    ->name('escolas.detalhes');
 
 Route::get('/contratos/{id}/itens', [App\Http\Controllers\ContratoController::class, 'itens'])
     ->name('contratos.itens');
@@ -62,7 +75,6 @@ Route::get('contratos/{id}/itens', [ContratoController::class, 'getItens'])
 
 
 // Rotas para o mapa
-
 
 Route::get('/mapa', [MapaController::class, 'index'])->name('mapa');
 Route::get('/api/escolas', [MapaController::class, 'escolasGeoJson'])->name('api.escolas');

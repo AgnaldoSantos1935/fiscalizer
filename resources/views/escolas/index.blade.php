@@ -71,11 +71,6 @@
                                 <i class="fas fa-edit text-warning me-1"></i> Editar
                             </a>
                         </li>
-                        <li class="nav-item me-3">
-                            <a id="navExcluir" class="nav-link text-dark fw-semibold disabled" href="#">
-                                <i class="fas fa-trash text-danger me-1"></i> Excluir
-                            </a>
-                        </li>
                     </ul>
 
                     <ul class="navbar-nav ms-auto">
@@ -195,33 +190,42 @@ $(document).ready(function() {
     let escolaSelecionada = null;
 
     // Inicializa DataTable
-   const tabela = $('#tabelaEscolas').DataTable({
+  const tabela = $('#tabelaEscolas').DataTable({
     ajax: '{{ route("escolas.data") }}',
-    searching: false, // 🔹 remove a pesquisa nativa
     columns: [
-        {
-            data: 'id',
-            className: 'text-center',
-            orderable: false,
-            searchable: false,
-            render: id => `<input type="radio" name="escolaSelecionada" value="${id}">`
-        },
-        { data: 'inep', title: 'Inep' },
-        { data: 'Escola', title: 'Nome da Escola' },
-        { data: 'Municipio', title: 'Município' },
-        { data: 'UF', title: 'UF' },
-        { data: 'dre_nome', title: 'DRE' }
+        { data: 'id_escola', className: 'text-center', render: id_escola => `<input type="radio" name="escolaSelecionada" value="${id_escola}">` },
+        { data: 'codigo_inep' },
+        { data: 'escola' },
+        { data: 'municipio' },
+        { data: 'uf' },
+        { data: 'dre' }
     ],
-    order: [[2, 'asc']],
+    searching: false,
     pageLength: 10,
     responsive: true,
     language: { url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json' }
 });
 
+
+// Delegação de evento segura
 $('#tabelaEscolas').on('change', 'input[name="escolaSelecionada"]', function() {
+    // Atualiza a variável global
     escolaSelecionada = $(this).val();
-    $('#navDetalhes, #navEditar, #navExcluir').removeClass('disabled');
+
+    // Desmarca todos e marca apenas o atual
+    $('input[name="escolaSelecionada"]').prop('checked', false);
+    $(this).prop('checked', true);
+
+    // Ativa botões de ação
+    $('#navDetalhes, #navEditar').removeClass('disabled');
 });
+
+// 🔹 Se a tabela for recarregada (via AJAX, filtros etc), desativa os botões
+$('#tabelaEscolas').on('draw.dt', function() {
+    escolaSelecionada = null;
+    $('#navDetalhes, #navEditar').addClass('disabled');
+});
+
 
 // 🔹 Detalhes
 $('#navDetalhes').on('click', e => {
@@ -233,11 +237,11 @@ $('#navDetalhes').on('click', e => {
         .then(r => r.json())
         .then(({ escola }) => {
             $('#detalhesEscola').html(`
-                <tr><th>Código</th><td>${escola.id}</td></tr>
+
                 <tr><th>Nome</th><td>${escola.Escola}</td></tr>
                 <tr><th>Município</th><td>${escola.Municipio ?? '-'}</td></tr>
                 <tr><th>UF</th><td>${escola.UF ?? '-'}</td></tr>
-                <tr><th>INEP</th><td>${escola.inep ?? '-'}</td></tr>
+                <tr><th>INEP</th><td>${escola.codigo_inep ?? '-'}</td></tr>
                 <tr><th>Telefone</th><td>${escola.Telefone ?? '-'}</td></tr>
                 <tr><th>Endereço</th><td>${escola.Endereco ?? '-'}</td></tr>
                 <tr><th>DRE</th><td>${escola.dre?.nome_dre ?? '-'}</td></tr>
@@ -255,24 +259,6 @@ $('#navDetalhes').on('click', e => {
         e.preventDefault();
         if (escolaSelecionada)
             window.location.href = `/escolas/${escolaSelecionada}/edit`;
-    });
-
-    // 🔹 Excluir
-    $('#navExcluir').on('click', function(e) {
-        e.preventDefault();
-        if (!escolaSelecionada) return;
-        if (confirm('Tem certeza que deseja excluir esta escola?')) {
-            fetch(`/escolas/${escolaSelecionada}`, {
-                method: 'DELETE',
-                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
-            })
-            .then(resp => {
-                if (!resp.ok) throw new Error();
-                tabela.ajax.reload();
-                alert('Escola excluída com sucesso!');
-            })
-            .catch(() => alert('Erro ao excluir escola.'));
-        }
     });
 
     // 🔍 Filtros simples (client-side)

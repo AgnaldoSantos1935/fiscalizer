@@ -61,9 +61,11 @@ class Contrato extends Model
         return $this->belongsTo(Pessoa::class, 'gestor_id');
     }
 
-    /**
-     * 🔹 Itens contratados (relacionamento 1:N)
-     */
+ public function empenhos()
+{
+    return $this->hasMany(Empenho::class);
+}
+
 public function itens()
 {
     return $this->hasMany(ContratoItem::class, 'contrato_id');
