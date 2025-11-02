@@ -396,7 +396,7 @@ return [
             ],
             [
                 'text' => 'Mapa de Escolas',
-                'route'  => 'mapa',
+                'route'  => 'mapas.escolas',
                 'icon'  => 'fas fa-fw fa-map',
                 'can' => 'view-mapa1', // Gate permission
             ],

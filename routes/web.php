@@ -76,7 +76,7 @@ Route::get('contratos/{id}/itens', [ContratoController::class, 'getItens'])
 
 // Rotas para o mapa
 
-Route::get('/mapa', [MapaController::class, 'index'])->name('mapa');
+Route::get('/mapas/escolas', [MapaController::class, 'index'])->name('mapas.escolas');
 Route::get('/api/escolas', [MapaController::class, 'escolasGeoJson'])->name('api.escolas');
 
 

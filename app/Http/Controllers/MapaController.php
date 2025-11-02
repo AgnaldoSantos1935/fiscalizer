@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Log;
 
 class MapaController extends Controller
 {
-    public function index()
+public function index()
     {
         // Lista de DREs disponíveis para filtro
         $dres = DB::table('dres')
@@ -18,7 +18,7 @@ class MapaController extends Controller
             ->orderBy('nome_dre')
             ->get();
 
-        return view('mapas.escolas', compact('dres'));
+        return view('mapas.escolas', compact('dres')); // view Blade que vai renderizar o mapa
     }
 
     public function escolasGeoJson(Request $request)
