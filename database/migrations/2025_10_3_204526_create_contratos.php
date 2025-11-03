@@ -15,16 +15,16 @@ return new class extends Migration
         Schema::create('contratos', function (Blueprint $table) {
             $table->id();
 
-            // Dados principais
+            // 📄 Dados principais
             $table->string('numero', 30)->unique(); // Ex: 065/2025
             $table->text('objeto'); // Descrição do objeto do contrato
 
-            // Empresa contratada
+            // 🏢 Empresa contratada
             $table->foreignId('contratada_id')
                 ->constrained('empresas')
                 ->onDelete('cascade');
 
-            // Fiscais e gestor
+            // 👥 Fiscais e gestor
             $table->foreignId('fiscal_tecnico_id')
                 ->nullable()
                 ->constrained('pessoas')
@@ -40,25 +40,40 @@ return new class extends Migration
                 ->constrained('pessoas')
                 ->nullOnDelete();
 
-            // Valores e datas
+            // 💰 Valores e datas
             $table->decimal('valor_global', 14, 2)->default(0);
             $table->date('data_inicio')->nullable();
             $table->date('data_fim')->nullable();
 
-            // Status e classificação
-            $table->enum('situacao', ['vigente', 'encerrado', 'rescindido', 'suspenso'])->default('vigente');
-            $table->enum('tipo', ['TI', 'Serviço', 'Obra', 'Material'])->default('TI');
+            // ⚙️ Situação e classificação
+            $table->enum('situacao', ['vigente', 'encerrado', 'rescindido', 'suspenso'])
+                ->default('vigente');
+            $table->enum('tipo', ['TI', 'Serviço', 'Obra', 'Material'])
+                ->default('TI');
 
-            // Auditoria
-            $table->timestamps(); // created_at e updated_at
-            $table->softDeletes(); // exclusão lógica
-            $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
-            $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
+            // 🔗 Situação detalhada (chave estrangeira)
+            $table->foreignId('situacao_id')
+                ->nullable()
+                ->constrained('situacoes')
+                ->nullOnDelete();
 
-            // Índices auxiliares
+            // 🧾 Auditoria
+            $table->timestamps();        // created_at e updated_at
+            $table->softDeletes();       // exclusão lógica
+            $table->foreignId('created_by')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
+            $table->foreignId('updated_by')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
+
+            // 🔍 Índices auxiliares
             $table->index('numero');
             $table->index('situacao');
             $table->index('tipo');
+            $table->index('situacao_id');
         });
     }
 

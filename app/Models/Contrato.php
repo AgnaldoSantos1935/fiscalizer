@@ -23,14 +23,21 @@ class Contrato extends Model
         'data_fim',
         'situacao',
         'tipo',
+        'situacao_id',
         'created_by',
         'updated_by',
     ];
 
-    protected $dates = ['data_inicio', 'data_fim'];
+    protected $dates = ['data_inicio', 'data_fim', 'deleted_at'];
+
+    protected $casts = [
+        'valor_global' => 'decimal:2',
+        'data_inicio' => 'date',
+        'data_fim' => 'date',
+    ];
 
     /**
-     * 🔹 Empresa contratada (chave estrangeira: contratada_id)
+     * 🔹 Empresa contratada
      */
     public function contratada()
     {
@@ -61,14 +68,59 @@ class Contrato extends Model
         return $this->belongsTo(Pessoa::class, 'gestor_id');
     }
 
- public function empenhos()
-{
-    return $this->hasMany(Empenho::class);
-}
+    /**
+     * 🔹 Situação (referência à tabela 'situacoes')
+     */
+    public function situacao()
+    {
+        return $this->belongsTo(Situacao::class, 'situacao_id');
+    }
 
-public function itens()
-{
-    return $this->hasMany(ContratoItem::class, 'contrato_id');
-}
+    /**
+     * 🔹 Empenhos vinculados
+     */
+    public function empenhos()
+    {
+        return $this->hasMany(Empenho::class, 'contrato_id');
+    }
 
+    /**
+     * 🔹 Itens de contrato
+     */
+    public function itens()
+    {
+        return $this->hasMany(ContratoItem::class, 'contrato_id');
+    }
+
+    /**
+     * 🔹 Usuário criador
+     */
+    public function criadoPor()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * 🔹 Usuário que atualizou
+     */
+    public function atualizadoPor()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    /**
+     * 🔎 Escopo: apenas contratos vigentes
+     */
+    public function scopeVigentes($query)
+    {
+        return $query->where('situacao', 'vigente');
+    }
+
+    /**
+     * 🔎 Escopo: contratos por tipo
+     */
+    public function scopeTipo($query, string $tipo)
+    {
+        return $query->where('tipo', $tipo);
+    }
 }

@@ -346,9 +346,23 @@ return [
     ],
     [
         'text' => 'Contratos',
-        'route' => 'contratos.index',
-        'icon' => 'fas fa-fw fa-file-contract',
-        'can' => 'view-contratos',
+        'route' => '',
+        'icon' => 'fas fa-fw fa-file-contract', //view-create-contratos
+         'submenu'=>
+        [
+            [
+                'text' => 'Contratos Cadastrados',
+                'route'  => 'contratos.index',
+                'icon'  => 'fas fa-fw fa-contract',
+                'can' => 'view-contratos', // Gate permission
+            ],
+             [
+                'text' => 'Novo Contrato',
+                'route'  => 'contratos.create',
+                'icon'  => 'fas fa-fw fa-plus',
+                'can' => 'view-create-empresas', // Gate permission
+            ],
+        ],
     ],
     [
         'text' => 'Medições (APF)',
