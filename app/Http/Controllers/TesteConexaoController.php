@@ -2,26 +2,52 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
-use Carbon\Carbon;
-use App\Models\Monitoramento;
+use App\Models\TesteConexao;
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 
-class MonitoramentoController extends Controller
+class TesteConexaoController extends Controller
 {
-    /**
-     * Lista todos os monitoramentos
+  /**
+     * Exibe a página de testes de IP/Domínio
      */
-    public function index()
-    {
-        $monitoramentos = Monitoramento::orderBy('nome')->get();
-        return view('monitoramentos.index', compact('monitoramentos'));
-    }
+   public function index()
+{
+    $teste = TesteConexao::orderBy('nome')->get();
+    return view('monitoramentos.teste', compact('teste'));
+}
 
-    /**
-     * Exibe o formulário de criação
-     */
-    public function create()
+public function testar(Request $request)
+{
+    $request->validate([
+        'alvo' => 'required|string|max:255',
+    ]);
+
+    $entrada = trim($request->input('alvo'));
+    $alvo = preg_replace(['#^https?://#', '#/$#'], '', $entrada);
+
+    $dados = [
+        'alvo' => $alvo,
+        'tipo' => filter_var($alvo, FILTER_VALIDATE_IP) ? 'IP' : 'Domínio',
+        'dns' => null,
+        'ping' => '—',
+        'http_status' => null,
+        'http_ok' => false,
+        'tempo_resposta' => null,
+        'http_erro' => null,
+    ];
+
+    // DNS, ping e HTTP (mesmo código anterior)
+    // ...
+
+    $monitoramentos = Monitoramento::orderBy('nome')->get();
+
+    return view('monitoramentos.teste', compact('dados', 'monitoramentos'));
+}
+
+   public function create()
     {
         return view('monitoramentos.create');
     }
@@ -48,55 +74,7 @@ class MonitoramentoController extends Controller
     /**
      * Testa e atualiza o status de um monitoramento específico.
      */
-    public function testar($id)
-    {
-        $monitoramento = Monitoramento::findOrFail($id);
-        $inicio = microtime(true);
-        $status = false;
-        $codigo = null;
-        $latencia = null;
-        $erro = null;
 
-        try {
-            if ($monitoramento->tipo === 'ip') {
-                // Teste de Ping
-                $cmd = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'
-                    ? "ping -n 1 " . escapeshellarg($monitoramento->alvo)
-                    : "ping -c 1 " . escapeshellarg($monitoramento->alvo);
-
-                $saida = [];
-                $retorno = 1;
-                @exec($cmd, $saida, $retorno);
-
-                $status = ($retorno === 0);
-                if ($status && preg_match('/time[=<]([\d\.]+)\s?ms/', implode(' ', $saida), $m)) {
-                    $latencia = floatval($m[1]);
-                }
-            } else {
-                // Teste de URL HTTP
-                $inicio_http = microtime(true);
-                $resposta = Http::timeout(5)->get($monitoramento->alvo);
-                $fim_http = microtime(true);
-
-                $codigo = $resposta->status();
-                $status = $resposta->successful();
-                $latencia = round(($fim_http - $inicio_http) * 1000, 2);
-            }
-        } catch (\Throwable $e) {
-            $erro = $e->getMessage();
-        }
-
-        $monitoramento->update([
-            'online' => $status,
-            'status_code' => $codigo,
-            'latencia' => $latencia,
-            'erro' => $erro,
-            'ultima_verificacao' => Carbon::now(),
-        ]);
-
-        return redirect()->route('monitoramentos.index')
-            ->with('success', "Teste executado para {$monitoramento->nome}: " . ($status ? 'ONLINE 🟢' : 'OFFLINE 🔴'));
-    }
 
     /**
      * Atualiza manualmente um monitoramento (editar)

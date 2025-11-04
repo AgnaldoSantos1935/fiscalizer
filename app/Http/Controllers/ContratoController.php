@@ -16,7 +16,7 @@ class ContratoController extends Controller
      */
     public function index()
     {
-        $contratos = Contrato::with(['contratada', 'situacao'])->orderBy('id', 'desc')->get();
+        $contratos = Contrato::with(['contratada'])->orderBy('id', 'desc')->get();
         return view('contratos.index', compact('contratos'));
     }
 
@@ -31,8 +31,7 @@ class ContratoController extends Controller
             'fiscalAdministrativo',
             'gestor',
             'empenhos',
-            'itens',
-            'situacao'
+            'itens'
         ])->findOrFail($id);
 
         return view('contratos.show', compact('contrato'));
@@ -45,9 +44,8 @@ class ContratoController extends Controller
     {
         $empresas   = Empresa::orderBy('razao_social')->get();
         $pessoas    = Pessoa::orderBy('nome')->get();
-        $situacoes  = Situacao::orderBy('nome')->get();
 
-        return view('contratos.create', compact('empresas', 'pessoas', 'situacoes'));
+        return view('contratos.create', compact('empresas', 'pessoas'));
     }
 
     /**
@@ -111,7 +109,7 @@ class ContratoController extends Controller
             'data_fim' => 'nullable|date',
             'situacao' => 'nullable|string|in:vigente,encerrado,rescindido,suspenso',
             'tipo' => 'nullable|string|in:TI,Serviço,Obra,Material',
-            'situacao_id' => 'nullable|exists:situacoes,id',
+            'situacao' => 'required|string',
         ]);
 
         $validated['updated_by'] = Auth::id();

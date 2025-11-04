@@ -84,7 +84,7 @@
     </div>
 
     <div class="card-body">
-      @if($teste->isEmpty())
+      @if($monitoramentos->isEmpty())
         <div class="alert alert-light border text-center text-muted">
           Nenhum host cadastrado para monitoramento automático.
         </div>
@@ -103,7 +103,7 @@
             </tr>
           </thead>
           <tbody>
-            @foreach($teste as $m)
+            @foreach($monitoramentos as $m)
             <tr>
               <td>{{ $m->nome }}</td>
               <td>{{ strtoupper($m->tipo) }}</td>

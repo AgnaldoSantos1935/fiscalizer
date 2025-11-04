@@ -6,29 +6,29 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
+        Schema::create('monitoramento_logs', function (Blueprint $table) {
+            $table->id();
 
-    Schema::create('monitoramento_logs', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('monitoramento_id')->constrained()->onDelete('cascade');
-        $table->boolean('online')->default(false);
-        $table->integer('status_code')->nullable();
-        $table->float('latencia')->nullable();
-        $table->text('erro')->nullable();
-        $table->timestamp('verificado_em');
-        $table->timestamps();
-    });
-}
+            // 🔗 Referência ao monitoramento principal
+            $table->foreignId('monitoramento_id')
+                ->constrained('monitoramentos')
+                ->onDelete('cascade');
 
+            // 🔹 Dados de cada teste
+            $table->boolean('online')->default(false);
+            $table->integer('status_code')->nullable();
+            $table->float('latencia')->nullable();
+            $table->text('erro')->nullable();
 
+            // 🔹 Data e hora da execução
+            $table->timestamp('data_teste')->useCurrent();
 
-    /**
-     * Reverse the migrations.
-     */
+            $table->timestamps();
+        });
+    }
+
     public function down(): void
     {
         Schema::dropIfExists('monitoramento_logs');

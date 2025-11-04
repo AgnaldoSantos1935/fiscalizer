@@ -23,7 +23,6 @@ class Contrato extends Model
         'data_fim',
         'situacao',
         'tipo',
-        'situacao_id',
         'created_by',
         'updated_by',
     ];
@@ -68,13 +67,6 @@ class Contrato extends Model
         return $this->belongsTo(Pessoa::class, 'gestor_id');
     }
 
-    /**
-     * 🔹 Situação (referência à tabela 'situacoes')
-     */
-    public function situacao()
-    {
-        return $this->belongsTo(Situacao::class, 'situacao_id');
-    }
 
     /**
      * 🔹 Empenhos vinculados

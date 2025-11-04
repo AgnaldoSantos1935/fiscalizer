@@ -21,6 +21,8 @@ use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\RelatorioController;
 use App\Http\Controllers\DREController;
+use App\Http\Controllers\HostController;
+use App\Http\Controllers\TesteConexaoController;
 
 use App\Models\User;
 use App\Models\Role;
@@ -46,8 +48,21 @@ Route::resource('funcoes-sistema', FuncaoSistemaController::class);
 Route::resource('documentos', DocumentoController::class);
 Route::resource('ocorrencias-fiscalizacao', OcorrenciaFiscalizacaoController::class);
 Route::resource('ocorrencias', OcorrenciaController::class);
-Route::resource('monitoramentos', MonitoramentoController::class);
 Route::resource('projetos', ProjetoController::class);
+
+
+Route::resource('hosts', HostController::class);
+
+// 🔹 Rotas testes de rede
+// 🔹 Rotas de testes de conexão (pings manuais, diagnóstico)
+Route::get('/teste-conexao', [App\Http\Controllers\HostController::class, 'index'])->name('teste_conexao.index');
+Route::post('/teste-conexao', [App\Http\Controllers\TesteConexaoController::class, 'testar'])->name('teste_conexao.testar');
+
+// 🔹 Rotas de monitoramento automático (CRUD + histórico + teste)
+Route::resource('monitoramentos', MonitoramentoController::class)->except(['show']);
+Route::get('monitoramentos/{id}/testar', [MonitoramentoController::class, 'testar'])->name('monitoramentos.testar');
+Route::get('monitoramentos/{id}/historico', [MonitoramentoController::class, 'historico'])->name('monitoramentos.historico');
+
 
 
 // 🔹 Rotas RESTful (CRUD completo)

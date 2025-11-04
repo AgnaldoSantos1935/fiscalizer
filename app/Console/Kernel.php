@@ -21,11 +21,15 @@ class shendule extends ConsoleKernel
      * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
      * @return void
      */
-protected function schedule(Schedule $schedule)
+protected function schedule(\Illuminate\Console\Scheduling\Schedule $schedule)
 {
-    $schedule->command('monitorar:conexoes')->everyTenMinutes();
-}
+    // 🔁 Executa o teste de rede a cada 10 minutos
+    $schedule->command('monitorar:rede')->everyTenMinutes();
 
+    // 🔧 Pode ajustar conforme a carga:
+    // $schedule->command('monitorar:rede')->hourly();
+    // $schedule->command('monitorar:rede')->everyFiveMinutes();
+}
     /**
      * Register the commands for the application.
      *
@@ -33,6 +37,8 @@ protected function schedule(Schedule $schedule)
      */
     protected function commands()
     {
+        $this->load(__DIR__.'/Commands');
+
         require base_path('routes/console.php');
     }
 }

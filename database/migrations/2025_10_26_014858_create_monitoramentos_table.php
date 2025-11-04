@@ -24,6 +24,8 @@ return new class extends Migration
         $table->text('erro')->nullable();
         $table->timestamp('ultima_verificacao')->nullable();
         $table->timestamps();
+        $table->foreignId('monitoramento_id')->nullable()->constrained('monitoramentos')->nullOnDelete();
+
     });
 }
 

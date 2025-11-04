@@ -386,8 +386,18 @@ return [
     [
         'text' => 'Conexões',
         'icon' => 'fas fa-fw fa-network-wired',
-        'route' => 'monitoramentos.index',
-        'can' => 'view-monitoramentos', // Gate permission
+        'route' => '',
+      // Gate permission  'can' => 'view-monitoramentos',
+         'submenu'=>
+        [
+            [
+                'text' => 'Teste de host',
+                'route'  => 'hosts.index',
+                'icon'  => 'fas fa-fw fa-network-ping',
+                'can' => 'view-testar_host-monitoramentos', // Gate permission
+            ],
+
+        ],
     ],
     [
         'text' => 'Projetos',
