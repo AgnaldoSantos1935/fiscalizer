@@ -1,4 +1,7 @@
 @extends('layouts.app')
+@php
+use Illuminate\Support\Str;
+@endphp
 
 @section('title', 'Contratos')
 
@@ -98,7 +101,6 @@
                         <th>Empresa Contratada</th>
                         <th>Valor Global (R$)</th>
                         <th>Início</th>
-                        <th>Fim</th>
                         <th>Situação</th>
                     </tr>
                 </thead>
@@ -113,7 +115,6 @@
                         <td>{{ $contrato->contratada->razao_social ?? '-' }}</td>
                         <td>{{ number_format($contrato->valor_global, 2, ',', '.') }}</td>
                         <td>{{ \Carbon\Carbon::parse($contrato->data_inicio)->format('d/m/Y') }}</td>
-                        <td>{{ \Carbon\Carbon::parse($contrato->data_fim)->format('d/m/Y') }}</td>
                         <td>
                     @php
                         switch ($contrato->situacao) {
@@ -247,7 +248,7 @@ div.dataTables_wrapper {
 <script>
 $(function() {
     const tabela = $('#tabelaContratos').DataTable({
-        language: { url: '/datatables/pt-BR.json' },
+        language: { url: '..\datatables\i18n\pt-BR.json' },
         pageLength: 10,
         order: [[1, 'asc']],
         dom: 't<"bottom"p>',

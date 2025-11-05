@@ -344,6 +344,26 @@ return [
             ],
         ],
     ],
+        [
+        'text' => 'Empenhos',
+        'route' => '',
+        'icon' => 'fas fa-fw fa-file-pdf', //view-create-contratos
+         'submenu'=>
+        [
+            [
+                'text' => 'Exibir todos',
+                'route'  => 'empenhos.index',
+                'icon'  => 'fas fa-fw fa-list',
+                'can' => 'view-index-empenhos', // Gate permission
+            ],
+             [
+                'text' => 'Cadastrar',
+                'route'  => 'empenhos.create',
+                'icon'  => 'fas fa-fw fa-plus',
+                'can' => 'view-create-empenhos', // Gate permission
+            ],
+        ],
+    ],
     [
         'text' => 'Contratos',
         'route' => '',
@@ -351,13 +371,13 @@ return [
          'submenu'=>
         [
             [
-                'text' => 'Contratos Cadastrados',
+                'text' => 'Exibir todos',
                 'route'  => 'contratos.index',
-                'icon'  => 'fas fa-fw fa-contract',
+                'icon'  => 'fas fa-fw fa-list',
                 'can' => 'view-contratos', // Gate permission
             ],
              [
-                'text' => 'Novo Contrato',
+                'text' => 'Cadastrar novo',
                 'route'  => 'contratos.create',
                 'icon'  => 'fas fa-fw fa-plus',
                 'can' => 'view-create-empresas', // Gate permission
@@ -391,9 +411,9 @@ return [
          'submenu'=>
         [
             [
-                'text' => 'Teste de host',
+                'text' => 'Exibir todas',
                 'route'  => 'hosts.index',
-                'icon'  => 'fas fa-fw fa-network-ping',
+                'icon'  => 'fas fa-fw fa-list-ul',
                 'can' => 'view-testar_host-monitoramentos', // Gate permission
             ],
 

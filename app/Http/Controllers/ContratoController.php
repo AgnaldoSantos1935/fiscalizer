@@ -14,6 +14,35 @@ class ContratoController extends Controller
     /**
      * 🔹 Lista todos os contratos
      */
+    // ContratoController
+public function getContratoJson($id)
+{
+    try {
+        $contrato = Contrato::with('contratada')->findOrFail($id);
+
+        return response()->json([
+            'id' => $contrato->id,
+            'numero' => $contrato->numero,
+            'objeto' => $contrato->objeto,
+            'valor_global' => $contrato->valor_global,
+            'situacao' => $contrato->situacao,
+            'data_inicio' => $contrato->data_inicio,
+            'data_fim' => $contrato->data_fim,
+            'empresa' => [
+                'id' => $contrato->contratada->id ?? null,
+                'razao_social' => $contrato->contratada->razao_social ?? null,
+                'cnpj' => $contrato->contratada->cnpj ?? null,
+            ],
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'Contrato não encontrado ou erro interno.',
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+}
+
+
     public function index()
     {
         $contratos = Contrato::with(['contratada'])->orderBy('id', 'desc')->get();

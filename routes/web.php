@@ -33,6 +33,12 @@ Route::get('/', function () {
     return view('site.index');
 });
 
+
+Route::get('/ajax/contratos/{id}', [ContratoController::class, 'getContratoJson'])
+    ->withoutMiddleware(['auth'])
+    ->name('ajax.contrato');
+
+
 // Rotas de autenticação
 Auth::routes(['register' => false, 'reset' => true]);
 
@@ -70,6 +76,11 @@ Route::resource('escolas', EscolaController::class);
 
 // Rotas para empenhos (CRUD)
 Route::resource('empenhos', EmpenhoController::class);
+Route::get('empenho/{id}/imprimir', [EmpenhoController::class, 'imprimir'])
+    ->name('empenho.imprimir');
+
+
+
 // Rota API para DataTables / AJAX
 Route::get('/api/empenhos', [App\Http\Controllers\EmpenhoController::class, 'getData'])->name('api.empenhos');
 

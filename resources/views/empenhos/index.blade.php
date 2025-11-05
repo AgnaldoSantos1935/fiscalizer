@@ -51,18 +51,8 @@
                 </div>
             </nav>
 
-            <table id="tabelaEmpenhos" class="table table-striped no-inner-borders w-100">
-                <thead class="bg-light text-secondary border-bottom">
-                    <tr>
-                        <th class="text-center" style="width:45px;">#</th>
-                        <th>Número</th>
-                        <th>Data</th>
-                        <th>Valor (R$)</th>
-                        <th>Descrição</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+            <table id="tabela-empenhos" class="table table-striped no-inner-borders w-100"></table>
+
         </div>
     </div>
 </div>
@@ -84,50 +74,87 @@ div.dataTables_wrapper { width: 100%; overflow-x: auto; }
 <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
 
 <script>
-$(function() {
-    let selecionado = null;
+document.addEventListener("DOMContentLoaded", function () {
+  let selecionado = null;
+  const navs = $('#navDetalhes, #navEditar, #navExcluir');
 
-    const tabela = $('#tabelaEmpenhos').DataTable({
-        ajax: {
-            url: '{{ url("/api/empenhos") }}',
-            dataSrc: ''
+  // 🔹 Inicializa DataTable
+  const tabela = $('#tabela-empenhos').DataTable({
+    processing: false,
+    serverSide: true,
+    ajax: "{{ url('/api/empenhos') }}",
+    columns: [
+      {
+        data: 'id',
+        title: '',
+        orderable: false,
+        searchable: false,
+        className: 'text-center align-middle',
+        render: function (data, type, row) {
+          return `
+            <input type="radio" name="empenhoSelecionado" value="${data}" class="form-check-input">
+          `;
         },
-        columns: [
-            { data: 'id', render: function(data, type, row){ return `<input type="radio" name="empenhoSelecionado" value="${data}">`; }, orderable: false },
-            { data: 'numero' },
-            { data: 'data_empenho', render: function(d){ return d ? new Date(d).toLocaleDateString() : '-'; } },
-            { data: 'valor', render: function(v){ return (v !== null) ? parseFloat(v).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}) : '-'; } },
-            { data: 'descricao', defaultContent: '-' }
-        ],
-        language: { url: '/datatables/pt-BR.json' },
-        pageLength: 10,
-        order: [[1, 'asc']],
-        dom: 't<"bottom"p>'
-    });
+        width: '5%'
+      },
+      { data: 'numero', title: 'Nº NE' },
+      { data: 'empresa', title: 'Empresa' },
+      { data: 'contrato', title: 'Contrato' },
+      { data: 'data_lancamento', title: 'Data' },
+      { data: 'valor_total', title: 'Valor Total' },
+      { data: 'acoes', title: 'Ações', orderable: false, searchable: false }
+    ],
+    language: { url: '/datatables/i18n/pt-BR.json' },
+    order: [[1, 'asc']]
+  });
 
-    $('#tabelaEmpenhos').on('change', 'input[name="empenhoSelecionado"]', function() {
-        selecionado = $(this).val();
-        $('#navDetalhes, #navEditar, #navExcluir').removeClass('disabled');
-    });
+  // 🔹 Ao selecionar um radio button
+  $('#tabela-empenhos').on('change', 'input[name="empenhoSelecionado"]', function () {
+    selecionado = $(this).val();
+    navs.removeClass('disabled');
+  });
 
-    $('#navDetalhes').on('click', function(e){
-        e.preventDefault(); if (!selecionado) return;
-        fetch('{{ url("empenhos") }}/' + selecionado)
-            .then(r => r.json())
-            .then(data => {
-                alert('Empenho: ' + (data.empenho.numero || '') + '\nValor: R$ ' + (data.empenho.valor || '0'));
-            }).catch(() => alert('Erro ao carregar detalhes.'));
-    });
+  // 🔹 Botão Detalhes
+  $('#navDetalhes').on('click', function (e) {
+    e.preventDefault();
+    if (!selecionado) return alert('Selecione um empenho primeiro.');
+    fetch(`{{ url('empenhos') }}/${selecionado}`)
+      .then(r => r.json())
+      .then(data => {
+        alert('Empenho: ' + (data.empenho?.numero ?? '') + '\nValor: R$ ' + (data.empenho?.valor ?? '0'));
+      })
+      .catch(() => alert('Erro ao carregar detalhes.'));
+  });
 
-    $('#navEditar').on('click', function(e){ e.preventDefault(); if (selecionado) window.location.href = '/empenhos/' + selecionado + '/edit'; });
+  // 🔹 Botão Editar
+  $('#navEditar').on('click', function (e) {
+    e.preventDefault();
+    if (selecionado) window.location.href = `/empenhos/${selecionado}/edit`;
+    else alert('Selecione um empenho.');
+  });
 
-    $('#navExcluir').on('click', function(e){
-        e.preventDefault(); if (!selecionado) return; if (!confirm('Confirmar exclusão?')) return;
-        fetch('/empenhos/' + selecionado, {
-            method: 'DELETE',
-            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' }
-        }).then(resp => { if (resp.ok) tabela.ajax.reload(); else alert('Erro ao excluir.'); }).catch(() => alert('Erro ao excluir.'));
-    });
+  // 🔹 Botão Excluir
+  $('#navExcluir').on('click', function (e) {
+    e.preventDefault();
+    if (!selecionado) return alert('Selecione um empenho.');
+    if (!confirm('Confirmar exclusão?')) return;
+
+    fetch(`/empenhos/${selecionado}`, {
+      method: 'DELETE',
+      headers: {
+        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+        'Accept': 'application/json'
+      }
+    })
+      .then(resp => {
+        if (resp.ok) {
+          tabela.ajax.reload();
+          navs.addClass('disabled');
+          alert('Empenho excluído com sucesso.');
+        } else alert('Erro ao excluir.');
+      })
+      .catch(() => alert('Erro ao excluir.'));
+  });
 });
 </script>
 @endsection
