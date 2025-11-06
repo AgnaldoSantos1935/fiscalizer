@@ -16,39 +16,42 @@ use Illuminate\Support\Str;
         </div>
 
         <div class="card-body bg-white">
-                <form id="formFiltros" class="row g-3 bg-light p-3 rounded-4 shadow-sm align-items-end">
 
-    <div class="col-md-3">
-        <label for="filtroNumero" class="form-label fw-semibold text-secondary small">Número do Contrato</label>
-        <input type="text" id="filtroNumero" class="form-control form-control-sm" placeholder="Ex: 065/2025">
-    </div>
+<form id="formFiltros" class="row g-3 bg-light p-3 rounded-4 shadow-sm align-items-end mb-3">
+  <div class="col-md-3">
 
-    <div class="col-md-4">
-        <label for="filtroEmpresa" class="form-label fw-semibold text-secondary small">Empresa Contratada</label>
-        <input type="text" id="filtroEmpresa" class="form-control form-control-sm" placeholder="Digite parte do nome">
-    </div>
 
-    <div class="col-md-3">
-        <label for="filtroSituacao" class="form-label fw-semibold text-secondary small">Situação</label>
-        <select id="filtroSituacao" class="form-select form-select-sm">
-            <option value="">Todas</option>
-            <option value="vigente">Vigente</option>
-            <option value="encerrado">Encerrado</option>
-            <option value="suspenso">Suspenso</option>
-        </select>
-    </div>
+    <label for="filtroNumero" class="form-label fw-semibold text-secondary small">Número</label>
+    <input type="text" id="filtroNumero" name="numero"
+           value="{{ request('numero') }}" class="form-control form-control-sm" type="text"
+           placeholder="Ex: 065/2025">
+  </div>
 
-    <!-- ✅ Botões perfeitamente alinhados -->
-    <div class="col-md-2 d-flex justify-content-end align-items-end">
-        <div class="btn-group w-100">
-            <button type="button" id="btnAplicarFiltros" class="btn btn-primary btn-sm px-3 me-2 flex-fill">
-                <i class="fas fa-filter me-1"></i> Filtrar
-            </button>
-            <button type="button" id="btnLimparFiltros" class="btn btn-outline-secondary btn-sm px-3 flex-fill">
-                <i class="fas fa-undo me-1"></i> Limpar
-            </button>
-        </div>
-    </div>
+  <div class="col-md-4">
+    <label for="filtroEmpresa" class="form-label fw-semibold text-secondary small">Empresa</label>
+    <input type="text" id="filtroEmpresa" name="empresa"
+           value="{{ request('empresa') }}" class="form-control form-control-sm" type="text"
+           placeholder="Digite parte do nome">
+  </div>
+
+  <div class="col-md-3">
+    <label for="filtroSituacao" class="form-label fw-semibold text-secondary small">Situação</label>
+    <select id="filtroSituacao" name="situacao" class="custom-select form-control-border">
+  <option value="">Todas</option>
+</select>
+  </div>
+
+<div class="col-md-2 d-flex justify-content-end align-items-end">
+  <div class="d-flex w-100">
+    <button type="button" id="btnAplicarFiltros" class="btn btn-primary btn-sm btn-sep flex-grow-1">
+      <i class="fas fa-filter me-1"></i> Filtrar
+    </button>
+    <button type="button" id="btnLimpar" class="btn btn-outline-secondary btn-sm btn-sep flex-grow-1">
+      <i class="fas fa-undo me-1"></i> Limpar
+    </button>
+  </div>
+</div>
+
 
 </form>
 
@@ -64,88 +67,51 @@ use Illuminate\Support\Str;
         </div>
 
         <div class="card-body bg-white">
-            <!-- 🔹 Navbar de Ações -->
-            <nav class="navbar navbar-expand-lg navbar-light bg-light rounded-3 mb-4 shadow-sm">
-                <div class="container-fluid">
-                    <ul class="navbar-nav me-auto">
-                        <li class="nav-item me-3">
-                            <a id="navItens" class="nav-link text-dark fw-semibold disabled" href="#">
-                                <i class="fas fa-list text-primary me-1"></i>Mais informações
-                            </a>
-                        </li>
-                        <li class="nav-item me-3">
-                            <a id="navEditar" class="nav-link text-dark fw-semibold disabled" href="#">
-                                <i class="fas fa-edit text-warning me-1"></i> Editar
-                            </a>
-                        </li>
+              <!-- 🔹 Navbar de ações -->
+             <nav class="nav nav-pills flex-column flex-sm-row">
 
-                    </ul>
+    <ul class="nav nav-pills">
+      <li class="nav-item">
+        <a id="navDetalhes" class="nav-link inative" aria-current="page" href="#">
+          <i class="fas fa-eye text-info me-2"></i> Exibir Detalhes
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="{{ route('contratos.create') }}" class="nav-link active" aria-current="page">
+          <i class="fas fa-plus-circle me-1"></i> Novo Contrato
+        </a>
+      </li>
+    </ul>
 
-                    <ul class="navbar-nav ms-auto">
-                        <li class="nav-item">
-                            <a href="{{ route('contratos.create') }}" class="btn btn-primary btn-sm px-3">
-                                <i class="fas fa-plus-circle me-1"></i> Novo Contrato
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
-
+</nav>
+<br>
+<!--Legendas de situação dos contratos-->
+<div id="legendaSituacoes" class="mb-3 d-flex flex-wrap align-items-center gap-2 small text-secondary">
+  <i class="fas fa-info-circle me-2 text-primary"></i>
+  <span> Legenda de Situações: </span>
+  <div id="listaLegendas" class="d-flex flex-wrap gap-2 ms-2"></div>
+</div>
+<!---->
             <!-- 🔹 Tabela -->
-            <table id="tabelaContratos" class="table table-striped no-inner-borders w-100">
-                <thead class="bg-light text-secondary border-bottom">
-                    <tr>
-                        <th class="text-center" style="width: 45px;">#</th>
-                        <th>Número</th>
-                        <th>Objeto</th>
-                        <th>Empresa Contratada</th>
-                        <th>Valor Global (R$)</th>
-                        <th>Início</th>
-                        <th>Situação</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($contratos as $contrato)
-                    <tr class="hoverable-row">
-                        <td class="text-center">
-                            <input type="radio" name="contratoSelecionado" value="{{ $contrato->id }}">
-                        </td>
-                        <td>{{ $contrato->numero }}</td>
-                        <td>{{ Str::limit($contrato->objeto, 50) }}</td>
-                        <td>{{ $contrato->contratada->razao_social ?? '-' }}</td>
-                        <td>{{ number_format($contrato->valor_global, 2, ',', '.') }}</td>
-                        <td>{{ \Carbon\Carbon::parse($contrato->data_inicio)->format('d/m/Y') }}</td>
-                        <td>
-                    @php
-                        switch ($contrato->situacao) {
-                            case 'Vigente':
-                                $classe = 'bg-success';
-                                $texto = 'Vigente';
-                                break;
-                            case 'Encerrado':
-                                $classe = 'bg-danger';
-                                $texto = 'Encerrado';
-                                break;
-                            case 'pendente':
-                                $classe = 'bg-warning text-dark';
-                                $texto = 'Pendente';
-                                break;
-                            case 'cancelado':
-                                $classe = 'bg-danger';
-                                $texto = 'Cancelado';
-                                break;
-                            default:
-                                $classe = 'bg-light text-muted';
-                                $texto = 'Desconhecido';
-                                break;
-                        }
-                    @endphp
-                    <span class="badge {{ $classe }}">{{ $texto }}</span>
-                </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+      <table id="tabelaContratos" class="table table-striped no-inner-borders w-100">
+  <thead class="bg-light text-secondary border-bottom">
+    <tr>
+      <th class="text-center" style="width: 45px;">#</th>
+      <th>Número</th>
+      <th>Objeto</th>
+      <th>Empresa Contratada</th>
+      <th>Valor Global (R$)</th>
+      <th>Início</th>
+      <th>Situação</th>
+    </tr>
+  </thead>
+  <tbody>
+
+  </tbody>
+</table>
+
+
+
         </div>
     </div>
 </div>
@@ -181,6 +147,24 @@ use Illuminate\Support\Str;
 @section('css')
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
 <style>
+   .custom-tooltip {
+  --bs-tooltip-bg: var(--bd-violet-bg);
+  --bs-tooltip-color: var(--bs-white);
+}
+   #legendaSituacoes {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+#listaLegendas .badge {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  cursor: help;
+}
+
 .table-borderless tbody tr:hover {
     background-color: #f8f9fa;
     transition: background-color 0.2s ease-in-out;
@@ -195,12 +179,9 @@ use Illuminate\Support\Str;
 .nav-link:hover {
     color: #0d6efd !important;
 }
-#formFiltros input {
-    border-radius: 10px;
-}
-#formFiltros .btn {
-    border-radius: 20px;
-}
+
+
+
 /* Bordas externas apenas */
 table.dataTable {
   border: 1px solid #dee2e6 !important;
@@ -235,6 +216,8 @@ div.dataTables_wrapper {
 /* Garante prioridade de exibição do modal sobre DataTables */
 .modal-backdrop.show { z-index: 1040 !important; }
 .modal { z-index: 1050 !important; }
+ #formFiltros .btn-sep + .btn-sep { margin-left: .5rem !important; }
+
 </style>
 @endsection
 
@@ -244,101 +227,198 @@ div.dataTables_wrapper {
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
-
 <script>
-$(function() {
+$(document).ready(function () {
+
+// 🔹 Monta o filtro e a legenda com cores, ícones e tooltips
+fetch('{{ route('api.situacoes') }}')
+  .then(resp => resp.json())
+  .then(situacoes => {
+      const select = $('#filtroSituacao');
+      const legenda = $('#listaLegendas');
+
+      select.empty().append('<option value="">Todas</option>');
+      legenda.empty();
+
+      situacoes.forEach(s => {
+          // define cor + ícone
+          const map = badgeClassFromColor(s.cor);
+          const descricao = s.descricao ? s.descricao.replace(/"/g, '&quot;') : 'Sem descrição.';
+
+          // adiciona no filtro
+          select.append(`<option value="${s.slug}">${s.nome}</option>`);
+
+          // adiciona badge com ícone + tooltip
+          legenda.append(`
+              <span class="${map.cls} px-3 py-2 shadow-sm d-flex align-items-center gap-1"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="${descricao}">
+                  <i class="fas ${map.icon}"></i> ${s.nome}
+              </span>
+          `);
+      });
+
+      // inicializa tooltips do Bootstrap
+      const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+      tooltipTriggerList.map(el => new bootstrap.Tooltip(el));
+  })
+  .catch(err => console.error('Erro ao carregar situações:', err));
+
+    // 🔹 Carrega as situações da API e popula o select
+fetch ('{{ route('api.situacoes') }}')
+  .then(resp => resp.json())
+  .then(situacoes => {
+      const select = $('#filtroSituacao');
+      select.empty().append('<option value="">Todas</option>');
+      situacoes.forEach(s => {
+          // Exibe o nome da situação
+          select.append(`
+              <option>
+                  ${s.nome}
+              </option>
+          `);
+      });
+  })
+  .catch(err => console.error('Erro ao carregar situações:', err));
+
+    // ==============================
+    // 🔹 Inicializa DataTable via AJAX
+    // ==============================
     const tabela = $('#tabelaContratos').DataTable({
-        language: { url: '..\datatables\i18n\pt-BR.json' },
+        ajax: '{{ route('api.contratos') }}',
+        language: { url: '{{ asset('js/pt-BR.json') }}' },
         pageLength: 10,
         order: [[1, 'asc']],
         dom: 't<"bottom"p>',
-        responsive: true
+        responsive: true,
+        columns: [
+            {
+                data: null,
+                className: 'text-center',
+                render: (d) => `<input type="radio" name="contratoSelecionado" value="${d.id}">`
+            },
+            { data: 'numero', defaultContent: '—' },
+            { data: 'objeto', render: (d) => d ? d.substring(0, 80) + (d.length > 80 ? '…' : '') : '—' },
+            { data: 'contratada.razao_social', defaultContent: '—' },
+            {
+                data: 'valor_global',
+                render: (v) => v ? 'R$ ' + parseFloat(v).toLocaleString('pt-BR', {minimumFractionDigits: 2}) : '—'
+            },
+            {
+                data: 'data_inicio',
+                render: (d) => d ? new Date(d).toLocaleDateString('pt-BR') : '—'
+            },
+          {
+  data: 'situacao_contrato',
+  render: function (s) {
+    if (!s) return '-';
+    const cls = badgeClassFromColor(s.cor);
+    return `<span class="${cls}">${s.nome}</span>`;
+  }
+}
+        ]
     });
 
     let contratoSelecionado = null;
 
-    // Seleção
-    $('#tabelaContratos').on('change', 'input[name="contratoSelecionado"]', function() {
+
+
+    // =====================================================
+    // Marque um radio e ative “Detalhes”
+    // =====================================================
+
+    $('#tabelaContratos').on('change', 'input[name="contratoSelecionado"]', function () {
         contratoSelecionado = $(this).val();
-        $('#navItens, #navEditar, #navExcluir').removeClass('disabled');
+        $('#navDetalhes').removeClass('disabled');
     });
 
 
-$('#navItens').on('click', function(e) {
-    e.preventDefault();
-    if (!contratoSelecionado) return;
-   window.location.href = "{{ url('contratos') }}/" + contratoSelecionado;
-});
-
-    // 🔹 Modal de Itens via AJAX
-   /* $('#navItens').on('click', function(e) {
+    // =====================================================
+    // 🔹 Botão “Detalhes” → redireciona para a view do contrato
+    // =====================================================
+    $('#navDetalhes').on('click', function (e) {
         e.preventDefault();
         if (!contratoSelecionado) return;
+        window.location.href = '{{ url("contratos") }}/' + contratoSelecionado;
+    });
 
-        $('#listaItensContrato').html('<tr><td colspan="5" class="text-center text-muted">Carregando...</td></tr>');
+    // ===================================
+    // 🔍 Aplicar filtros (funciona igual à versão antiga)
+    // ===================================
+    $('#btnAplicarFiltros').on('click', function (e) {
+        e.preventDefault();
 
-        fetch(`/contratos/${contratoSelecionado}/itens`)
-            .then(res => res.json())
-            .then(data => {
-                if (!data.itens || !data.itens.length) {
-                    $('#listaItensContrato').html('<tr><td colspan="5" class="text-center text-muted">Nenhum item vinculado.</td></tr>');
-                    return;
-                }
+        const numero   = $('#filtroNumero').val().trim().toLowerCase();
+        const empresa  = $('#filtroEmpresa').val().trim().toLowerCase();
+        const situacao = $('#filtroSituacao').val().trim().toLowerCase();
 
-                const formatCurrency = (v) => {
-                    if (typeof v === 'number') {
-                        return v.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-                    }
-                    if (typeof v === 'string') {
-                        const n = Number(v.replace(/\./g, '').replace(',', '.'));
-                        return isNaN(n) ? v : n.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-                    }
-                    return '0,00';
-                };
+        // Atualiza os filtros nas colunas
+        tabela.column(1).search(numero);
+        tabela.column(3).search(empresa);
+        tabela.draw();
 
-                let linhas = '';
-                data.itens.forEach((item) => {
-                    linhas += `
-                        <tr>
-                            <td>${item.descricao_item ?? ''}</td>
-                            <td>${item.unidade_medida ?? ''}</td>
-                            <td>${item.quantidade ?? 0}</td>
-                            <td>${formatCurrency(item.valor_unitario)}</td>
-                            <td>${formatCurrency(item.valor_total)}</td>
-                        </tr>
-                    `;
-                });
-                $('#listaItensContrato').html(linhas);
-            })
-            .catch(() => {
-                $('#listaItensContrato').html('<tr><td colspan="5" class="text-center text-danger">Erro ao carregar itens.</td></tr>');
-            });
-
-        new bootstrap.Modal(document.getElementById('modalItensContrato')).show();
-    }); */
-    // Filtros
-    $('#btnAplicarFiltros').on('click', function() {
-        const numero = $('#filtroNumero').val().toLowerCase();
-        const empresa = $('#filtroEmpresa').val().toLowerCase();
-        const situacao = $('#filtroSituacao').val().toLowerCase();
-
-        $('#tabelaContratos tbody tr').each(function() {
-            const colNumero = $(this).find('td:nth-child(2)').text().toLowerCase();
-            const colEmpresa = $(this).find('td:nth-child(4)').text().toLowerCase();
-            const colSituacao = $(this).find('td:nth-child(8)').text().toLowerCase();
-
-            $(this).toggle(
-                (!numero || colNumero.includes(numero)) &&
-                (!empresa || colEmpresa.includes(empresa)) &&
-                (!situacao || colSituacao.includes(situacao))
-            );
+        // Filtro de situação (porque é HTML)
+        $('#tabelaContratos tbody tr').each(function () {
+            const badgeText = $(this).find('td:nth-child(7) span').text().trim().toLowerCase();
+            const match = !situacao || badgeText.includes(situacao);
+            $(this).toggle(match);
         });
     });
+$('#filtroSituacao').on('change', function () {
+    const cor = $(this).find(':selected').data('cor');
+    if (cor) {
+        $(this).removeClass().addClass('form-select form-select-sm text-center bg-' + cor + ' text-white');
+    } else {
+        $(this).removeClass().addClass('form-select form-select-sm text-center');
+    }
+});
 
-    $('#btnLimparFiltros').on('click', function() {
+    // ===========================================
+    // 🔄 Limpar filtros → reseta e recarrega AJAX
+    // ===========================================
+    $('#btnLimpar').on('click', function (e) {
+        e.preventDefault();
         $('#formFiltros')[0].reset();
-        $('#tabelaContratos tbody tr').show();
+
+        tabela.search('');
+        tabela.columns().search('');
+        tabela.order([1, 'asc']);
+        tabela.ajax.reload(null, false);
+
+        $('input[name="contratoSelecionado"]').prop('checked', false);
+        contratoSelecionado = null;
+        $('#navDetalhes').addClass('disabled');
     });
+
+
+    function badgeClassFromColor(cor) {
+  if (!cor) return 'badge bg-secondary';
+  const slug = cor.normalize('NFD')
+                  .replace(/\p{Diacritic}/gu, '')
+                  .toLowerCase()
+                  .replace(/[^a-z]/g, '');
+  const map = {
+    azul: 'primary',
+    verde: 'success',
+    amarelo: 'warning',
+    vermelho: 'danger',
+    cinza: 'secondary',
+    preto: 'dark',
+    branco: 'light',
+    ciano: 'info',
+    roxo: 'secondary',
+    laranja: 'warning',
+  };
+  const cls = map[slug] || 'secondary';
+  const needsDark = cls === 'warning' || cls === 'light';
+  return `badge bg-${cls}${needsDark ? ' text-dark' : ''}`;
+}
+
+
 });
 </script>
+
+
+
 @endsection

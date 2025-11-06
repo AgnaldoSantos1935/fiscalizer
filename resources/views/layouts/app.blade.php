@@ -93,5 +93,6 @@
     .alert-success {
         border-left: 5px solid #198754;
     }
+
 </style>
 @endpush

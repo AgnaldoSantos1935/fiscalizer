@@ -76,6 +76,11 @@ class Contrato extends Model
         return $this->hasMany(Empenho::class, 'contrato_id');
     }
 
+    public function situacaoContrato()
+{
+    return $this->belongsTo(SituacaoContrato::class, 'id');
+}
+
     /**
      * 🔹 Itens de contrato
      */
@@ -111,6 +116,21 @@ class Contrato extends Model
     /**
      * 🔎 Escopo: contratos por tipo
      */
+    public function getValorEmpenhadoAttribute()
+{
+    return $this->empenhos->sum('valor');
+}
+
+public function getValorPagoAttribute()
+{
+    return $this->empenhos->sum(fn($e) => $e->pagamentos->sum('valor_pagamento'));
+}
+
+public function getSaldoContratoAttribute()
+{
+    return $this->valor_global - $this->valor_pago;
+}
+
     public function scopeTipo($query, string $tipo)
     {
         return $query->where('tipo', $tipo);

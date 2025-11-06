@@ -23,7 +23,7 @@ use App\Http\Controllers\RelatorioController;
 use App\Http\Controllers\DREController;
 use App\Http\Controllers\HostController;
 use App\Http\Controllers\TesteConexaoController;
-
+USE App\Http\Controllers\SituacaoController;
 use App\Models\User;
 use App\Models\Role;
 
@@ -91,12 +91,15 @@ Route::get('/escolas-data', [EscolaController::class, 'getData'])->name('escolas
 Route::get('/escolas/{id}/detalhes', [EscolaController::class, 'detalhes'])
     ->name('escolas.detalhes');
 
-Route::get('/contratos/{id}/itens', [App\Http\Controllers\ContratoController::class, 'itens'])
-    ->name('contratos.itens');
-
-
 Route::get('contratos/{id}/itens', [ContratoController::class, 'getItens'])
     ->name('contratos.itens');
+Route::get('/api/contratos', [App\Http\Controllers\ContratoController::class, 'getContratosJson'])
+    ->name('api.contratos');
+Route::get('/api/contratos/detalhes/{id}', [App\Http\Controllers\ContratoController::class, 'detalhesContrato'])
+    ->name('api.contratos.detalhes');
+
+Route::get('/api/situacoes', [App\Http\Controllers\SituacaoContratoController::class, 'listar'])
+    ->name('api.situacoes');
 
 
 

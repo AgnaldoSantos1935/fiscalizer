@@ -3,18 +3,29 @@
 namespace App\Http\Controllers;
 
 use App\Models\Situacao;
+use App\Models\SituacaoContrato;
 use Illuminate\Http\Request;
 
-class SituacaoController extends Controller
+class SituacaoContratoController extends Controller
 {
     /**
      * 🔹 Lista todas as situações
      */
     public function index()
     {
-        $situacoes = Situacao::orderBy('id', 'asc')->get();
+        $situacoes = SituacaoContrato::orderBy('id', 'asc')->get();
         return view('situacoes.index', compact('situacoes'));
     }
+public function listar()
+{
+    $situacoes = SituacaoContrato::select('id', 'nome', 'descricao','slug', 'cor','motivo')
+        ->orderBy('nome')
+        ->get();
+
+    return response()->json($situacoes);
+}
+
+
 
     /**
      * 🔹 Exibe o formulário de criação

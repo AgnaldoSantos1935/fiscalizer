@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Pagamentos;
 
 class Empenho extends Model
 {
@@ -61,4 +63,19 @@ class Empenho extends Model
             }
         });
     }
+    public function pagamentos()
+{
+    return $this->hasMany(Pagamentos::class);
+}
+
+public function getValorPagoAttribute()
+{
+    return $this->pagamentos->sum('valor_pagamento');
+}
+
+public function getSaldoEmpenhoAttribute()
+{
+    return $this->valor - $this->valor_pago;
+}
+
 }
