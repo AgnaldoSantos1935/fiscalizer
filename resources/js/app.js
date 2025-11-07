@@ -7,16 +7,23 @@ import './bootstrap';
 import './bootstrap';
 
 // 🔹 Dependências globais
-import 'jquery';
+// jQuery global
+import $ from 'jquery';
+window.$ = window.jQuery = $;
+
+// Bootstrap 5
 import 'bootstrap';
-import 'bootstrap/dist/js/bootstrap.bundle';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
+// DataTables + Bootstrap 5 + Responsive
 import 'datatables.net-bs5';
-import 'datatables.net-buttons-bs5';
-import 'sweetalert2/dist/sweetalert2.all';
-import 'toastr';
-import '@fortawesome/fontawesome-free/js/all';
-import axios from 'axios';
-import Chart from 'chart.js/auto';
+import 'datatables.net-bs5/css/dataTables.bootstrap5.min.css';
+import 'datatables.net-responsive-bs5';
+import 'datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css';
+
+// Confirma carregamento
+console.log('✅ jQuery, Bootstrap e DataTables carregados via Vite');
+
 
 // 🔹 Seu JS central (com todas as funções e integrações)
 import * as Global from './global';

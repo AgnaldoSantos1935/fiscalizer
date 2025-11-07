@@ -24,6 +24,7 @@ use App\Http\Controllers\DREController;
 use App\Http\Controllers\HostController;
 use App\Http\Controllers\TesteConexaoController;
 USE App\Http\Controllers\SituacaoController;
+
 use App\Models\User;
 use App\Models\Role;
 
@@ -48,6 +49,7 @@ Auth::routes(['register' => false, 'reset' => true]);
 // Alias para evitar o erro "Route [home] not defined"
 
 Route::resource('empresas', EmpresaController::class);
+Route::resource('hosts', HostController::class);
 Route::resource('contratos', ContratoController::class);
 Route::resource('medicoes', MedicaoController::class);
 Route::resource('funcoes-sistema', FuncaoSistemaController::class);
@@ -57,17 +59,17 @@ Route::resource('ocorrencias', OcorrenciaController::class);
 Route::resource('projetos', ProjetoController::class);
 
 
-Route::resource('hosts', HostController::class);
+
 
 // 🔹 Rotas testes de rede
 // 🔹 Rotas de testes de conexão (pings manuais, diagnóstico)
-Route::get('/teste-conexao', [App\Http\Controllers\HostController::class, 'index'])->name('teste_conexao.index');
-Route::post('/teste-conexao', [App\Http\Controllers\TesteConexaoController::class, 'testar'])->name('teste_conexao.testar');
+//Route::get('/teste-conexao', [App\Http\Controllers\HostController::class, 'index'])->name('teste_conexao.index');
+//Route::post('/teste-conexao', [App\Http\Controllers\TesteConexaoController::class, 'testar'])->name('teste_conexao.testar');
 
 // 🔹 Rotas de monitoramento automático (CRUD + histórico + teste)
-Route::resource('monitoramentos', MonitoramentoController::class)->except(['show']);
-Route::get('monitoramentos/{id}/testar', [MonitoramentoController::class, 'testar'])->name('monitoramentos.testar');
-Route::get('monitoramentos/{id}/historico', [MonitoramentoController::class, 'historico'])->name('monitoramentos.historico');
+//Route::resource('monitoramentos', MonitoramentoController::class)->except(['show']);
+//Route::get('monitoramentos/{id}/testar', [MonitoramentoController::class, 'testar'])->name('monitoramentos.testar');
+//Route::get('monitoramentos/{id}/historico', [MonitoramentoController::class, 'historico'])->name('monitoramentos.historico');
 
 
 
@@ -90,6 +92,14 @@ Route::get('/escolas-data', [EscolaController::class, 'getData'])->name('escolas
 // 🔹 Rota auxiliar (JSON de detalhes para modal)
 Route::get('/escolas/{id}/detalhes', [EscolaController::class, 'detalhes'])
     ->name('escolas.detalhes');
+
+
+Route::get('/api/hosts', [HostController::class, 'getHostsJson'])->name('api.hosts');
+
+Route::get('/hosts/{id}', [HostController::class, 'show'])->name('api.hosts.show');
+Route::get('/monitoramentos', [App\Http\Controllers\MonitoramentoController::class, 'index'])
+->name('monitoramentos.index');
+
 
 Route::get('contratos/{id}/itens', [ContratoController::class, 'getItens'])
     ->name('contratos.itens');

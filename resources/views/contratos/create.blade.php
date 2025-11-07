@@ -41,7 +41,16 @@
   </div>
   <div class="text-end">
     <a href="{{ route('contratos.index') }}" class="btn btn-secondary">Cancelar</a>
-    <button type="submit" class="btn btn-success">Salvar</button>
+    <button id="btnsalvar" type="submit" class="btn btn-success">Salvar</button>
   </div>
 </form>
+@endsection
+@section('css')
+
+@endsection
+@section('js')
+<script>
+
+</script>
+
 @endsection

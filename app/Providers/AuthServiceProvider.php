@@ -47,9 +47,11 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('view-index-dre', fn($user) => in_array($user->role_id, [1, 2, 3]));
         Gate::define('view-create-dre', fn($user) => in_array($user->role_id, [1, 2, 3]));
         Gate::define('view-create-empenho', fn($user) => in_array($user->role_id, [1, 2, 3]));
-        Gate::define('view-index-monitoramentos', fn($user) => in_array($user->role_id, [1, 2, 3]));
+        Gate::define('view-index-host', fn($user) => in_array($user->role_id, [1, 2, 3]));
         Gate::define('view-testar_host-monitoramentos', fn($user) => in_array($user->role_id, [1, 2, 3]));
-        Gate::define('view-show-monitoramentos', fn($user) => in_array($user->role_id, [1, 2, 3]));
+        Gate::define('view-create-host', fn($user) => in_array($user->role_id, [1, 2, 3]));
+        Gate::define('view-index-monitoramento', fn($user) => in_array($user->role_id, [1, 2, 3]));
+
         Gate::define('view-index-empenhos', fn($user) => in_array($user->role_id, [1, 2, 3]));
          Gate::define('view-create-empenhos', fn($user) => in_array($user->role_id, [1, 2, 3]));
          Gate::define('view-show-empenhos', fn($user) => in_array($user->role_id, [1, 2, 3]));

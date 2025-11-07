@@ -319,10 +319,27 @@ return [
 
 
     [
-        'text' => 'Dashboard',
+        'text' => 'Início',
         'route' => 'home',
+        'icon' => 'fas fa-fw fa-house',
+        'can' => 'view-home', // Gate permission
+
+    ],
+    [
+        'text' => 'Dashboards',
+        'route' => '',
         'icon' => 'fas fa-fw fa-chart-pie',
         'can' => 'view-dashboard', // Gate permission
+                        'submenu'=>
+        [
+            [
+                'text' => 'Teste de Conexões ',
+                'route'  => 'monitoramentos.index',
+                'icon'  => 'fas fa-fw fa-plug',
+                'can' => 'view-index-monitoramento', // Gate permission
+            ],
+
+        ],
     ],
     [
         'text' => 'Empresas',
@@ -333,13 +350,13 @@ return [
             [
                 'text' => 'Empresas Cadastradas',
                 'route'  => 'empresas.index',
-                'icon'  => 'fas fa-fw fa-business',
+                'icon'  => 'fas fa-fw fa-list',
                 'can' => 'view-index-empresas', // Gate permission
             ],
              [
                 'text' => 'Cadastrar Empresa',
                 'route'  => 'empresas.create',
-                'icon'  => 'fas fa-fw fa-business-plus',
+                'icon'  => 'fas fa-fw fa-plus',
                 'can' => 'view-create-empresas', // Gate permission
             ],
         ],
@@ -414,7 +431,13 @@ return [
                 'text' => 'Exibir todas',
                 'route'  => 'hosts.index',
                 'icon'  => 'fas fa-fw fa-list-ul',
-                'can' => 'view-testar_host-monitoramentos', // Gate permission
+                'can' => 'view-index-host', // Gate permission
+            ],
+                [
+                'text' => 'Nova conexão',
+                'route'  => 'hosts.create',
+                'icon'  => 'fas fa-fw fa-plus',
+                'can' => 'view-create-host', // Gate permission
             ],
 
         ],

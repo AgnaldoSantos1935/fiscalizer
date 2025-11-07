@@ -94,20 +94,7 @@ use Illuminate\Support\Str;
 <!---->
             <!-- 🔹 Tabela -->
       <table id="tabelaContratos" class="table table-striped no-inner-borders w-100">
-  <thead class="bg-light text-secondary border-bottom">
-    <tr>
-      <th class="text-center" style="width: 45px;">#</th>
-      <th>Número</th>
-      <th>Objeto</th>
-      <th>Empresa Contratada</th>
-      <th>Valor Global (R$)</th>
-      <th>Início</th>
-      <th>Situação</th>
-    </tr>
-  </thead>
-  <tbody>
 
-  </tbody>
 </table>
 
 
@@ -145,88 +132,11 @@ use Illuminate\Support\Str;
 @endsection
 
 @section('css')
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
-<style>
-   .custom-tooltip {
-  --bs-tooltip-bg: var(--bd-violet-bg);
-  --bs-tooltip-color: var(--bs-white);
-}
-   #legendaSituacoes {
-  background: #f8f9fa;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  padding: 8px 12px;
-}
 
-#listaLegendas .badge {
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  cursor: help;
-}
-
-.table-borderless tbody tr:hover {
-    background-color: #f8f9fa;
-    transition: background-color 0.2s ease-in-out;
-}
-.nav-link.disabled {
-    opacity: 0.5;
-    pointer-events: none;
-}
-.nav-link {
-    transition: color 0.2s ease-in-out;
-}
-.nav-link:hover {
-    color: #0d6efd !important;
-}
-
-
-
-/* Bordas externas apenas */
-table.dataTable {
-  border: 1px solid #dee2e6 !important;
-  border-collapse: collapse !important;
-  width: 100% !important;
-}
-
-table.dataTable th,
-table.dataTable td {
-  border: none !important;
-  vertical-align: middle !important;
-  white-space: nowrap !important;
-}
-
-table.dataTable thead th {
-  background-color: #f8f9fa !important;
-  font-weight: 600;
-  color: #495057;
-}
-
-/* Scroll horizontal suave no modo responsivo */
-div.dataTables_wrapper {
-  width: 100%;
-  overflow-x: auto;
-}
-
-/* Ajuste de layout do botão de exportação */
-.dt-buttons {
-  margin-bottom: 0.5rem;
-}
-
-/* Garante prioridade de exibição do modal sobre DataTables */
-.modal-backdrop.show { z-index: 1040 !important; }
-.modal { z-index: 1050 !important; }
- #formFiltros .btn-sep + .btn-sep { margin-left: .5rem !important; }
-
-</style>
 @endsection
 
 @section('js')
-<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
-<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+
 <script>
 $(document).ready(function () {
 

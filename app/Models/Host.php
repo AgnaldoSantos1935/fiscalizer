@@ -4,39 +4,59 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+
+
 class Host extends Model
 {
+
+
     protected $table = 'hosts';
 
     protected $fillable = [
-        'nome',
-        'endereco',
-        'tipo',
-        'porta',
-        'localizacao',
+        'nome_conexao',
         'descricao',
-        'ativo',
+        'provedor',
+        'tecnologia',
+        'ip_atingivel',
+        'porta',
+        'status',
+        'local', // será o id_escola
     ];
 
     protected $casts = [
-        'ativo' => 'boolean',
+        'porta' => 'integer',
+        'local' => 'integer',
     ];
 
-    /** 🔹 Rótulo amigável do tipo */
-    public function getTipoFormatadoAttribute(): string
+    protected $dates = [
+        'created_at',
+        'updated_at',
+    ];
+
+    /**
+     * 🔹 Relacionamento: cada host pertence a uma escola
+     * local → id_escola
+     */
+    public function escola()
     {
-        return strtoupper($this->tipo) === 'IP' ? 'Endereço IP' : 'Domínio / Link';
+        return $this->belongsTo(Escola::class, 'local', 'id_escola');
     }
 
-    /** 🔹 Status textual */
-    public function getAtivoTextoAttribute(): string
+    /**
+     * 🔹 Escopos de conveniência
+     */
+    public function scopeAtivos($query)
     {
-        return $this->ativo ? 'Ativo' : 'Inativo';
+        return $query->where('status', 'ativo');
     }
 
-    /** 🔹 Relacionamento com monitoramentos (opcional) */
-    public function monitoramentos()
+    public function scopePorProvedor($query, $provedor)
     {
-        return $this->hasMany(\App\Models\Monitoramento::class, 'host_id');
+        return $query->where('provedor', $provedor);
+    }
+
+    public function scopePorTecnologia($query, $tecnologia)
+    {
+        return $query->where('tecnologia', $tecnologia);
     }
 }

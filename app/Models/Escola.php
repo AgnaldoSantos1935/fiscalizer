@@ -56,6 +56,10 @@ class Escola extends Model
     {
         return $this->belongsTo(DRE::class, 'dre', 'codigodre');
     }
+public function hosts()
+{
+    return $this->hasMany(Host::class, 'local', 'id_escola');
+}
 
     /**
      * Helper para formatar nome completo (exemplo).

@@ -4,7 +4,7 @@ namespace App\Console;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
-class shendule extends ConsoleKernel
+class Kernel extends ConsoleKernel
 {
     /**
      * The Artisan commands provided by your application.
@@ -21,10 +21,11 @@ class shendule extends ConsoleKernel
      * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
      * @return void
      */
-protected function schedule(\Illuminate\Console\Scheduling\Schedule $schedule)
+protected function schedule(Schedule $schedule)
 {
-    // 🔁 Executa o teste de rede a cada 10 minutos
-    $schedule->command('monitorar:rede')->everyTenMinutes();
+
+    // Executa o job a cada 10 minutos
+    $schedule->job(new \App\Jobs\MonitorarHostsJob)->everyTenMinutes();
 
     // 🔧 Pode ajustar conforme a carga:
     // $schedule->command('monitorar:rede')->hourly();

@@ -6,7 +6,19 @@
 import toastr from "toastr";
 import Swal from "sweetalert2";
 import "toastr/build/toastr.min.css";
+// Importa e inicializa o módulo de Hosts
+import { inicializarModaisHosts } from './modules/modaisHosts';
+inicializarModaisHosts();
 
+// Importa e inicializa o arquivo modaisContratos
+import { inicializarModaisContratos } from './modules/modaisContratos';
+inicializarModaisContratos();
+
+// Também adiciona ao namespace global
+window.Contratos = window.Contratos || {};
+window.Contratos.abrirModalItem = window.abrirModalItem;
+window.Contratos.abrirModalEmpenho = window.abrirModalEmpenho;
+window.Contratos.abrirModalPagamento = window.abrirModalPagamento;
 // =======================
 // 🔔 Funções de feedback visual
 // =======================
@@ -271,4 +283,38 @@ document.addEventListener("DOMContentLoaded", () => {
     tooltipTriggerList.map(el => new bootstrap.Tooltip(el));
 
     console.info("%c[Global.js] Fiscalizer carregado com sucesso", "color: green");
+});
+
+// ==========================================================
+// 🌎 Fiscalizer – Autocomplete de Município (IBGE) e Provedor (BrasilAPI)
+// ==========================================================
+document.addEventListener("DOMContentLoaded", function () {
+
+  // 🔹 IBGE Localidades API — municípios do Pará (UF 15)
+  fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados/15/municipios')
+    .then(resp => resp.json())
+    .then(municipios => {
+      const lista = document.getElementById('listaMunicipios');
+      lista.innerHTML = '';
+      municipios.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m.nome;
+        lista.appendChild(opt);
+      });
+      console.log(`✅ Municípios IBGE carregados: ${municipios.length}`);
+    })
+    .catch(err => console.error('Erro ao carregar municípios do IBGE:', err));
+
+  // 🔹 BrasilAPI — provedores mais comuns
+  const provedoresPadrao = ['Starlink', 'Vivo', 'Claro', 'Oi', 'HughesNet', 'GVT', 'TIM', 'BR Digital', 'Sky', 'Prodepa'];
+
+  const listaProvedores = document.getElementById('listaProvedores');
+  listaProvedores.innerHTML = '';
+  provedoresPadrao.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p;
+    listaProvedores.appendChild(opt);
+  });
+
+  console.log('✅ Lista básica de provedores carregada.');
 });

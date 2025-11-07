@@ -2,158 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
-use Carbon\Carbon;
-use App\Models\Monitoramento;
+use App\Models\Host;
+use App\Models\MonitoramentoHost;
 
 class MonitoramentoController extends Controller
 {
-    /**
-     * Lista todos os monitoramentos
-     */
     public function index()
     {
-        $monitoramentos = Monitoramento::orderBy('nome')->get();
-        return view('monitoramentos.index', compact('monitoramentos'));
+        $ultimos = MonitoramentoHost::with('host')
+            ->latest('verificado_em')
+            ->take(100)
+            ->get();
+
+        $resumo = [
+            'total' => Host::count(),
+            'online' => Host::where('status', 'online')->count(),
+            'offline' => Host::where('status', 'offline')->count(),
+        ];
+
+        return view('monitoramentos.conexoes', compact('ultimos', 'resumo'));
     }
-
-    /**
-     * Exibe o formulário de criação
-     */
-    public function create()
-    {
-        return view('monitoramentos.create');
-    }
-
-    /**
-     * Armazena um novo registro
-     */
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'nome' => 'required|string|max:150',
-            'tipo' => 'required|in:ip,link',
-            'alvo' => 'required|string|max:255',
-            'porta' => 'nullable|integer',
-            'ativo' => 'boolean',
-        ]);
-
-        Monitoramento::create($validated);
-
-        return redirect()->route('monitoramentos.index')
-            ->with('success', 'Monitoramento cadastrado com sucesso!');
-    }
-
-    /**
-     * Testa e atualiza o status de um monitoramento específico.
-     */
-    public function testar($id)
-    {
-        $monitoramento = Monitoramento::findOrFail($id);
-        $inicio = microtime(true);
-        $status = false;
-        $codigo = null;
-        $latencia = null;
-        $erro = null;
-
-        try {
-            if ($monitoramento->tipo === 'ip') {
-                // Teste de Ping
-                $cmd = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'
-                    ? "ping -n 1 " . escapeshellarg($monitoramento->alvo)
-                    : "ping -c 1 " . escapeshellarg($monitoramento->alvo);
-
-                $saida = [];
-                $retorno = 1;
-                @exec($cmd, $saida, $retorno);
-
-                $status = ($retorno === 0);
-                if ($status && preg_match('/time[=<]([\d\.]+)\s?ms/', implode(' ', $saida), $m)) {
-                    $latencia = floatval($m[1]);
-                }
-            } else {
-                // Teste de URL HTTP
-                $inicio_http = microtime(true);
-                $resposta = Http::timeout(5)->get($monitoramento->alvo);
-                $fim_http = microtime(true);
-
-                $codigo = $resposta->status();
-                $status = $resposta->successful();
-                $latencia = round(($fim_http - $inicio_http) * 1000, 2);
-            }
-        } catch (\Throwable $e) {
-            $erro = $e->getMessage();
-        }
-
-        $monitoramento->update([
-            'online' => $status,
-            'status_code' => $codigo,
-            'latencia' => $latencia,
-            'erro' => $erro,
-            'ultima_verificacao' => Carbon::now(),
-        ]);
-
-        return redirect()->route('monitoramentos.index')
-            ->with('success', "Teste executado para {$monitoramento->nome}: " . ($status ? 'ONLINE 🟢' : 'OFFLINE 🔴'));
-    }
-
-    /**
-     * Atualiza manualmente um monitoramento (editar)
-     */
-    public function edit($id)
-    {
-        $monitoramento = Monitoramento::findOrFail($id);
-        return view('monitoramentos.edit', compact('monitoramento'));
-    }
-
-    public function update(Request $request, $id)
-    {
-        $monitoramento = Monitoramento::findOrFail($id);
-
-        $validated = $request->validate([
-            'nome' => 'required|string|max:150',
-            'tipo' => 'required|in:ip,link',
-            'alvo' => 'required|string|max:255',
-            'porta' => 'nullable|integer',
-            'ativo' => 'boolean',
-        ]);
-
-        $monitoramento->update($validated);
-
-        return redirect()->route('monitoramentos.index')
-            ->with('success', 'Monitoramento atualizado com sucesso!');
-    }
-
-    public function destroy($id)
-    {
-        Monitoramento::findOrFail($id)->delete();
-        return redirect()->route('monitoramentos.index')
-            ->with('success', 'Monitoramento removido!');
-    }
-    public function historico($id)
-{
-    $monitoramento = \App\Models\Monitoramento::findOrFail($id);
-
-    $logs = \App\Models\MonitoramentoLog::where('monitoramento_id', $id)
-        ->orderByDesc('data_teste')
-        ->take(50)
-        ->get();
-
-    // Cálculos simples
-    $total = $logs->count();
-    $online = $logs->where('online', true)->count();
-    $uptime = $total ? round(($online / $total) * 100, 2) : 0;
-    $mediaLatencia = $logs->whereNotNull('latencia')->avg('latencia');
-
-    return view('monitoramentos.historico', compact('monitoramento', 'logs', 'uptime', 'mediaLatencia'));
-}
-public function show($id)
-{
-    $monitoramentos = \App\Models\Monitoramento::findOrFail($id);
-
-    return view('monitoramentos.show', compact('monitoramentos'));
 }
 
-
-}

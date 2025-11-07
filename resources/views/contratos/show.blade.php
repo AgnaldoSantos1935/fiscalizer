@@ -2,7 +2,7 @@
 @section('title', 'Detalhes do Contrato')
 
 @section('content')
-<div class="container-fluid">
+<div>
 
     <!-- 🔹 Breadcrumb -->
     <nav aria-label="breadcrumb" class="mb-3">
@@ -17,24 +17,28 @@
             </li>
         </ol>
     </nav>
-<!---->
- <!-- 🔹 Resumo Financeiro -->
-  <div class="card card-secondary">
-              <div class="card-header">
-                 <h5 class="mb-0 text-with" id="tituloContrato">
 
-            </h5>
-              </div>
-              <!-- /.card-header -->
+ <!-- 🔹 Resumo Financeiro -->
+  <div class="card card">
+              <div class="card-header">
+                <div class="card-title">
+                 <h5 class="mb-0 text-with" id="tituloContrato"></h5>
+                     </div>
+ <div class="card-tools">
+                  <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+                    <i class="fas fa-minus"></i>
+                  </button>
+                </div>
+              </div><!-- /.card-header -->
               <div class="card-body">
-<section class="content">
+ <section class="content">
       <div class="container-fluid">
         <!-- Small boxes (Stat box) -->
         <div class="row">
           <div class="col-lg-3 col-6">
                  <div class="small-box bg-success"  data-bs-toggle="tooltip" title="Valor global do contrato por ano">
               <div class="inner">
-              <h3 id="resumoGlobal">R$ 0,00</h3>
+              <h4 id="resumoGlobal">R$ 0,00</h4>
                <p></p>
               </div>
               <div class="icon">
@@ -46,7 +50,7 @@
             <div class="col-lg-3 col-6">
                              <div class="small-box bg-success"  data-bs-toggle="tooltip" title="Valor total empenhado até o momento">
               <div class="inner">
-                <h3 id="resumoEmpenhado">R$ 0,00</h3>
+                <h4 id="resumoEmpenhado">R$ 0,00</h4>
                   <p></p>
 
               </div>
@@ -59,7 +63,7 @@
             <div class="col-lg-3 col-6">
                   <div class="small-box bg-warning"  data-bs-toggle="tooltip" title="Total da soma dos pagamentos informados até o momento">
               <div class="inner">
-                <h3 id="resumoPago">R$ 0,00</h3>
+                <h4 id="resumoPago">R$ 0,00</h4>
                 <p></p>
 
               </div>
@@ -72,7 +76,7 @@
                <div class="col-lg-3 col-6">
                 <div class="small-box bg-danger" data-bs-toggle="tooltip" title="Saldo da somas dos valores empenhados">
               <div class="inner">
-                 <h3 id="resumoSaldo">R$ 0,00</h3>
+                 <h4 id="resumoSaldo">R$ 0,00</h4>
                 <p></p>
 
               </div>
@@ -90,43 +94,56 @@
 </div>
 
     <!-- 🔹 Detalhes do Contrato -->
- <div class="card card-secondary">
+<div class="card card">
               <div class="card-header">
-                <h5 class="mb-0 text-white">
-                   Detalhes do contrato
-            </h5>
-        </div>
-              <!-- /.card-header -->
-        </div>
+                <div class="card-title">
+                 <h5 class="mb-0 text-with">Detalhes do contrato: </h5>
+                     </div>
+ <div class="card-tools">
+                  <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+                    <i class="fas fa-minus"></i>
+                  </button>
+                </div>
+        </div><!-- /.card-header -->
+
         <div class="card-body" id="detalhesContrato">
             <p class="text-muted mb-0">Carregando informações do contrato...</p>
         </div>
  </div>
 
     <!-- 🔹 Itens Contratados -->
- <div class="card card-secondary">
+              <div class="card card">
               <div class="card-header">
-               <h5 class="mb-0 text-with">
-                Itens Contratados
-            </h5>
-              </div>
-              <!-- /.card-header -->
-
+                <div class="card-title">
+                 <h5 class="mb-0 text-with">Itens Contratados: </h5>
+                     </div>
+ <div class="card-tools">
+                  <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+                    <i class="fas fa-minus"></i>
+                  </button>
+                </div>
+              </div><!-- /.card-header -->
         <div class="card-body" id="tabelaItens">
             <p class="text-muted mb-0">Carregando itens...</p>
         </div>
   </div>
 
     <!-- 🔹 Empenhos Vinculados -->
- <div class="card card-secondary">
+
+              <div class="card card">
               <div class="card-header">
-             <h5 class="mb-0 text-white ">
-                Empenhos Vinculados
-            </h5>
-              <a id="btnNovoEmpenho" href="#" class="btn btn-light btn-sm d-none">
+                <div class="card-title">
+                 <h5 class="mb-0 text-with"> Empenhos Vinculados: </h5>
+                     </div>
+                <div class="card-tools">
+                  <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+                    <i class="fas fa-minus"></i>
+                  </button>
+                     <a id="btnNovoEmpenho" href="#" class="btn btn-light btn-sm d-none">
                 <i class="fas fa-plus-circle me-1"></i> Cadastrar Empenho
             </a>
-              </div>
+                </div>
+        </div><!-- /.card-header -->
         <div class="card-body" id="tabelaEmpenhos">
             <p class="text-muted mb-0">Carregando empenhos...</p>
         </div>
@@ -202,6 +219,7 @@
           </div>
       </div>
   </div>
+  </div>
 </div>
 @endsection
 @section( section:'css')
@@ -215,13 +233,7 @@
 @endsection
 
 @section('js')
-<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
-<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
 
-<script src="{{ asset('js/modais.js') }}"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     const idContrato = window.location.pathname.split('/').pop();

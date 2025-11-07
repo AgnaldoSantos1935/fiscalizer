@@ -14,7 +14,7 @@
 {{-- 🔹 Cabeçalho da Página --}}
 {{-- ========================================= --}}
 @section('content_header')
- @vite(['resources/js/app.js', 'resources/css/app.css'])
+
     @hasSection('content_header_title')
         <h1 class="text-muted mb-0">
             @yield('content_header_title')
@@ -57,7 +57,7 @@
 
     <strong>
         <a href="{{ config('app.company_url', '#') }}" target="_blank">
-            {{ config('app.company_name', 'Secretaria de Estado de Educação do Pará') }}
+            {{ config('app.company_name', 'Fiscalizer - Sistema de fiscalização e acompanhamento de contratos') }}
         </a>
     </strong>
 @stop
@@ -67,6 +67,8 @@
 {{-- ========================================= --}}
 @push('js')
 <script>
+    @vite(['resources/js/app.js', 'resources/css/app.css'])
+
     $(document).ready(function () {
         // JS comum a todas as páginas
         console.log("AdminLTE layout carregado com sucesso!");
@@ -97,3 +99,4 @@
 
 </style>
 @endpush
+

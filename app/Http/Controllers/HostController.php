@@ -7,12 +7,65 @@ use Illuminate\Http\Request;
 
 class HostController extends Controller
 {
-    /** 🧩 Lista de hosts */
+    /**
+     * 🔹 Retorna todos os hosts em formato JSON (para DataTables)
+     */
+public function getHostsJson(Request $request)
+{
+    $query = Host::with('escola:id_escola,escola,municipio');
+
+    // 🔍 Filtros dinâmicos
+    if ($request->filled('nome_conexao')) {
+        $query->where('nome_conexao', 'like', '%' . $request->nome_conexao . '%');
+    }
+
+    if ($request->filled('provedor')) {
+        $query->where('provedor', 'like', '%' . $request->provedor . '%');
+    }
+
+    if ($request->filled('tecnologia')) {
+        $query->where('tecnologia', 'like', '%' . $request->tecnologia . '%');
+    }
+
+    if ($request->filled('status')) {
+        $query->where('status', $request->status);
+    }
+
+    if ($request->filled('municipio')) {
+        $query->whereHas('escola', function ($q) use ($request) {
+            $q->where('municipio', 'like', '%' . $request->municipio . '%');
+        });
+    }
+
+    // 🔹 Ordena e obtém resultados
+    $hosts = $query->orderBy('id', 'asc')->get();
+
+    // 🔹 Formata os dados para o DataTable
+    $data = $hosts->map(function ($h) {
+        return [
+            'id'            => $h->id,
+            'nome_conexao'  => $h->nome_conexao,
+            'descricao'     => $h->descricao,
+            'provedor'      => $h->provedor,
+            'tecnologia'    => $h->tecnologia,
+            'ip_atingivel'  => $h->ip_atingivel,
+            'status'        => $h->status,
+            'nome_escola'   => $h->escola->escola ?? '—',
+            'municipio'     => $h->escola->municipio ?? '—',
+        ];
+    });
+
+    return response()->json(['data' => $data]);
+}
+
+
+
     public function index()
     {
-        $hosts = Host::orderBy('nome')->get();
-        return view('hosts.index', compact('hosts'));
+
+        return view('hosts.index');
     }
+
 
     /** 🆕 Exibe o formulário de criação */
     public function create()
@@ -73,9 +126,16 @@ class HostController extends Controller
     }
 
     /** 🔍 Exibir detalhes */
-    public function show($id)
+ public function show($id)
     {
-        $host = Host::findOrFail($id);
-        return view('hosts.show', compact('host'));
+        $host = Host::with(['escola:id_escola,escola,municipio'])
+            ->find($id);
+
+        if (!$host) {
+            return response()->json(['error' => 'Host não encontrado.'], 404);
+        }
+
+        return response()->json($host);
     }
+
 }
