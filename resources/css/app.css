@@ -9,3 +9,37 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/* ================================
+   🎨 APP.CSS — Estilos globais Fiscalizer
+   ================================ */
+
+/* Bootstrap */
+@import "bootstrap/dist/css/bootstrap.min.css";
+
+/* DataTables */
+@import "datatables.net-bs5/css/dataTables.bootstrap5.min.css";
+@import "datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css";
+
+/* Toastr */
+@import "toastr/build/toastr.min.css";
+
+/* Font Awesome */
+@import "@fortawesome/fontawesome-free/css/all.min.css";
+
+/* SweetAlert2 */
+@import "sweetalert2/dist/sweetalert2.min.css";
+
+/* Seu tema customizado Fiscalizer */
+@import "./custom.css";
+
+/* Ajustes globais */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* Exemplo: personalizar toasts */
+.toast-success {
+    background-color: #198754 !important;
+}

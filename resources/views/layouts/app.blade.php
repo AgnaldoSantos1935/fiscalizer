@@ -14,6 +14,7 @@
 {{-- 🔹 Cabeçalho da Página --}}
 {{-- ========================================= --}}
 @section('content_header')
+ @vite(['resources/js/app.js', 'resources/css/app.css'])
     @hasSection('content_header_title')
         <h1 class="text-muted mb-0">
             @yield('content_header_title')
