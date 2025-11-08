@@ -61,6 +61,8 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('view-create-empresas', fn($user) => $user->role_id === 2);
         Gate::define('view-create-contratos', fn($user) => $user->role_id === 2);
         Gate::define('view-escolas', fn($user) => $user->role_id === 2);
+         Gate::define('view-index-user_profiles', fn($user) => $user->role_id === 2);
+           Gate::define('view-create-user_profiles', fn($user) => $user->role_id === 2);
 
 }
 }

@@ -24,6 +24,7 @@ use App\Http\Controllers\DREController;
 use App\Http\Controllers\HostController;
 use App\Http\Controllers\TesteConexaoController;
 USE App\Http\Controllers\SituacaoController;
+use App\Http\Controllers\UserProfileController;
 
 use App\Models\User;
 use App\Models\Role;
@@ -57,7 +58,7 @@ Route::resource('documentos', DocumentoController::class);
 Route::resource('ocorrencias-fiscalizacao', OcorrenciaFiscalizacaoController::class);
 Route::resource('ocorrencias', OcorrenciaController::class);
 Route::resource('projetos', ProjetoController::class);
-
+Route::resource('user_profiles', UserProfileController::class);
 
 
 
@@ -76,12 +77,22 @@ Route::resource('projetos', ProjetoController::class);
 // 🔹 Rotas RESTful (CRUD completo)
 Route::resource('escolas', EscolaController::class);
 
+
+
 // Rotas para empenhos (CRUD)
 Route::resource('empenhos', EmpenhoController::class);
 Route::get('empenho/{id}/imprimir', [EmpenhoController::class, 'imprimir'])
     ->name('empenho.imprimir');
 
+// CADASTRO DE PERFIS DE USUÁRIOS
+Route::get('user_profiles/index', [App\Http\Controllers\UserProfileController::class, 'index'])
+->name('user_profiles.index');
+Route::get('user_profiles/create', [App\Http\Controllers\UserProfileController::class, 'create'])
+->name('user_profiles.create');
+Route::get('user_profiles/show', [App\Http\Controllers\UserProfileController::class, 'show'])
+->name('user_profiles.show');
 
+// FINAL DE CADASTRO DE PERFIS DE USUÁRIOS
 
 // Rota API para DataTables / AJAX
 Route::get('/api/empenhos', [App\Http\Controllers\EmpenhoController::class, 'getData'])->name('api.empenhos');

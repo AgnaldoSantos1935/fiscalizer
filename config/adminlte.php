@@ -497,8 +497,30 @@ return [
         ],
     ],
 
-
     [
+        'header' => 'USUÁRIOS',
+    ],
+    [
+    'text' => 'Perfis de Usuários',
+    'url'  => '',
+    'icon' => 'fas fa-users',
+    'submenu'=>
+        [
+            [
+                'text' => 'Lista de Usuários',
+                'route'  => 'user_profiles.index',
+                'icon'  => 'fas fa-fw fa-list',
+                'can' => 'view-index-user_profiles', // Gate permission
+            ],
+             [
+                'text' => 'Cadastrar Usuário',
+                'route'  => 'user_profiles.create',
+                'icon'  => 'fas fa-fw fa-plus',
+                'can' => 'view-create-user_profiles', // Gate permission
+            ],
+        ],
+    ],
+    /*[
         'text' => 'Usuários',
         'url' => '/usuarios',
         'icon' => 'fas fa-fw fa-users',
@@ -514,7 +536,7 @@ return [
         'route' => 'password.request',
         'icon' => 'fas fa-fw fa-lock',
         'can' => 'view-pswreset', // Gate permission
-    ],
+    ],*/
 
     [
         'text' => 'Relatórios',
