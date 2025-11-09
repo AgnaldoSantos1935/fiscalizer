@@ -1,3 +1,173 @@
+body{
+    color: #2a2b2c;
+    font-family: 'arial';
+    font-weight: 400;
+}
+
+/* ===============================================================
+   🎨 Fiscalizer Theme Controls
+   Onde achar/alterar as variáveis usadas por este CSS:
+   - Variáveis de tema: definidas no bloco :root logo abaixo.
+   - Classes aplicadas: configuradas em config/adminlte.php (classes_sidebar, classes_topnav,
+     classes_content_wrapper, classes_body).
+   - Variáveis Bootstrap/SCSS (opcional): resources/sass/_variables.scss, caso utilize SASS.
+   - Customizações adicionais: este próprio arquivo resources/css/custom.css.
+   - Dica: crie presets (.preset-*) e aplique junto de 'theme-fiscalizer' no <body>.
+   - Add these classes via AdminLTE config to enable custom colors
+   - Edit the variables below to change colors quickly
+   ---------------------------------------------------------------
+   How to enable:
+   - config/adminlte.php
+       'classes_sidebar'           => 'sidebar-dark-primary elevation-4 sidebar-custom',
+       'classes_topnav'            => 'navbar-dark navbar-primary topnav-custom',
+       'classes_content_wrapper'   => 'content-custom',
+       'classes_body'              => 'footer-custom theme-fiscalizer',
+   =============================================================== */
+
+/* Default theme variables (edit to your palette) */
+:root {
+  /* Sidebar */
+  --sidebar-bg: #0f172a;            /* deep navy */
+  --sidebar-color: #e2e8f0;         /* slate-200 */
+  --sidebar-link-color: #cbd5e1;    /* slate-300 */
+  --sidebar-link-hover-bg: #1e293b; /* slate-800 */
+  --sidebar-link-active-bg: #0ea5e9;/* sky-500 */
+  --sidebar-link-active-color: #0b1220; /* contrast */
+  --sidebar-border-color: rgba(255,255,255,.08);
+  --brand-bg: #0b3f93;
+  --brand-color: #ffffff;
+
+  /* Top navbar */
+  --topnav-bg: #0ea5e9;            /* sky-500 */
+  --topnav-color: #ffffff;
+  --topnav-link-color: #ffffff;
+  --topnav-link-hover-bg: rgba(255,255,255,.12);
+
+  /* Content (body area) */
+  --content-bg: #f4f6f9;           /* adminlte default-ish */
+  --content-color: #1f2937;
+
+  /* Footer */
+  --footer-bg: #0f172a;
+  --footer-color: #e2e8f0;
+  --footer-link-color: #93c5fd;
+}
+
+/* Wrapper class to apply the variables theme-wide (optional) */
+.theme-fiscalizer {
+  /* no styles by itself; used as a scope for overrides below */
+}
+
+/* ========================= Sidebar ========================= */
+.sidebar-custom aside.main-sidebar,
+aside.main-sidebar.sidebar-custom {
+  background-color: var(--sidebar-bg) !important;
+  color: var(--sidebar-color) !important;
+  border-right: 1px solid var(--sidebar-border-color) !important;
+}
+
+.sidebar-custom .brand-link,
+aside.main-sidebar.sidebar-custom .brand-link {
+  background-color: var(--brand-bg) !important;
+  color: var(--brand-color) !important;
+}
+
+.sidebar-custom .nav-sidebar .nav-link,
+aside.main-sidebar.sidebar-custom .nav-sidebar .nav-link {
+  color: var(--sidebar-link-color) !important;
+}
+
+.sidebar-custom .nav-sidebar .nav-link:hover,
+aside.main-sidebar.sidebar-custom .nav-sidebar .nav-link:hover {
+  background-color: var(--sidebar-link-hover-bg) !important;
+}
+
+.sidebar-custom .nav-sidebar .nav-link.active,
+aside.main-sidebar.sidebar-custom .nav-sidebar .nav-link.active {
+  background-color: var(--sidebar-link-active-bg) !important;
+  color: var(--sidebar-link-active-color) !important;
+}
+
+/* ========================= Top Navbar ====================== */
+.topnav-custom .main-header.navbar,
+body.topnav-custom .main-header.navbar {
+  background-color: var(--topnav-bg) !important;
+  color: var(--topnav-color) !important;
+}
+
+.topnav-custom .navbar-nav .nav-link,
+body.topnav-custom .navbar-nav .nav-link {
+  color: var(--topnav-link-color) !important;
+}
+
+.topnav-custom .navbar-nav .nav-link:hover,
+body.topnav-custom .navbar-nav .nav-link:hover {
+  background-color: var(--topnav-link-hover-bg) !important;
+}
+
+/* ========================= Content Wrapper ================ */
+.content-custom .content-wrapper,
+body.content-custom .content-wrapper {
+  background-color: var(--content-bg) !important;
+  color: var(--content-color) !important;
+}
+
+/* ========================= Footer ========================= */
+.footer-custom .main-footer,
+body.footer-custom .main-footer {
+  background-color: var(--footer-bg) !important;
+  color: var(--footer-color) !important;
+}
+
+.footer-custom .main-footer a,
+body.footer-custom .main-footer a {
+  color: var(--footer-link-color) !important;
+}
+
+/* Optional presets: duplicate and tweak as you like */
+.preset-dark-navy {
+  --sidebar-bg: #0f172a;
+  --topnav-bg: #0ea5e9;
+  --content-bg: #0b1220;
+  --content-color: #e2e8f0;
+  --footer-bg: #0f172a;
+}
+
+.preset-light-sky {
+  --sidebar-bg: #ffffff;
+  --sidebar-color: #1f2937;
+  --sidebar-link-color: #374151;
+  --sidebar-link-hover-bg: #f1f5f9;
+  --sidebar-link-active-bg: #0ea5e9;
+  --sidebar-link-active-color: #0b1220;
+  --topnav-bg: #38bdf8;
+  --content-bg: #f8fafc;
+  --footer-bg: #ffffff;
+  --footer-color: #1f2937;
+}
+       .card {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            border-radius: 10px 10px 0 0 !important;
+        }
+
+        .input-group-text {
+            background-color: #f8f9fa;
+            border-right: none;
+        }
+
+        .form-control {
+            border-left: none;
+        }
+
+        .btn-primary {
+            padding: 10px 20px;
+            font-weight: 600;
+        }
+
 .tooltip-inner {
   background-color: rgba(0, 0, 0, 0.85);
   font-size: 0.85rem;

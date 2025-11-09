@@ -1,19 +1,6 @@
-
-// ==========================
-// 🚀 APP.JS — Entrada principal Fiscalizer
-// ==========================
-
-// Core do Laravel (bootstrap, CSRF, Axios se quiser)
-import './bootstrap';
-
-// 🔹 Dependências globais
-// jQuery global
-import $ from 'jquery';
-window.$ = window.jQuery = $;
-
-// Bootstrap 5
-import 'bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
+// ====================================================
+// 🌐 main.js — ponto de entrada (Vite) do Fiscalizer
+// ====================================================
 
 // Utilidades
 import { showToast, confirmarAcao, setupToastrDefaults } from './utils/notifications';

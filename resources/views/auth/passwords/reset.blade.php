@@ -1,3 +1,13 @@
+{{--
+    Tema Fiscalizer: referência rápida de personalização
+    - Variáveis (cores, bg, links): em `resources/css/custom.css` no `:root`.
+    - Classes AdminLTE (layout do painel): defina em `config/adminlte.php`
+        • `classes_sidebar`  com `sidebar-custom`
+        • `classes_topnav`   com `topnav-custom`
+        • `classes_content_wrapper` com `content-custom`
+        • `classes_body`     com `footer-custom theme-fiscalizer`
+    - Limpe cache se necessário: `php artisan optimize:clear`.
+--}}
 @extends('layouts.auth')
 
 @section('content')

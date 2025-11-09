@@ -1,3 +1,13 @@
+{{--
+    Tema Fiscalizer: onde alterar cores e estilos
+    - Variáveis do tema: `resources/css/custom.css` (variáveis em `:root`).
+    - Classes de tema AdminLTE (aplicadas no painel): `config/adminlte.php`
+        • `classes_sidebar`  → `sidebar-custom`
+        • `classes_topnav`   → `topnav-custom`
+        • `classes_content_wrapper` → `content-custom`
+        • `classes_body`     → `footer-custom theme-fiscalizer`
+    - Caso não veja as mudanças, use: `php artisan optimize:clear`.
+--}}
 @extends('layouts.auth')
 
 @section('content')

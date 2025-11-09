@@ -1,180 +1,160 @@
 @extends('layouts.app')
-@section('title', 'Hosts Cadastrados')
+
+@section('title', 'Conexões (Links de Rede)')
+
+@section('content_header')
+<h1>
+    <i class="fas fa-network-wired me-2 text-primary"></i>
+    Conexões Cadastradas
+</h1>
+@stop
 
 @section('content')
-<!-- 🔍 Card de Filtros -->
 <div class="card shadow-sm border-0 rounded-4 mb-4">
-  <div class="card-header bg-white border-0 d-flex align-items-center justify-content-between">
-      <h4 class="mb-0 text-secondary fw-semibold">
-          <i class="fas fa-search me-2 text-primary"></i>Filtros de Pesquisa
-      </h4>
-  </div>
-
-  <div class="card-body bg-white">
-      <form id="formFiltros" class="row g-3 bg-light p-3 rounded-4 shadow-sm align-items-end mb-3">
-
-          <div class="col-md-3">
-              <label for="filtroConexao" class="form-label fw-semibold small text-secondary">Nome da Conexão</label>
-              <input type="text" id="filtroConexao" class="form-control form-control-sm" placeholder="Ex: VDSDPA0001">
-          </div>
-
-          <div class="col-md-3">
-              <label for="filtroProvedor" class="form-label fw-semibold small text-secondary">Provedor</label>
-              <input list="listaProvedores" id="filtroProvedor" class="form-control form-control-sm" placeholder="Ex: Starlink, Vivo...">
-              <datalist id="listaProvedores"></datalist>
-          </div>
-
-          <div class="col-md-3">
-              <label for="filtroTecnologia" class="form-label fw-semibold small text-secondary">Tecnologia</label>
-              <select id="filtroTecnologia" class="form-select form-select-sm">
-                  <option value="">Todas</option>
-                  <option value="Fibra">Fibra</option>
-                  <option value="Rádio">Rádio</option>
-                  <option value="Satélite">Satélite</option>
-                  <option value="4G">4G</option>
-              </select>
-          </div>
-
-          <div class="col-md-3">
-              <label for="filtroStatus" class="form-label fw-semibold small text-secondary">Status</label>
-              <select id="filtroStatus" class="form-select form-select-sm">
-                  <option value="">Todos</option>
-                  <option value="ativo">Ativo</option>
-                  <option value="inativo">Inativo</option>
-                  <option value="manutenção">Manutenção</option>
-              </select>
-          </div>
-
-          <div class="col-md-3">
-              <label for="filtroMunicipio" class="form-label fw-semibold small text-secondary">Município</label>
-              <input list="listaMunicipios" id="filtroMunicipio" class="form-control form-control-sm" placeholder="Ex: Belém, Ananindeua...">
-              <datalist id="listaMunicipios"></datalist>
-          </div>
-
-          <div class="col-md-3 d-flex justify-content-end align-items-end">
-              <div class="d-flex w-100">
-                  <button type="button" id="btnAplicarFiltros" class="btn btn-primary btn-sm flex-grow-1 me-2">
-                      <i class="fas fa-filter me-1"></i> Filtrar
-                  </button>
-                  <button type="button" id="btnLimparFiltros" class="btn btn-outline-secondary btn-sm flex-grow-1">
-                      <i class="fas fa-undo me-1"></i> Limpar
-                  </button>
-              </div>
-          </div>
-      </form>
-  </div>
-</div>
-
-
-  <!-- 🔹 Card Principal -->
-    <div class="card shadow-sm border-0 rounded-4">
-        <div class="card-header bg-white border-0 d-flex align-items-center justify-content-between">
-            <h4 class="mb-0 text-secondary fw-semibold">
-                <i class="fas fa-file-contract me-2 text-primary"></i>Conexões cadastradas
-            </h4>
-        </div>
-
-        <div class="card-body bg-white">
-              <!-- 🔹 Navbar de ações -->
-             <nav class="nav nav-pills flex-column flex-sm-row">
-
-    <ul class="nav nav-pills">
-      <li class="nav-item">
-        <a id="navDetalhes" class="nav-link inative" aria-current="page" href="#">
-          <i class="fas fa-eye text-info me-2"></i> Exibir Detalhes
+    <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+        <h5 class="mb-0 text-secondary fw-semibold">
+            <i class="fas fa-filter me-2 text-primary"></i>Filtros de Pesquisa
+        </h5>
+        <a href="{{ route('hosts.create') }}" class="btn btn-success btn-sm">
+            <i class="fas fa-plus me-1"></i> Nova Conexão
         </a>
-      </li>
-      <li class="nav-item">
-        <a href="{{ route('hosts.create') }}" class="nav-link active" aria-current="page">
-          <i class="fas fa-plus-circle me-1"></i> Nova Conexão
-        </a>
-      </li>
-    </ul>
-
-</nav>
+    </div>
 
     <div class="card-body">
+        <form id="formFiltros" class="row g-3 align-items-end">
+            <!-- Contrato -->
+            <div class="col-md-3">
+                <label class="form-label fw-semibold small text-secondary">Contrato</label>
+                <select id="filtroContrato" class="form-select form-select-sm">
+                    <option value="">Todos</option>
+                    @foreach($contratos as $contrato)
+                        <option value="{{ $contrato->id }}">{{ $contrato->numero }} – {{ Str::limit($contrato->objeto, 50) }}</option>
+                    @endforeach
+                </select>
+            </div>
 
-        <table id="tabela-hosts" class="table table-striped no-inner-borders w-100">
-        </table>
-</div>
-<!-- 🔹 Modal Detalhes da Conexão -->
-<div class="modal fade" id="modalDetalhesConexao" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-      <div class="modal-content">
-          <div class="modal-header bg-primary text-white">
-              <h5 class="modal-title"><i class="fas fa-satellite-dish me-2"></i>Detalhes da Conexão</h5>
-              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-              <p class="text-muted">Carregando...</p>
-          </div>
-      </div>
-  </div>
-</div>
+            <!-- Item -->
+            <div class="col-md-3">
+                <label class="form-label fw-semibold small text-secondary">Item Contratual</label>
+                <select id="filtroItem" class="form-select form-select-sm">
+                    <option value="">Todos</option>
+                </select>
+            </div>
 
+            <!-- Provedor -->
+            <div class="col-md-3">
+                <label class="form-label fw-semibold small text-secondary">Provedor</label>
+                <input type="text" id="filtroProvedor" class="form-control form-control-sm" placeholder="Ex: Starlink, Vivo...">
+            </div>
+
+            <!-- Status -->
+            <div class="col-md-2">
+                <label class="form-label fw-semibold small text-secondary">Status</label>
+                <select id="filtroStatus" class="form-select form-select-sm">
+                    <option value="">Todos</option>
+                    <option value="ativo">Ativo</option>
+                    <option value="inativo">Inativo</option>
+                    <option value="em manutenção">Em manutenção</option>
+                </select>
+            </div>
+
+            <div class="col-md-1 text-end">
+                <button type="button" id="btnFiltrar" class="btn btn-primary btn-sm w-100">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </form>
     </div>
-  </div>
 </div>
-@endsection
-@section('css')
-<style>
-#formFiltros .btn + .btn { margin-left: .5rem; }
-#formFiltros label { font-weight: 600; color: #6c757d; }
-#formFiltros input, #formFiltros select { font-size: 0.9rem; }
-</style>
 
+<div class="card shadow-sm border-0 rounded-4">
+    <div class="card-body">
+        <table id="tabelaHosts" class="table table-bordered table-striped table-hover w-100">
+            <thead class="table-light">
+                <tr>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th>Escola / Setor</th>
+                    <th>Provedor</th>
+                    <th>Tecnologia</th>
+                    <th>IP</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+@stop
+@section('css')
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 @endsection
 @section('js')
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
 <script>
-$(document).ready(function () {
-  const tabela = $('#tabela-hosts').DataTable({
-      processing: false,
-      serverSide: true,
-      ajax: {
-          url: '{{ route('api.hosts') }}',
-          data: function (d) {
-              d.nome_conexao = $('#filtroConexao').val();
-              d.provedor     = $('#filtroProvedor').val();
-              d.tecnologia   = $('#filtroTecnologia').val();
-              d.status       = $('#filtroStatus').val();
-              d.municipio    = $('#filtroMunicipio').val();
-          },
-          dataSrc: 'data'
-      },
-      language: { url: '{{ asset('js/pt-BR.json') }}' },
-      columns: [
-          {
-              data: 'id',
-              render: (d) => `<input type="radio" name="conexaoSelecionada" value="${d}">`,
-              className: 'text-center',
-              width: '45px'
-          },
-          { data: 'nome_conexao', title: 'Conexão' },
-          { data: 'provedor', title: 'Provedor' },
-          { data: 'tecnologia', title: 'Tecnologia' },
-          { data: 'ip_atingivel', title: 'IP' },
-          { data: 'status', title: 'Status' },
-          { data: 'nome_escola', title: 'Escola' },
-          { data: 'municipio', title: 'Município' }
-      ]
-  });
-$(document).on('change', '#tabela-hosts input[name="conexaoSelecionada"]', function () {
-    window.conexaoSelecionada = $(this).val();
-    $('#navDetalhes').removeClass('disabled');
-});
-  // 🔍 Aplicar filtros (reload server-side)
-  $('#btnAplicarFiltros').on('click', function () {
-      tabela.ajax.reload();
-  });
+$(function() {
+    const tabela = $('#tabelaHosts').DataTable({
+        processing: false,
+        serverSide: true,
+        ajax: {
+            url: '{{ route('hosts.index') }}',
+            data: function (d) {
+                d.contrato_id = $('#filtroContrato').val();
+                d.item_id = $('#filtroItem').val();
+                d.provedor = $('#filtroProvedor').val();
+                d.status = $('#filtroStatus').val();
+            }
+        },
+        columns: [
+            { data: 'id', name: 'id', visible: false },
+            { data: 'contrato', name: 'contrato', width: '15%',  visible: false },
+            { data: 'item', name: 'item', width: '20%',  visible: false },
+            { data: 'escola', name: 'escola', width: '20%' },
+            { data: 'provedor', name: 'provedor', width: '10%' },
+            { data: 'tecnologia', name: 'tecnologia', width: '10%' },
+            { data: 'ip_atingivel', name: 'ip_atingivel', width: '10%' },
+            {
+                data: 'status', name: 'status', width: '8%',
+                render: function(data) {
+                    let badge = 'secondary';
+                    if (data === 'ativo') badge = 'success';
+                    else if (data === 'inativo') badge = 'danger';
+                    else if (data === 'em manutenção') badge = 'warning';
+                    return `<span class="badge bg-${badge} text-uppercase">${data}</span>`;
+                }
+            },
+            { data: 'acoes', name: 'acoes', orderable: false, searchable: false, width: '8%' },
+        ],
+        language: { url: 'js/pt-BR.json' },
+        order: [[0, 'desc']],
+    });
 
-  // 🔄 Limpar filtros
-  $('#btnLimparFiltros').on('click', function () {
-      $('#formFiltros')[0].reset();
-      tabela.ajax.reload();
-  });
+    // 🔹 Filtro de contrato → carrega itens via AJAX
+    $('#filtroContrato').on('change', async function() {
+        const contratoId = $(this).val();
+        const itemSelect = $('#filtroItem');
+        itemSelect.html('<option value="">Carregando...</option>');
 
+        if (!contratoId) {
+            itemSelect.html('<option value="">Todos</option>');
+            return;
+        }
 
+        try {
+            const resp = await fetch(`/api/contratos/${contratoId}/itens`);
+            const itens = await resp.json();
+            itemSelect.html('<option value="">Todos</option>');
+            itens.forEach(i => itemSelect.append(`<option value="${i.id}">${i.descricao_item}</option>`));
+        } catch (err) {
+            console.error('Erro ao carregar itens:', err);
+            itemSelect.html('<option value="">Erro</option>');
+        }
+    });
+
+    $('#btnFiltrar').click(() => tabela.ajax.reload());
 });
 </script>
-@endsection
+@stop

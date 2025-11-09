@@ -6,12 +6,4 @@
 @import "sweetalert2/dist/sweetalert2.min.css";
 @import "./custom.css";
 
-body {
-    font-family: 'Inter', sans-serif;
-    background-color: #f8f9fa;
-}
 
-/* Exemplo: personalizar toasts */
-.toast-success {
-    background-color: #198754 !important;
-}

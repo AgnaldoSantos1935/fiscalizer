@@ -4,12 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-
-
 class Host extends Model
 {
-
-
     protected $table = 'hosts';
 
     protected $fillable = [
@@ -20,22 +16,21 @@ class Host extends Model
         'ip_atingivel',
         'porta',
         'status',
-        'local', // será o id_escola
+        'local',           // FK → escolas.id_escola
+        'itemcontratado',  // FK → contrato_itens.id
     ];
 
     protected $casts = [
         'porta' => 'integer',
         'local' => 'integer',
+        'itemcontratado' => 'integer',
     ];
 
-    protected $dates = [
-        'created_at',
-        'updated_at',
-    ];
+    protected $dates = ['created_at', 'updated_at'];
 
     /**
-     * 🔹 Relacionamento: cada host pertence a uma escola
-     * local → id_escola
+     * 🏫 Relação com a escola
+     * hosts.local → escolas.id_escola
      */
     public function escola()
     {
@@ -43,20 +38,26 @@ class Host extends Model
     }
 
     /**
-     * 🔹 Escopos de conveniência
+     * 📦 Relação com o item de contrato
+     * hosts.itemcontratado → contrato_itens.id
      */
-    public function scopeAtivos($query)
+    public function itemContrato()
     {
-        return $query->where('status', 'ativo');
+        return $this->belongsTo(ContratoItem::class, 'itemcontratado', 'id');
     }
 
-    public function scopePorProvedor($query, $provedor)
+    /**
+     * 🔗 Acesso indireto ao contrato via itemContrato
+     */
+    public function contrato()
     {
-        return $query->where('provedor', $provedor);
-    }
-
-    public function scopePorTecnologia($query, $tecnologia)
-    {
-        return $query->where('tecnologia', $tecnologia);
+        return $this->hasOneThrough(
+            Contrato::class,        // modelo final
+            ContratoItem::class,    // modelo intermediário
+            'id',                   // chave local em contrato_itens
+            'id',                   // chave local em contratos
+            'itemcontratado',       // FK em hosts
+            'contrato_id'           // FK em contrato_itens
+        );
     }
 }

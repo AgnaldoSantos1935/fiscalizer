@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\MapaController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HostController;
+use App\Http\Controllers\HostTesteController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use App\Http\Controllers\EmpresaController;
@@ -21,11 +23,10 @@ use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\RelatorioController;
 use App\Http\Controllers\DREController;
-use App\Http\Controllers\HostController;
 use App\Http\Controllers\TesteConexaoController;
 USE App\Http\Controllers\SituacaoController;
 use App\Http\Controllers\UserProfileController;
-
+use App\Http\Controllers\HostDashboardController;
 use App\Models\User;
 use App\Models\Role;
 
@@ -43,6 +44,11 @@ Route::get('/ajax/contratos/{id}', [ContratoController::class, 'getContratoJson'
 
 // Rotas de autenticação
 Auth::routes(['register' => false, 'reset' => true]);
+
+Route::middleware(['auth', 'password.expiration'])->group(function() {
+    Route::resource('user_profiles', UserProfileController::class);
+});
+
 
     // Home visível a qualquer usuário autenticado
     Route::get('home', [DashboardController::class, 'index'])->name('home');
@@ -104,12 +110,38 @@ Route::get('/escolas-data', [EscolaController::class, 'getData'])->name('escolas
 Route::get('/escolas/{id}/detalhes', [EscolaController::class, 'detalhes'])
     ->name('escolas.detalhes');
 
-
+// TESTES E MONITORAMENTO DE CONEXÕES
 Route::get('/api/hosts', [HostController::class, 'getHostsJson'])->name('api.hosts');
-
+Route::get('/api/contratos/{id}/itens', [HostController::class, 'getItensPorContrato']);
 Route::get('/hosts/{id}', [HostController::class, 'show'])->name('api.hosts.show');
+Route::get('/hosts.index', [HostController::class, 'index'])->name('hosts.index');
 Route::get('/monitoramentos', [App\Http\Controllers\MonitoramentoController::class, 'index'])
 ->name('monitoramentos.index');
+Route::get('/host_testes/dashboard', [App\Http\Controllers\HostDashboardController::class, 'index'])
+->name('host_testes.dashboard');
+Route::get('/host_testes/historico', [App\Http\Controllers\HostDashboardController::class, 'historicoAjax'])
+->name('host_testes.historico');
+// Endpoint AJAX (retorna JSON com dados dos gráficos)
+Route::get('/hosts/dashboard/data', [HostDashboardController::class, 'dadosAjax'])
+    ->name('hosts.dashboard.data');
+    // Endpoint AJAX de histórico detalhado (por host)
+
+
+
+// 🔹 CRUD principal de conexões
+Route::resource('hosts', HostController::class);
+
+// 🔹 Execução de teste manual (ping individual)
+Route::post('/hosts/{id}/testar', [HostTesteController::class, 'executarTesteManual'])
+    ->name('hosts.testar');
+
+// 🔹 API auxiliar para selects dinâmicos (Contratos → Itens)
+Route::get('/api/contratos/{id}/itens', [HostController::class, 'getItensPorContrato'])
+    ->name('api.contratos.itens');
+
+// 🔹 Histórico de testes e resultados detalhados
+Route::resource('host_testes', HostTesteController::class)->only(['index', 'show']);
+
 
 
 Route::get('contratos/{id}/itens', [ContratoController::class, 'getItens'])

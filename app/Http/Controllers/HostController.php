@@ -3,139 +3,157 @@
 namespace App\Http\Controllers;
 
 use App\Models\Host;
+use App\Models\Contrato;
+use App\Models\ContratoItem;
+use App\Models\Escola;
 use Illuminate\Http\Request;
+use Yajra\DataTables\Facades\DataTables;
 
 class HostController extends Controller
 {
     /**
-     * 🔹 Retorna todos os hosts em formato JSON (para DataTables)
+     * Listagem principal (DataTables + filtros)
      */
-public function getHostsJson(Request $request)
-{
-    $query = Host::with('escola:id_escola,escola,municipio');
-
-    // 🔍 Filtros dinâmicos
-    if ($request->filled('nome_conexao')) {
-        $query->where('nome_conexao', 'like', '%' . $request->nome_conexao . '%');
-    }
-
-    if ($request->filled('provedor')) {
-        $query->where('provedor', 'like', '%' . $request->provedor . '%');
-    }
-
-    if ($request->filled('tecnologia')) {
-        $query->where('tecnologia', 'like', '%' . $request->tecnologia . '%');
-    }
-
-    if ($request->filled('status')) {
-        $query->where('status', $request->status);
-    }
-
-    if ($request->filled('municipio')) {
-        $query->whereHas('escola', function ($q) use ($request) {
-            $q->where('municipio', 'like', '%' . $request->municipio . '%');
-        });
-    }
-
-    // 🔹 Ordena e obtém resultados
-    $hosts = $query->orderBy('id', 'asc')->get();
-
-    // 🔹 Formata os dados para o DataTable
-    $data = $hosts->map(function ($h) {
-        return [
-            'id'            => $h->id,
-            'nome_conexao'  => $h->nome_conexao,
-            'descricao'     => $h->descricao,
-            'provedor'      => $h->provedor,
-            'tecnologia'    => $h->tecnologia,
-            'ip_atingivel'  => $h->ip_atingivel,
-            'status'        => $h->status,
-            'nome_escola'   => $h->escola->escola ?? '—',
-            'municipio'     => $h->escola->municipio ?? '—',
-        ];
-    });
-
-    return response()->json(['data' => $data]);
-}
-
-
-
-    public function index()
+    public function index(Request $request)
     {
+        if ($request->ajax()) {
+            $hosts = Host::with(['itemContrato.contrato', 'escola'])
+                ->when($request->contrato_id, function ($q) use ($request) {
+                    $q->whereHas('itemContrato.contrato', function ($query) use ($request) {
+                        $query->where('id', $request->contrato_id);
+                    });
+                })
+                ->when($request->itemcontratado, function ($q) use ($request) {
+                    $q->where('itemcontratado', $request->itemcontratado);
+                })
+                ->when($request->provedor, function ($q) use ($request) {
+                    $q->where('provedor', 'like', "%{$request->provedor}%");
+                })
+                ->when($request->status, function ($q) use ($request) {
+                    $q->where('status', $request->status);
+                });
 
-        return view('hosts.index');
+            return DataTables::of($hosts)
+                ->addIndexColumn()
+                ->addColumn('contrato', fn($row) => optional($row->itemContrato->contrato)->numero ?? '—')
+                ->addColumn('item', fn($row) => $row->itemContrato->descricao_item ?? '—')
+                ->addColumn('escola', fn($row) => $row->escola->escola ?? '—')
+                ->addColumn('acoes', function ($row) {
+                    return '
+                        <a href="' . route('hosts.show', $row->id) . '"
+                           class="btn btn-sm btn-info me-1" title="Ver Detalhes">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                    ';
+                })
+                ->rawColumns(['acoes'])
+                ->make(true);
+        }
+
+        $contratos = Contrato::orderBy('numero')->get();
+        return view('hosts.index', compact('contratos'));
     }
 
-
-    /** 🆕 Exibe o formulário de criação */
+    /**
+     * Formulário de criação
+     */
     public function create()
     {
-        return view('hosts.create');
+        $contratos = Contrato::orderBy('numero')->get();
+        $escolas = Escola::orderBy('escola')->get();
+        return view('hosts.create', compact('contratos', 'escolas'));
     }
 
-    /** 💾 Armazena novo host */
+    /**
+     * Armazena novo registro
+     */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'nome' => 'required|string|max:255',
-            'endereco' => 'required|string|max:255',
-            'tipo' => 'required|in:ip,link',
+        $data = $request->validate([
+            'nome_conexao' => 'required|string|max:255',
+            'descricao' => 'nullable|string|max:255',
+            'provedor' => 'nullable|string|max:100',
+            'tecnologia' => 'nullable|string|max:50',
+            'ip_atingivel' => 'nullable|string|max:45',
             'porta' => 'nullable|integer',
-            'localizacao' => 'nullable|string|max:255',
-            'descricao' => 'nullable|string',
-            'ativo' => 'boolean',
+            'status' => 'required|in:ativo,inativo,em manutenção',
+            'local' => 'nullable|integer|exists:escolas,id_escola',
+            'itemcontratado' => 'nullable|integer|exists:contrato_itens,id',
         ]);
 
-        Host::create($validated);
+        Host::create($data);
 
-        return redirect()->route('hosts.index')->with('success', 'Host cadastrado com sucesso!');
+        return redirect()->route('hosts.index')
+            ->with('success', 'Conexão de rede criada com sucesso!');
     }
 
-    /** ✏️ Editar */
+    /**
+     * Exibe detalhes
+     */
+    public function show($id)
+    {
+        $host = Host::with(['itemContrato.contrato', 'escola'])->findOrFail($id);
+        return view('hosts.show', compact('host'));
+    }
+
+    /**
+     * Formulário de edição
+     */
     public function edit($id)
     {
         $host = Host::findOrFail($id);
-        return view('hosts.edit', compact('host'));
+        $contratos = Contrato::orderBy('numero')->get();
+        $itens = ContratoItem::where('contrato_id', optional($host->itemContrato->contrato)->id)->get();
+        $escolas = Escola::orderBy('escola')->get();
+
+        return view('hosts.edit', compact('host', 'contratos', 'itens', 'escolas'));
     }
 
-    /** 🔄 Atualizar */
+    /**
+     * Atualiza registro
+     */
     public function update(Request $request, $id)
     {
         $host = Host::findOrFail($id);
 
-        $validated = $request->validate([
-            'nome' => 'required|string|max:255',
-            'endereco' => 'required|string|max:255',
-            'tipo' => 'required|in:ip,link',
+        $data = $request->validate([
+            'nome_conexao' => 'required|string|max:255',
+            'descricao' => 'nullable|string|max:255',
+            'provedor' => 'nullable|string|max:100',
+            'tecnologia' => 'nullable|string|max:50',
+            'ip_atingivel' => 'nullable|string|max:45',
             'porta' => 'nullable|integer',
-            'localizacao' => 'nullable|string|max:255',
-            'descricao' => 'nullable|string',
-            'ativo' => 'boolean',
+            'status' => 'required|in:ativo,inativo,em manutenção',
+            'local' => 'nullable|integer|exists:escolas,id_escola',
+            'itemcontratado' => 'nullable|integer|exists:contrato_itens,id',
         ]);
 
-        $host->update($validated);
+        $host->update($data);
 
-        return redirect()->route('hosts.index')->with('success', 'Host atualizado com sucesso!');
+        return redirect()->route('hosts.index')
+            ->with('success', 'Conexão atualizada com sucesso!');
     }
 
-    /** 🗑️ Remover */
+    /**
+     * Remove registro
+     */
     public function destroy($id)
     {
-        Host::findOrFail($id)->delete();
-        return redirect()->route('hosts.index')->with('success', 'Host excluído com sucesso!');
+        $host = Host::findOrFail($id);
+        $host->delete();
+
+        return response()->json(['success' => true]);
     }
 
-    /** 🔍 Exibir detalhes */
- public function show($id)
+    /**
+     * API: Retorna itens do contrato selecionado (para selects dinâmicos)
+     */
+    public function getItensPorContrato($contratoId)
     {
-        $host = Host::with(['escola:id_escola,escola,municipio'])
-            ->find($id);
+        $itens = ContratoItem::where('id', $contratoId)
+            ->orderBy('descricao_item')
+            ->get(['id', 'descricao_item']);
 
-        if (!$host) {
-            return response()->json(['error' => 'Host não encontrado.'], 404);
-        }
-
-        return response()->json($host);
+        return response()->json($itens);
     }
-
 }

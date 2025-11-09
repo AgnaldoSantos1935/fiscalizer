@@ -72,7 +72,7 @@ use Illuminate\Support\Str;
 
     <ul class="nav nav-pills">
       <li class="nav-item">
-        <a id="navDetalhes" class="nav-link inative" aria-current="page" href="#">
+        <a id="navDetalhes" class="nav-link disabled" aria-current="page" href="#">
           <i class="fas fa-eye text-info me-2"></i> Exibir Detalhes
         </a>
       </li>
@@ -132,16 +132,18 @@ use Illuminate\Support\Str;
 @endsection
 
 @section('css')
-
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 @endsection
 
 @section('js')
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
 <script>
 $(document).ready(function () {
 
 // 🔹 Monta o filtro e a legenda com cores, ícones e tooltips
-fetch('{{ route('api.situacoes') }}')
+fetch(`{{ route('api.situacoes') }}`)
   .then(resp => resp.json())
   .then(situacoes => {
       const select = $('#filtroSituacao');
@@ -175,29 +177,12 @@ fetch('{{ route('api.situacoes') }}')
   })
   .catch(err => console.error('Erro ao carregar situações:', err));
 
-    // 🔹 Carrega as situações da API e popula o select
-fetch ('{{ route('api.situacoes') }}')
-  .then(resp => resp.json())
-  .then(situacoes => {
-      const select = $('#filtroSituacao');
-      select.empty().append('<option value="">Todas</option>');
-      situacoes.forEach(s => {
-          // Exibe o nome da situação
-          select.append(`
-              <option>
-                  ${s.nome}
-              </option>
-          `);
-      });
-  })
-  .catch(err => console.error('Erro ao carregar situações:', err));
-
     // ==============================
     // 🔹 Inicializa DataTable via AJAX
     // ==============================
     const tabela = $('#tabelaContratos').DataTable({
-        ajax: '{{ route('api.contratos') }}',
-        language: { url: '{{ asset('js/pt-BR.json') }}' },
+        ajax: `{{ route('api.contratos') }}`,
+        language: { url: '{{ asset(`js/pt-BR.json`) }}' },
         pageLength: 10,
         order: [[1, 'asc']],
         dom: 't<"bottom"p>',
@@ -235,7 +220,7 @@ fetch ('{{ route('api.situacoes') }}')
 
 
     // =====================================================
-    // Marque um radio e ative “Detalhes”
+    // Marque um radio e ative "Detalhes"
     // =====================================================
 
     $('#tabelaContratos').on('change', 'input[name="contratoSelecionado"]', function () {
@@ -245,7 +230,7 @@ fetch ('{{ route('api.situacoes') }}')
 
 
     // =====================================================
-    // 🔹 Botão “Detalhes” → redireciona para a view do contrato
+    // 🔹 Botão "Detalhes" → redireciona para a view do contrato
     // =====================================================
     $('#navDetalhes').on('click', function (e) {
         e.preventDefault();
@@ -275,14 +260,6 @@ fetch ('{{ route('api.situacoes') }}')
             $(this).toggle(match);
         });
     });
-$('#filtroSituacao').on('change', function () {
-    const cor = $(this).find(':selected').data('cor');
-    if (cor) {
-        $(this).removeClass().addClass('form-select form-select-sm text-center bg-' + cor + ' text-white');
-    } else {
-        $(this).removeClass().addClass('form-select form-select-sm text-center');
-    }
-});
 
     // ===========================================
     // 🔄 Limpar filtros → reseta e recarrega AJAX
@@ -328,7 +305,5 @@ $('#filtroSituacao').on('change', function () {
 
 });
 </script>
-
-
 
 @endsection

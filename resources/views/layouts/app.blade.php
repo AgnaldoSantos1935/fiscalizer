@@ -1,3 +1,14 @@
+{{--
+    Guia de Tema (Fiscalizer + AdminLTE)
+    - Variáveis e presets de cores: `resources/css/custom.css` (bloco `:root`).
+    - Configuração das classes de tema (AdminLTE): `config/adminlte.php`
+        • `classes_sidebar`: adicione `sidebar-custom`
+        • `classes_topnav`: adicione `topnav-custom`
+        • `classes_content_wrapper`: adicione `content-custom`
+        • `classes_body`: adicione `footer-custom theme-fiscalizer`
+    - Estas classes ativam o uso das variáveis definidas em `custom.css`.
+    - Após mudar cores/variáveis, limpe o cache: `php artisan optimize:clear`.
+--}}
 @extends('adminlte::page')
 
 {{-- ========================================= --}}
@@ -66,10 +77,9 @@
 {{-- 🔹 Scripts Comuns --}}
 {{-- ========================================= --}}
 @push('js')
+    @vite(['resources/js/app.js'])
 <script>
-    @vite(['resources/js/app.js', 'resources/css/app.css'])
-
-    $(document).ready(function () {
+    $(function () {
         // JS comum a todas as páginas
         console.log("AdminLTE layout carregado com sucesso!");
     });
@@ -80,6 +90,7 @@
 {{-- 🔹 Estilos Comuns --}}
 {{-- ========================================= --}}
 @push('css')
+    @vite(['resources/css/app.css'])
 <style>
     .card-header {
         border-bottom: none !important;
