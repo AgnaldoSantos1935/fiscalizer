@@ -27,5 +27,8 @@ class DatabaseSeeder extends Seeder
         // gerar 30 user_profiles (perfis de pessoas)
          $this->call(UserProfileSeeder::class);
           $this->call(ProjetoSoftwareSeeder::class);
+             $this->call([
+        PessoaServidorSeeder::class,
+    ]);
     }
 }

@@ -42,7 +42,7 @@ class Empenho extends Model
 
     public function itens()
     {
-        return $this->hasMany(NotaEmpenhoItem::class, 'nota_empenho_id');
+        return $this->hasMany(EmpenhoItem::class, 'nota_empenho_id');
     }
 
     // 🔄 Cálculo automático do valor total
@@ -66,4 +66,8 @@ class Empenho extends Model
     {
         return optional($this->data_lancamento)?->format('d/m/Y') ?? '—';
     }
+    public function pagamentos()
+{
+    return $this->hasMany(Pagamentos::class);
+}
 }

@@ -343,7 +343,7 @@ return [
                     'label_color' => 'info',
                     'can' => 'view-historico-host_testes', // Gate permission
                 ],
-                     [
+                [
                     'text' => 'Dashboard Conexões ',
                     'url' => '/host_testes/dashboard',
                     'icon' => 'fas fa-satellite-dish',
@@ -456,7 +456,7 @@ return [
             'route' => '',
             'icon' => 'fas fa-fw fa-project-diagram',
             'can' => '', // Gate permission
-                        'submenu' => [
+            'submenu' => [
                 [
                     'text' => 'Exibir todos',
                     'route' => 'projetos.index',
@@ -540,6 +540,16 @@ return [
                     'can' => 'view-create-user_profiles', // Gate permission
                 ],
             ],
+        ],
+        [
+            'text' => 'Pessoas',
+            'url' => 'pessoas',
+            'icon' => 'fas fa-fw fa-user',
+        ],
+        [
+            'text' => 'Servidores',
+            'url' => 'servidores',
+            'icon' => 'fas fa-fw fa-users',
         ],
         /*[
             'text' => 'Usuários',

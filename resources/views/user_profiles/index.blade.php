@@ -3,6 +3,7 @@
 @section('title', 'Perfis de Usuário')
 
 @section('content_header')
+
     <h1><i class="fas fa-users me-2"></i>Perfis de Usuários</h1>
 @stop
 
@@ -12,7 +13,7 @@
         <table id="tabelaPerfis" class="table table-striped table-hover w-100">
             <thead class="table-light">
                 <tr>
-                    <th>ID</th>
+                    <th></th>
                     <th>Nome</th>
                     <th>CPF</th>
                     <th>Cargo</th>
@@ -25,8 +26,13 @@
     </div>
 </div>
 @stop
+@section('css')
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+@endsection
 
 @section('js')
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 <script>
 $(function() {
     $('#tabelaPerfis').DataTable({
@@ -34,7 +40,7 @@ $(function() {
         serverSide: true,
         ajax: "{{ route('user_profiles.index') }}",
         columns: [
-            { data: 'id', name: 'id' },
+            { data: 'id', name: 'id', visible:false },
             { data: 'nome_completo', name: 'nome_completo' },
             { data: 'cpf', name: 'cpf' },
             { data: 'cargo', name: 'cargo' },

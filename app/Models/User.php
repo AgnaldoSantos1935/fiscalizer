@@ -73,5 +73,10 @@ public function hasRole($nomeRole)
 
     return $this->role->nome === $nomeRole;
 }
+public function pessoa()
+{
+    return $this->hasOne(\App\Models\Pessoa::class);
+}
+
 
 }

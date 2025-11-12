@@ -70,10 +70,6 @@ public function getContratosJson()
     return response()->json(['data' => $dados]);
 }
 
-
-
-
-
 public function getContratoJson($id)
 {
     try {
