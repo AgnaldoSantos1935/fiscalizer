@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\UserProfile;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use ProjetoSoftwareSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -25,5 +26,6 @@ class DatabaseSeeder extends Seeder
         ]);
         // gerar 30 user_profiles (perfis de pessoas)
          $this->call(UserProfileSeeder::class);
+          $this->call(ProjetoSoftwareSeeder::class);
     }
 }

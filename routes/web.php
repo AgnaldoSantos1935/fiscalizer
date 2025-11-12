@@ -29,6 +29,10 @@ use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\HostDashboardController;
 use App\Models\User;
 use App\Models\Role;
+use App\Http\Controllers\ProjetoSoftwareController;
+use App\Http\Controllers\ApfController;
+use App\Http\Controllers\FiscalizacaoProjetoController;
+use App\Http\Controllers\DocumentoProjetoController;
 
 // Página inicial (redireciona para login ou dashboard)
 
@@ -98,10 +102,18 @@ Route::get('user_profiles/create', [App\Http\Controllers\UserProfileController::
 Route::get('user_profiles/show', [App\Http\Controllers\UserProfileController::class, 'show'])
 ->name('user_profiles.show');
 
+// FISCALIZAÇÃO PROJETO DE SOFTWARE
+Route::resource('projetos', ProjetoSoftwareController::class);
+Route::resource('projetos.apfs', ApfController::class); // nested: /projetos/{projeto}/apfs
+Route::resource('projetos.fiscalizacoes', FiscalizacaoProjetoController::class)->shallow();
+Route::post('fiscalizacoes/{fiscalizacao}/documentos', [DocumentoProjetoController::class,'store'])->name('fiscalizacoes.documentos.store');
+
 // FINAL DE CADASTRO DE PERFIS DE USUÁRIOS
 
 // Rota API para DataTables / AJAX
-Route::get('/api/empenhos', [App\Http\Controllers\EmpenhoController::class, 'getData'])->name('api.empenhos');
+
+    Route::get('empenhos/data', [EmpenhoController::class, 'getData'])->name('empenhos.data');
+    Route::resource('empenhos', EmpenhoController::class);
 
 // 🔹 Rota Ajax específica para DataTables
 Route::get('/escolas-data', [EscolaController::class, 'getData'])->name('escolas.data');

@@ -54,6 +54,9 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('view-index-host_testes', fn($user) => in_array($user->role_id, [1, 2, 3]));
         Gate::define('view-dashboard-host_testes', fn($user) => in_array($user->role_id, [1, 2, 3]));
         Gate::define('view-historico-host_testes', fn($user) => in_array($user->role_id, [1, 2, 3]));
+           Gate::define('view-index-projetos_soft', fn($user) => in_array($user->role_id, [1, 2, 3]));
+           Gate::define('view-show-projetos_soft', fn($user) => in_array($user->role_id, [1, 2, 3]));
+
 
 
 

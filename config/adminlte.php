@@ -453,9 +453,24 @@ return [
         ],
         [
             'text' => 'Projetos',
-            'route' => 'projetos.index',
+            'route' => '',
             'icon' => 'fas fa-fw fa-project-diagram',
-            'can' => 'view-projetos', // Gate permission
+            'can' => '', // Gate permission
+                        'submenu' => [
+                [
+                    'text' => 'Exibir todos',
+                    'route' => 'projetos.index',
+                    'icon' => 'fas fa-fw fa-list-ul',
+                    'can' => 'view-index-projetos_soft', // Gate permission
+                ],
+                [
+                    'text' => 'Novo Projeto',
+                    'route' => 'projetos.create',
+                    'icon' => 'fas fa-fw fa-plus',
+                    'can' => 'view-index-projetos_soft', // Gate permission
+                ],
+
+            ],
         ],
         [
             'text' => 'Escolas',

@@ -4,26 +4,24 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\Pagamentos;
 
 class Empenho extends Model
 {
+    use SoftDeletes;
+
+    protected $table = 'empenhos';
+
     protected $fillable = [
-        'empresa_id',
-        'contrato_id',
         'numero',
-        'data_lancamento',
+        'contrato_id',
+        'empresa_id',
         'processo',
         'programa_trabalho',
         'fonte_recurso',
         'natureza_despesa',
-        'contrato_numero',
-        'credor_nome',
-        'cnpj',
-        'valor_total',
+        'data_lancamento',
         'valor_extenso',
-        'ordenador_nome',
-        'ordenador_cpf',
+        'valor_total'
     ];
 
     protected $casts = [
@@ -31,51 +29,41 @@ class Empenho extends Model
         'valor_total' => 'decimal:2',
     ];
 
-    /** 🔹 Relacionamentos */
-    public function empresa()
-    {
-        return $this->belongsTo(Empresa::class);
-    }
-
+    // 🔗 Relacionamentos
     public function contrato()
     {
-        return $this->belongsTo(Contrato::class);
+        return $this->belongsTo(Contrato::class, 'contrato_id');
+    }
+
+    public function empresa()
+    {
+        return $this->belongsTo(Empresa::class, 'empresa_id');
     }
 
     public function itens()
     {
-        return $this->hasMany(EmpenhoItem::class);
+        return $this->hasMany(NotaEmpenhoItem::class, 'nota_empenho_id');
     }
 
-    /** 🔹 Preenchimento automático */
-    public static function booted()
+    // 🔄 Cálculo automático do valor total
+    protected static function booted()
     {
-        static::creating(function ($empenho) {
-            if ($empenho->contrato_id) {
-                $contrato = Contrato::with('contratada')->find($empenho->contrato_id);
-                if ($contrato) {
-                    $empenho->contrato_numero = $contrato->numero;
-                    $empenho->empresa_id = $contrato->contratada_id;
-                    $empenho->credor_nome = $contrato->contratada->razao_social;
-                    $empenho->cnpj = $contrato->contratada->cnpj ?? '';
-                    $empenho->valor_total = $contrato->valor_global;
-                }
+        static::saved(function ($empenho) {
+            $total = $empenho->itens()->sum('valor_total');
+            if ($empenho->valor_total != $total) {
+                $empenho->updateQuietly(['valor_total' => $total]);
             }
         });
     }
-    public function pagamentos()
-{
-    return $this->hasMany(Pagamentos::class);
-}
 
-public function getValorPagoAttribute()
-{
-    return $this->pagamentos->sum('valor_pagamento');
-}
+    // 💰 Formatação amigável
+    public function getValorTotalFormatadoAttribute()
+    {
+        return 'R$ ' . number_format($this->valor_total ?? 0, 2, ',', '.');
+    }
 
-public function getSaldoEmpenhoAttribute()
-{
-    return $this->valor - $this->valor_pago;
-}
-
+    public function getDataFormatadaAttribute()
+    {
+        return optional($this->data_lancamento)?->format('d/m/Y') ?? '—';
+    }
 }
