@@ -1,160 +1,235 @@
 @extends('layouts.app')
+@php
+    use Illuminate\Support\Str;
+@endphp
 
-@section('title', 'Conexões (Links de Rede)')
-
-@section('content_header')
-<h1>
-    <i class="fas fa-network-wired me-2 text-primary"></i>
-    Conexões Cadastradas
-</h1>
-@stop
+@section('title', 'Hosts Monitorados')
 
 @section('content')
-<div class="card shadow-sm border-0 rounded-4 mb-4">
-    <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
-        <h5 class="mb-0 text-secondary fw-semibold">
-            <i class="fas fa-filter me-2 text-primary"></i>Filtros de Pesquisa
-        </h5>
-        <a href="{{ route('hosts.create') }}" class="btn btn-success btn-sm">
-            <i class="fas fa-plus me-1"></i> Nova Conexão
-        </a>
+<div class="container-fluid">
+
+    <!-- 🔹 Card de Filtros -->
+    <div class="card shadow-sm border-0 rounded-4 mb-4">
+        <div class="card-header bg-white border-0 d-flex align-items-center justify-content-between">
+            <h4 class="mb-0 text-secondary fw-semibold">
+                <i class="fas fa-search me-2 text-primary"></i>Filtros de Pesquisa
+            </h4>
+        </div>
+
+        <div class="card-body bg-white">
+
+            <form id="formFiltros" class="row g-3 bg-light p-3 rounded-4 shadow-sm align-items-end mb-3">
+
+                <div class="col-md-3">
+                    <label for="filtroNome" class="form-label fw-semibold text-secondary small">Nome</label>
+                    <input type="text" id="filtroNome" class="form-control form-control-sm" placeholder="Ex: Link Principal">
+                </div>
+
+                <div class="col-md-3">
+                    <label for="filtroProvedor" class="form-label fw-semibold text-secondary small">Provedor</label>
+                    <input type="text" id="filtroProvedor" class="form-control form-control-sm" placeholder="Ex: Claro, Vivo">
+                </div>
+
+                <div class="col-md-3">
+                    <label for="filtroTipo" class="form-label fw-semibold text-secondary small">Tipo Monitoramento</label>
+                    <select id="filtroTipo" class="custom-select form-control-border">
+                        <option value="">Todos</option>
+                        <option value="ping">Ping</option>
+                        <option value="porta">Porta TCP</option>
+                        <option value="http">HTTP</option>
+                        <option value="snmp">SNMP</option>
+                        <option value="mikrotik">Mikrotik</option>
+                        <option value="speedtest">SpeedTest</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3 d-flex justify-content-end align-items-end">
+                    <div class="d-flex w-100">
+                        <button type="button" id="btnAplicarFiltros" class="btn btn-primary btn-sm btn-sep flex-grow-1">
+                            <i class="fas fa-filter me-1"></i>Filtrar
+                        </button>
+                        <button type="button" id="btnLimpar" class="btn btn-outline-secondary btn-sm btn-sep flex-grow-1">
+                            <i class="fas fa-undo me-1"></i>Limpar
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+
+        </div>
     </div>
 
-    <div class="card-body">
-        <form id="formFiltros" class="row g-3 align-items-end">
-            <!-- Contrato -->
-            <div class="col-md-3">
-                <label class="form-label fw-semibold small text-secondary">Contrato</label>
-                <select id="filtroContrato" class="form-select form-select-sm">
-                    <option value="">Todos</option>
-                    @foreach($contratos as $contrato)
-                        <option value="{{ $contrato->id }}">{{ $contrato->numero }} – {{ Str::limit($contrato->objeto, 50) }}</option>
-                    @endforeach
-                </select>
+    <!-- 🔹 Card Principal -->
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header bg-white border-0 d-flex align-items-center justify-content-between">
+            <h4 class="mb-0 text-secondary fw-semibold">
+                <i class="fas fa-server me-2 text-primary"></i>Hosts Monitorados
+            </h4>
+        </div>
+
+        <div class="card-body bg-white">
+
+            <!-- 🔹 Navbar de ações -->
+            <nav class="nav nav-pills flex-column flex-sm-row">
+                <ul class="nav nav-pills">
+                    <li class="nav-item">
+                        <a id="navDetalhes" class="nav-link disabled" href="#">
+                            <i class="fas fa-eye text-info me-2"></i> Exibir Detalhes
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('hosts.create') }}" class="nav-link active">
+                            <i class="fas fa-plus-circle me-1"></i> Novo Host
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <br>
+
+            <!-- 🔹 Legendas -->
+            <div id="legendaTipos" class="mb-3 d-flex flex-wrap align-items-center gap-2 small text-secondary">
+                <i class="fas fa-info-circle me-2 text-primary"></i>
+                <span>Legenda de Tipos:</span>
+                <div id="listaLegendas" class="d-flex flex-wrap gap-2 ms-2"></div>
             </div>
 
-            <!-- Item -->
-            <div class="col-md-3">
-                <label class="form-label fw-semibold small text-secondary">Item Contratual</label>
-                <select id="filtroItem" class="form-select form-select-sm">
-                    <option value="">Todos</option>
-                </select>
-            </div>
+            <!-- 🔹 Tabela -->
+            <table id="tabelaHosts" class="table table-striped no-inner-borders w-100"></table>
 
-            <!-- Provedor -->
-            <div class="col-md-3">
-                <label class="form-label fw-semibold small text-secondary">Provedor</label>
-                <input type="text" id="filtroProvedor" class="form-control form-control-sm" placeholder="Ex: Starlink, Vivo...">
-            </div>
-
-            <!-- Status -->
-            <div class="col-md-2">
-                <label class="form-label fw-semibold small text-secondary">Status</label>
-                <select id="filtroStatus" class="form-select form-select-sm">
-                    <option value="">Todos</option>
-                    <option value="ativo">Ativo</option>
-                    <option value="inativo">Inativo</option>
-                    <option value="em manutenção">Em manutenção</option>
-                </select>
-            </div>
-
-            <div class="col-md-1 text-end">
-                <button type="button" id="btnFiltrar" class="btn btn-primary btn-sm w-100">
-                    <i class="fas fa-search"></i>
-                </button>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
+@endsection
 
-<div class="card shadow-sm border-0 rounded-4">
-    <div class="card-body">
-        <table id="tabelaHosts" class="table table-bordered table-striped table-hover w-100">
-            <thead class="table-light">
-                <tr>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th>Escola / Setor</th>
-                    <th>Provedor</th>
-                    <th>Tecnologia</th>
-                    <th>IP</th>
-                    <th>Status</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
-        </table>
-    </div>
-</div>
-@stop
 @section('css')
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 @endsection
+
 @section('js')
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
 <script>
-$(function() {
-    const tabela = $('#tabelaHosts').DataTable({
-        processing: false,
-        serverSide: true,
-        ajax: {
-            url: '{{ route('hosts.index') }}',
-            data: function (d) {
-                d.contrato_id = $('#filtroContrato').val();
-                d.item_id = $('#filtroItem').val();
-                d.provedor = $('#filtroProvedor').val();
-                d.status = $('#filtroStatus').val();
-            }
-        },
+$(document).ready(function () {
+
+    // =====================================
+    // 🔹 Monta legenda dos tipos
+    // =====================================
+    const tipos = [
+        { nome: 'Ping', slug: 'ping', cor: 'primary', icon: 'fa-wave-square' },
+        { nome: 'Porta TCP', slug: 'porta', cor: 'info', icon: 'fa-plug' },
+        { nome: 'HTTP', slug: 'http', cor: 'warning', icon: 'fa-globe' },
+        { nome: 'SNMP', slug: 'snmp', cor: 'success', icon: 'fa-network-wired' },
+        { nome: 'Mikrotik', slug: 'mikrotik', cor: 'danger', icon: 'fa-bolt' },
+        { nome: 'Speedtest', slug: 'speedtest', cor: 'dark', icon: 'fa-tachometer-alt' }
+    ];
+
+    const legenda = $('#listaLegendas');
+    legenda.empty();
+
+    tipos.forEach(t => {
+        legenda.append(`
+            <span class="badge bg-${t.cor} px-3 py-2 shadow-sm d-flex align-items-center gap-1">
+                <i class="fas ${t.icon}"></i> ${t.nome}
+            </span>
+        `);
+    });
+
+    // =====================================
+    // 🔹 Inicializa DataTable (AJAX)
+    // =====================================
+    let tabela = $('#tabelaHosts').DataTable({
+        ajax: "{{ route('api.hosts') }}",
+        language: { url: '{{ asset("js/pt-BR.json") }}' },
+        pageLength: 10,
+        order: [[1, 'asc']],
+        dom: 't<"bottom"p>',
+        responsive: true,
         columns: [
-            { data: 'id', name: 'id', visible: false },
-            { data: 'contrato', name: 'contrato', width: '15%',  visible: false },
-            { data: 'item', name: 'item', width: '20%',  visible: false },
-            { data: 'escola', name: 'escola', width: '20%' },
-            { data: 'provedor', name: 'provedor', width: '10%' },
-            { data: 'tecnologia', name: 'tecnologia', width: '10%' },
-            { data: 'ip_atingivel', name: 'ip_atingivel', width: '10%' },
             {
-                data: 'status', name: 'status', width: '8%',
-                render: function(data) {
-                    let badge = 'secondary';
-                    if (data === 'ativo') badge = 'success';
-                    else if (data === 'inativo') badge = 'danger';
-                    else if (data === 'em manutenção') badge = 'warning';
-                    return `<span class="badge bg-${badge} text-uppercase">${data}</span>`;
+                data: 'id',
+                render: (id) => `<input type="radio" name="hostSelecionado" value="${id}">`,
+                className: 'text-center'
+            },
+            { data: 'nome_conexao', title: 'Nome' },
+            { data: 'provedor', title: 'Provedor' },
+            { data: 'tecnologia', title: 'Tecnologia' },
+            {
+                data: 'tipo_monitoramento',
+                title: 'Tipo',
+                render: (tipo) => {
+                    const map = tipos.find(t => t.slug === tipo) ?? {};
+                    return `<span class="badge bg-${map.cor || 'secondary'}">${tipo.toUpperCase()}</span>`;
                 }
             },
-            { data: 'acoes', name: 'acoes', orderable: false, searchable: false, width: '8%' },
-        ],
-        language: { url: 'js/pt-BR.json' },
-        order: [[0, 'desc']],
+            { data: 'host_alvo', title: 'Host Alvo' },
+            { data: 'porta', title: 'Porta', render: p => p ?? '—' },
+            {
+                data: 'status',
+                title: 'Status',
+                render: s => s
+                    ? `<span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Ativo</span>`
+                    : `<span class="badge bg-danger"><i class="fas fa-times-circle me-1"></i>Inativo</span>`
+            }
+        ]
     });
 
-    // 🔹 Filtro de contrato → carrega itens via AJAX
-    $('#filtroContrato').on('change', async function() {
-        const contratoId = $(this).val();
-        const itemSelect = $('#filtroItem');
-        itemSelect.html('<option value="">Carregando...</option>');
+    // =====================================
+    // Controle do radio + botão detalhes
+    // =====================================
+    let hostSelecionado = null;
 
-        if (!contratoId) {
-            itemSelect.html('<option value="">Todos</option>');
-            return;
-        }
-
-        try {
-            const resp = await fetch(`/api/contratos/${contratoId}/itens`);
-            const itens = await resp.json();
-            itemSelect.html('<option value="">Todos</option>');
-            itens.forEach(i => itemSelect.append(`<option value="${i.id}">${i.descricao_item}</option>`));
-        } catch (err) {
-            console.error('Erro ao carregar itens:', err);
-            itemSelect.html('<option value="">Erro</option>');
-        }
+    $('#tabelaHosts').on('change', 'input[name="hostSelecionado"]', function () {
+        hostSelecionado = $(this).val();
+        $('#navDetalhes').removeClass('disabled');
     });
 
-    $('#btnFiltrar').click(() => tabela.ajax.reload());
+    $('#navDetalhes').on('click', function (e) {
+        e.preventDefault();
+        if (!hostSelecionado) return;
+        window.location.href = "/hosts/" + hostSelecionado;
+    });
+
+    // =====================================
+    // 🔍 Aplicar filtros
+    // =====================================
+    $('#btnAplicarFiltros').on('click', function () {
+        tabela.column(1).search($('#filtroNome').val());
+        tabela.column(2).search($('#filtroProvedor').val());
+        tabela.column(4).search($('#filtroTipo').val());
+        tabela.draw();
+    });
+
+    // =====================================
+    // 🔄 Limpar filtros
+    // =====================================
+    $('#btnLimpar').on('click', function () {
+        $('#formFiltros')[0].reset();
+        tabela.search('').columns().search('');
+        tabela.order([1, 'asc']);
+        tabela.ajax.reload(null, false);
+
+        hostSelecionado = null;
+        $('#navDetalhes').addClass('disabled');
+    });
+    setInterval(() => {
+    fetch("/api/hosts/status")
+        .then(resp => resp.json())
+        .then(data => {
+            data.forEach(row => {
+                let statusCell = $(`#host-status-${row.id}`);
+
+                if (row.status == 1) {
+                    statusCell.html(`<span class="badge bg-success">Online</span>`);
+                } else {
+                    statusCell.html(`<span class="badge bg-danger">Offline</span>`);
+                }
+            });
+        });
+}, 5000); // atualiza a cada 5s
+
+
 });
 </script>
-@stop
+@endsection

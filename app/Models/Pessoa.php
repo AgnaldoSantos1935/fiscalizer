@@ -9,6 +9,7 @@ class Pessoa extends Model
 {
     use HasFactory;
 
+    protected $table = "pessoas";
     protected $fillable = [
         'user_id','nome_completo','cpf','rg','data_nascimento','sexo',
         'email','telefone','cep','logradouro','numero','bairro','cidade','uf'

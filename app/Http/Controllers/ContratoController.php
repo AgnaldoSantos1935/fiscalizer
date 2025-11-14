@@ -18,14 +18,14 @@ use function PHPUnit\Framework\assertDoesNotMatchRegularExpression;
 class ContratoController extends Controller
 {
 
-public function getContratosJson()
+public function getJsonContratos()
 {
     // 🔹 Carrega contratos com todas as relações importantes
     $contratos = Contrato::with([
         'contratada:id,razao_social,cnpj',
-        'fiscalTecnico:id,nome',
-        'fiscalAdministrativo:id,nome',
-        'gestor:id,nome',
+        'fiscalTecnico:id,nome_completo',
+        'fiscalAdministrativo:id,nome_completo',
+        'gestor:id,nome_completo',
         'situacaoContrato:id,nome,cor,slug'
     ])
     ->orderBy('id', 'desc')
@@ -240,5 +240,6 @@ public function index(Request $request)
             ->route('contratos.index')
             ->with('success', 'Contrato removido com sucesso!');
     }
+
 
 }

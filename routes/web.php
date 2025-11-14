@@ -37,6 +37,7 @@ use App\Http\Controllers\PessoaController;
 use App\Http\Controllers\ServidorController;
 use App\Http\Controllers\BoletimMedicaoController;
 use App\Http\Controllers\ProjetoRelacionamentoController;
+
 use App\Http\Controllers\{
     RequisitoController, AtividadeController, CronogramaController, EquipeController
 };
@@ -111,35 +112,7 @@ Route::post('fiscalizacoes/{fiscalizacao}/documentos', [DocumentoProjetoControll
 
 
 
-// Rota API para DataTables / AJAX
-Route::get('/api/hosts', [HostController::class, 'getHostsJson'])->name('api.hosts');
-Route::get('/api/contratos/{id}/itens', [HostController::class, 'getItensPorContrato']);
-Route::get('empenhos/data', [EmpenhoController::class, 'getData'])->name('empenhos.data');
-Route::get('/escolas-data', [EscolaController::class, 'getData'])->name('escolas.data');
-Route::get('/hosts/dashboard/data', [HostDashboardController::class, 'dadosAjax'])
-    ->name('hosts.dashboard.data');
-Route::get('/host_testes/historico', [App\Http\Controllers\HostDashboardController::class, 'historicoAjax'])
-->name('host_testes.historico');
-Route::get('/api/contratos', [App\Http\Controllers\ContratoController::class, 'getContratosJson'])
-    ->name('api.contratos');
-Route::get('/api/contratos/detalhes/{id}', [App\Http\Controllers\ContratoController::class, 'detalhesContrato'])
-    ->name('api.contratos.detalhes');
-Route::get('/api/situacoes', [App\Http\Controllers\SituacaoContratoController::class, 'listar'])
-    ->name('api.situacoes');
-Route::get('/api/escolas', [MapaController::class, 'escolasGeoJson'])->name('api.escolas');
-Route::get('/api/contratos/{id}/itens', [HostController::class, 'getItensPorContrato'])
-    ->name('api.contratos.itens');
-Route::get('/ajax/contratos/{id}', [ContratoController::class, 'getContratoJson'])
-    ->withoutMiddleware(['auth'])
-    ->name('ajax.contrato');
-    Route::get('contratos/{id}/itens', [ContratoController::class, 'getItens'])
-    ->name('contratos.itens');
-// 🔹 Rota auxiliar (JSON de detalhes para modal)
-Route::get('/escolas/{id}/detalhes', [EscolaController::class, 'detalhes'])
-    ->name('escolas.detalhes');
-    // DataTables (lista de servidores)
-Route::get('/api/servidores', [ServidorController::class, 'index'])->name('api.servidores.index');
-// FINAL DE ROTAS DE API AJAX
+
 
 // TESTES E MONITORAMENTO DE CONEXÕES
 
@@ -166,7 +139,35 @@ Route::get('boletins/{id}/pdf', [BoletimMedicaoController::class, 'exportPdf'])-
 //FIM DE BOLETIM DE MEDIÇÃO
 // DASHBOARD PROJETOS
 Route::get('/dashboard/projetos', [DashboardController::class, 'index'])->name('dashboard.projetos');
+Route::get('/projetos/{projeto}/gantt', [ProjetoController::class, 'gantt'])
+    ->name('projetos.gantt');
+Route::get('/projetos/{projeto}/dashboard', [ProjetoController::class, 'dashboard'])
+    ->name('projetos.dashboard');
+    Route::get('/projetos/{projeto}/relatorio/pdf', [ProjetoController::class, 'relatorioPdf'])
+    ->name('projetos.relatorio.pdf');
+    Route::get('/projetos/index', [ProjetoController::class, 'index'])
+    ->name('projetos.index');
+Route::get('/projetos/create', [ProjetoController::class, 'create'])
+    ->name('projetos.create');
+
 //FINAL DE DASHBOARD PROJETOS
+// DASHBOARD MONITORAMENTO DE CONEXÕES
+Route::get('/monitoramentos', [MonitoramentoController::class, 'index'])
+    ->name('monitoramentos.index');
+    Route::get('/monitoramentos/dashboard2', [MonitoramentoController::class, 'dashboard2'])
+    ->name('monitoramentos.dashboard2');
+    Route::get('/monitoramentos/heatline', [MonitoramentoController::class, 'heatline'])
+    ->name('monitoramentos.heatline');
+    Route::get('/monitoramentos/matrix', [MonitoramentoController::class, 'matrix'])
+    ->name('monitoramentos.matrix');
+//FINAL DE DASHBOARD MONITORAMENTO DE CONEXÕES
+// INICIO DO NOC
+Route::get('/noc/export/pdf', [NocReportController::class, 'pdf'])->name('noc.export.pdf');
+Route::get('/noc/export/excel', [NocReportController::class, 'excel'])->name('noc.export.excel');
+
+//FINAL DO NOC
+
+
 // ROTAS DE PROJETOS
 Route::prefix('projetos/{projeto}')->group(function () {
     Route::get('requisitos', [ProjetoRelacionamentoController::class, 'requisitos']);

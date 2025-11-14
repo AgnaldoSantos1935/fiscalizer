@@ -1,57 +1,44 @@
 <?php
 
-
-
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Contrato;
+use App\Models\BoletimMedicao;
+use App\Models\Apf;
+use App\Models\AtividadeTecnica;
+use App\Models\RequisitoSistema;
+
 
 class Projeto extends Model
 {
-    use HasFactory, SoftDeletes;
-
     protected $fillable = [
-        'contrato_id',
-        'nome',
-        'descricao',
-        'status',
-        'data_inicio',
-        'data_fim',
-        'created_by',
-        'updated_by',
+        'codigo','titulo','descricao','sistema','modulo',
+        'contrato_id','itemcontrato_id',
+        'gerente_tecnico_id','gerente_adm_id',
+        'dre_id','escola_id',
+        'data_inicio','data_fim',
+        'situacao','prioridade',
+        'pf_planejado','pf_entregue',
+        'ust_planejada','ust_entregue',
+        'horas_planejadas','horas_registradas',
+        'status'
     ];
 
-    public $timestamps = true;
+    // Relações principais
+    public function contrato() { return $this->belongsTo(Contrato::class); }
+    public function itemContrato() { return $this->belongsTo(ContratoItem::class, 'itemcontrato_id'); }
 
-    /**
-     * Relacionamento com Contrato
-     */
-    public function contrato()
-    {
-        return $this->belongsTo(Contrato::class);
-    }
+    public function gerenteTecnico() { return $this->belongsTo(User::class, 'gerente_tecnico_id'); }
+    public function gerenteAdm() { return $this->belongsTo(User::class, 'gerente_adm_id'); }
 
-    /**
-     * Relacionamento com Itens de Medição
-     */
-    public function itensMedicao()
-    {
-        return $this->hasMany(MedicaoItem::class);
-    }
+    public function dre() { return $this->belongsTo(DRE::class); }
+    public function escola() { return $this->belongsTo(Escola::class); }
 
-    /**
-     * Auditoria
-     */
-    public function criador()
-    {
-        return $this->belongsTo(User::class, 'created_by');
-    }
+    // Relacionamentos com módulos auxiliares
+    public function atividades() { return $this->hasMany(AtividadeTecnica::class); }
+    public function apfs() { return $this->hasMany(Apf::class); }
+    public function itens() { return $this->hasMany(ProjetoItem::class); }
 
-    public function atualizador()
-    {
-        return $this->belongsTo(User::class, 'updated_by');
-    }
+    public function boletins() { return $this->hasMany(BoletimMedicao::class); }
 }
-

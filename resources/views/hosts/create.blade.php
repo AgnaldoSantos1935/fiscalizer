@@ -1,154 +1,17 @@
 @extends('layouts.app')
 
-@section('title', 'Nova Conexão')
-
-@section('content_header')
-<h1>
-    <i class="fas fa-network-wired me-2 text-primary"></i>
-    Cadastrar Nova Conexão
-</h1>
-@stop
+@section('title', 'Cadastrar Host')
 
 @section('content')
-<div class="card shadow-sm border-0 rounded-4">
-    <div class="card-body">
+<div class="container">
+    <h3 class="mb-4">Cadastrar Novo Host</h3>
 
-        <form id="formHost" action="{{ route('hosts.store') }}" method="POST">
-            @csrf
-
-            <div class="row g-3">
-
-                <!-- 🔹 Contrato -->
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold">Contrato</label>
-                    <select id="contratoSelect" class="form-select" required>
-                        <option value="">Selecione...</option>
-                        @foreach($contratos as $contrato)
-                            <option value="{{ $contrato->id }}">
-                                {{ $contrato->numero }} - {{ Str::limit($contrato->objeto, 60) }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <!-- 🔹 Item do contrato -->
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold">Item Contratual</label>
-                    <select name="itemcontratado" id="itemSelect" class="form-select" required>
-                        <option value="">Selecione o contrato primeiro...</option>
-                    </select>
-                </div>
-
-                <!-- 🔹 Escola -->
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold">Escola / Setor</label>
-                    <select name="local" class="form-select" required>
-                        <option value="">Selecione...</option>
-                        @foreach($escolas as $escola)
-                            <option value="{{ $escola->id_escola }}">
-                                {{ $escola->escola }} - {{ $escola->municipio }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <hr class="my-4">
-
-                <!-- 🔹 Nome e descrição -->
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold">Nome da Conexão</label>
-                    <input type="text" name="nome_conexao" class="form-control"
-                           placeholder="Ex: Link Starlink Escola X" required>
-                </div>
-
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold">Descrição</label>
-                    <input type="text" name="descricao" class="form-control"
-                           placeholder="Ex: Link principal de internet">
-                </div>
-
-                <!-- 🔹 Provedor e tecnologia -->
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold">Provedor</label>
-                    <input type="text" name="provedor" class="form-control"
-                           placeholder="Ex: Starlink, Vivo, Claro...">
-                </div>
-
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold">Tecnologia</label>
-                    <select name="tecnologia" class="form-select">
-                        <option value="">Selecione...</option>
-                        @foreach(['fibra', 'rádio', 'satélite', '4g'] as $tec)
-                            <option value="{{ $tec }}">{{ ucfirst($tec) }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold">Porta</label>
-                    <input type="number" name="porta" class="form-control"
-                           placeholder="Ex: 80, 443, 8080">
-                </div>
-
-                <!-- 🔹 IP e Status -->
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold">IP Atingível</label>
-                    <input type="text" name="ip_atingivel" class="form-control"
-                           placeholder="Ex: 10.0.0.1">
-                </div>
-
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold">Status</label>
-                    <select name="status" class="form-select" required>
-                        <option value="ativo">Ativo</option>
-                        <option value="inativo">Inativo</option>
-                        <option value="em manutenção">Em manutenção</option>
-                    </select>
-                </div>
-
-            </div>
-
-            <div class="mt-4 text-end">
-                <button type="submit" class="btn btn-success">
-                    <i class="fas fa-save me-1"></i>Salvar Conexão
-                </button>
-                <a href="{{ route('hosts.index') }}" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left me-1"></i>Voltar
-                </a>
-            </div>
-
-        </form>
-    </div>
+    <form action="{{ route('hosts.store') }}" method="POST">
+        @csrf
+        @include('hosts._form') {{-- PARTIAL --}}
+    </form>
 </div>
-@stop
-
+@endsection
 @section('js')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const contratoSelect = document.getElementById('contratoSelect');
-    const itemSelect = document.getElementById('itemSelect');
-
-    contratoSelect.addEventListener('change', async function() {
-        const id = this.value;
-        itemSelect.innerHTML = '<option value="">Carregando...</option>';
-
-        if (!id) {
-            itemSelect.innerHTML = '<option value="">Selecione o contrato primeiro...</option>';
-            return;
-        }
-
-        try {
-            const res = await fetch(`{{ url('/api/contratos') }}/${id}/itens`);
-            const itens = await res.json();
-            itemSelect.innerHTML = '<option value="">Selecione...</option>';
-            itens.forEach(item => {
-                itemSelect.innerHTML += `<option value="${item.id}">${item.descricao_item}</option>`;
-            });
-        } catch (err) {
-            console.error('Erro ao carregar itens:', err);
-            itemSelect.innerHTML = '<option value="">Erro ao carregar itens</option>';
-        }
-    });
-});
-</script>
-@stop
+<script src="/js/hosts-form.js"></script>
+@endsection

@@ -7,20 +7,24 @@ use Illuminate\Http\Request;
 
 class AtividadeController extends Controller
 {
-    public function store(Request $request)
-    {
-        $data = $request->validate([
-            'projeto_id' => 'required|exists:projetos,id',
-            'etapa'      => 'required|string|max:255',
-            'analista'   => 'nullable|string|max:150',
-            'data'       => 'nullable|date',
-            'horas'      => 'nullable|numeric',
-            'descricao'  => 'nullable|string|max:255',
-        ]);
+public function store(Request $request)
+{
+    $data = $request->validate([
+        'projeto_id' => 'required|exists:projetos,id',
+        'etapa'      => 'required|string|max:255',
+        'analista'   => 'nullable|string|max:150',
+        'data'       => 'nullable|date',
+        'horas'      => 'nullable|numeric',
+        'descricao'  => 'nullable|string|max:255',
+    ]);
 
-        $atividade = AtividadeTecnica::create($data);
-        return response()->json(['success' => true, 'data' => $atividade]);
-    }
+    AtividadeTecnica::create($data);
+
+    return redirect()
+        ->route('projetos.show', $data['projeto_id'])
+        ->with('success', 'Atividade registrada com sucesso!');
+}
+
 
     public function update(Request $request, AtividadeTecnica $atividade)
     {

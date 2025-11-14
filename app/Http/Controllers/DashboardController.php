@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Contrato;
+use App\Models\Host;
 use App\Models\Projeto;
 use App\Models\BoletimMedicao;
 use App\Models\Medicao;
@@ -57,4 +58,5 @@ class DashboardController extends Controller
             'boletinsRecentes'
         ));
     }
+
 }

@@ -46,6 +46,31 @@
 @section('content')
     {{-- Área para inserir o conteúdo da página --}}
     @yield('content_body')
+    {{-- TOASTS Bootstrap --}}
+<div class="position-fixed bottom-0 end-0 p-4" style="z-index: 9999">
+
+    {{-- Sucesso --}}
+    <div id="toastSuccess" class="toast align-items-center text-white bg-success border-0" role="alert">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-check-circle me-2"></i> <span id="toastSuccessMsg"></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+
+    {{-- Erro --}}
+    <div id="toastError" class="toast align-items-center text-white bg-danger border-0" role="alert">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-times-circle me-2"></i> <span id="toastErrorMsg"></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+
+</div>
+
 
     {{-- Mensagem de sucesso (sessão flash) --}}
     @if (session('success'))

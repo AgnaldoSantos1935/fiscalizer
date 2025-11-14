@@ -30,6 +30,6 @@ class EmpenhoItem extends Model
 
     public function notaEmpenho()
     {
-        return $this->belongsTo(NotaEmpenho::class, 'nota_empenho_id');
+        return $this->belongsTo(Empenho::class, 'nota_empenho_id');
     }
 }

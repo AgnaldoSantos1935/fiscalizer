@@ -16,21 +16,29 @@ class Host extends Model
         'ip_atingivel',
         'porta',
         'status',
-        'local',           // FK → escolas.id_escola
-        'itemcontratado',  // FK → contrato_itens.id
+        'local',
+        'itemcontratado',
+
+        // ---- NOVOS CAMPOS PARA MONITORAMENTO ----
+        'tipo_monitoramento',   // ping, porta, http, snmp, mikrotik, speedtest
+        'host_alvo',            // IP ou URL monitorado
+        'snmp_community',       // community SNMP
+        'mikrotik_user',        // usuário Mikrotik
+        'mikrotik_pass',        // senha Mikrotik
+        'config_extra',         // JSON com configurações adicionais
     ];
 
     protected $casts = [
-        'porta' => 'integer',
-        'local' => 'integer',
+        'porta'          => 'integer',
+        'local'          => 'integer',
         'itemcontratado' => 'integer',
+        'config_extra'   => 'array',   // <-- importante!
     ];
 
     protected $dates = ['created_at', 'updated_at'];
 
     /**
-     * 🏫 Relação com a escola
-     * hosts.local → escolas.id_escola
+     * 🏫 Escola onde o host está localizado
      */
     public function escola()
     {
@@ -38,8 +46,7 @@ class Host extends Model
     }
 
     /**
-     * 📦 Relação com o item de contrato
-     * hosts.itemcontratado → contrato_itens.id
+     * 📦 Item de contrato que originou o host
      */
     public function itemContrato()
     {
@@ -47,17 +54,30 @@ class Host extends Model
     }
 
     /**
-     * 🔗 Acesso indireto ao contrato via itemContrato
+     * 🔍 Histórico de monitoramentos do host
+     */
+    public function monitoramentos()
+    {
+        return $this->hasMany(Monitoramento::class, 'host_id');
+    }
+
+    /**
+     * 📑 Contrato atrelado ao item contratado
      */
     public function contrato()
     {
         return $this->hasOneThrough(
-            Contrato::class,        // modelo final
-            ContratoItem::class,    // modelo intermediário
-            'id',                   // chave local em contrato_itens
-            'id',                   // chave local em contratos
-            'itemcontratado',       // FK em hosts
-            'contrato_id'           // FK em contrato_itens
+            Contrato::class,
+            ContratoItem::class,
+            'id',           // FK em contrato_itens
+            'id',           // PK em contratos
+            'itemcontratado',
+            'contrato_id'   // FK em contrato_itens
         );
     }
+    public function indisponibilidades()
+{
+    return $this->hasMany(Indisponibilidade::class, 'host_id');
+}
+
 }

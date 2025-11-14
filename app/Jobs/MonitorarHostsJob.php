@@ -3,7 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Host;
-use App\Models\MonitoramentoHost;
+use App\Models\Monitoramento;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -41,7 +41,7 @@ class MonitorarHostsJob implements ShouldQueue
                 $host->update(['status' => $status]);
 
                 // 🔹 Registra histórico
-                MonitoramentoHost::create([
+                Monitoramento::create([
                     'host_id' => $host->id,
                     'ip' => $ip,
                     'status' => $status,
