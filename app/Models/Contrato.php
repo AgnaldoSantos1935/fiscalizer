@@ -78,9 +78,9 @@ class Contrato extends Model
     }
 
     public function situacaoContrato()
-{
-    return $this->belongsTo(SituacaoContrato::class, 'id');
-}
+    {
+        return $this->belongsTo(SituacaoContrato::class, 'id');
+    }
 
     /**
      * 🔹 Itens de contrato
@@ -118,22 +118,44 @@ class Contrato extends Model
      * 🔎 Escopo: contratos por tipo
      */
     public function getValorEmpenhadoAttribute()
-{
-    return $this->empenhos->sum('valor');
-}
+    {
+        return $this->empenhos->sum('valor');
+    }
 
-public function getValorPagoAttribute()
-{
-    return $this->empenhos->sum(fn($e) => $e->pagamentos->sum('valor_pagamento'));
-}
+    public function getValorPagoAttribute()
+    {
+        return $this->empenhos->sum(fn($e) => $e->pagamentos->sum('valor_pagamento'));
+    }
 
-public function getSaldoContratoAttribute()
-{
-    return $this->valor_global - $this->valor_pago;
-}
+    public function getSaldoContratoAttribute()
+    {
+        return $this->valor_global - $this->valor_pago;
+    }
 
     public function scopeTipo($query, string $tipo)
     {
         return $query->where('tipo', $tipo);
     }
+    public function fiscais()
+    {
+        return $this->belongsToMany(User::class, 'contrato_fiscais')
+            ->withPivot('tipo')
+            ->withTimestamps();
+    }
+
+    public function fiscaisTecnicos()
+    {
+        return $this->fiscais()->wherePivot('tipo', 'fiscal_tecnico');
+    }
+
+    public function fiscaisAdministrativos()
+    {
+        return $this->fiscais()->wherePivot('tipo', 'fiscal_administrativo');
+    }
+
+    public function gestores()
+    {
+        return $this->fiscais()->wherePivot('tipo', 'gestor');
+    }
+
 }

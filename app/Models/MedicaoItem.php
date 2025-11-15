@@ -5,6 +5,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\MonitoramentoHost;
+use App\Models\ContratoItem;
 
 class MedicaoItem extends Model
 {
@@ -40,12 +41,27 @@ public function contrato()
 
 public function itemContrato()
 {
-    return $this->belongsTo(ItemContrato::class, 'item_id');
+    return $this->belongsTo(ContratoItem::class, 'item_id');
 }
 
 public function escola()
 {
     return $this->belongsTo(Escola::class);
+}
+protected static function boot()
+{
+    parent::boot();
+
+    static::creating(function ($item) {
+        $item->item_unico_hash = sha1(
+            ($item->demanda_id ?? '') . '-' .
+            ($item->requisito_id ?? '') . '-' .
+            ($item->quantidade_pf ?? 0) . '-' .
+            ($item->tipo_contagem ?? '') . '-' .
+            ($item->sistema_id ?? '') . '-' .
+            ($item->modulo_id ?? '')
+        );
+    });
 }
 
 

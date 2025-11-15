@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+aioping
+httpx
+speedtest-cli
+SQLAlchemy
+pydantic
+python-dotenv

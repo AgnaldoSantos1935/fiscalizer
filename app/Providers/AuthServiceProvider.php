@@ -30,39 +30,42 @@ class AuthServiceProvider extends ServiceProvider
             return null;
         });
 
+
+
+
         // Permite múltiplos papéis (IDs: 1=Administrador, 2=Gestor de Contrato, 3=Fiscal)
-      /*  Gate::define('view-contratos', fn($user) => in_array($user->role_id, [1, 2, 3]));
-        Gate::define('view-mapa1', fn($user) => in_array($user->role_id, [1, 2, 3]));
-        Gate::define('view-dashboard', fn($user) => in_array($user->role_id, [1, 2, 3]));
-        Gate::define('view-monitoramentos', fn($user) => in_array($user->role_id, [1, 2, 3]));
-        Gate::define('view-documentos', fn($user) => in_array($user->role_id, [1, 2, 3]));
-        Gate::define('view-ocorrencias', fn($user) => in_array($user->role_id, [1, 2, 3]));
-        Gate::define('view-funcoes', fn($user) => in_array($user->role_id, [1, 2, 3]));
-        Gate::define('view-projetos', fn($user) => in_array($user->role_id, [1, 2, 3]));
-        Gate::define('view-medicoes', fn($user) => in_array($user->role_id, [1, 2, 3]));
-        Gate::define('view-relatorios', fn($user) => in_array($user->role_id, [1, 2, 3]));
-        Gate::define('view-usrregister', fn($user) => in_array($user->role_id, [1, 2, 3]));
-        Gate::define('view-pswreset', fn($user) => in_array($user->role_id, [1, 2, 3]));
-        Gate::define('view-create-escola', fn($user) => in_array($user->role_id, [1, 2, 3]));
-        Gate::define('view-index-dre', fn($user) => in_array($user->role_id, [1, 2, 3]));
-        Gate::define('view-create-dre', fn($user) => in_array($user->role_id, [1, 2, 3]));
-        Gate::define('view-create-empenho', fn($user) => in_array($user->role_id, [1, 2, 3]));
-        Gate::define('view-index-host', fn($user) => in_array($user->role_id, [1, 2, 3]));
-        Gate::define('view-testar_host-monitoramentos', fn($user) => in_array($user->role_id, [1, 2, 3]));
-        Gate::define('view-create-host', fn($user) => in_array($user->role_id, [1, 2, 3]));
-        Gate::define('view-index-monitoramento', fn($user) => in_array($user->role_id, [1, 2, 3]));
-        Gate::define('view-index-host_testes', fn($user) => in_array($user->role_id, [1, 2, 3]));
-        Gate::define('view-dashboard-host_testes', fn($user) => in_array($user->role_id, [1, 2, 3]));
-        Gate::define('view-historico-host_testes', fn($user) => in_array($user->role_id, [1, 2, 3]));
-           Gate::define('view-index-projetos_soft', fn($user) => in_array($user->role_id, [1, 2, 3]));
-           Gate::define('view-show-projetos_soft', fn($user) => in_array($user->role_id, [1, 2, 3]));
+        /*  Gate::define('view-contratos', fn($user) => in_array($user->role_id, [1, 2, 3]));
+          Gate::define('view-mapa1', fn($user) => in_array($user->role_id, [1, 2, 3]));
+          Gate::define('view-dashboard', fn($user) => in_array($user->role_id, [1, 2, 3]));
+          Gate::define('view-monitoramentos', fn($user) => in_array($user->role_id, [1, 2, 3]));
+          Gate::define('view-documentos', fn($user) => in_array($user->role_id, [1, 2, 3]));
+          Gate::define('view-ocorrencias', fn($user) => in_array($user->role_id, [1, 2, 3]));
+          Gate::define('view-funcoes', fn($user) => in_array($user->role_id, [1, 2, 3]));
+          Gate::define('view-projetos', fn($user) => in_array($user->role_id, [1, 2, 3]));
+          Gate::define('view-medicoes', fn($user) => in_array($user->role_id, [1, 2, 3]));
+          Gate::define('view-relatorios', fn($user) => in_array($user->role_id, [1, 2, 3]));
+          Gate::define('view-usrregister', fn($user) => in_array($user->role_id, [1, 2, 3]));
+          Gate::define('view-pswreset', fn($user) => in_array($user->role_id, [1, 2, 3]));
+          Gate::define('view-create-escola', fn($user) => in_array($user->role_id, [1, 2, 3]));
+          Gate::define('view-index-dre', fn($user) => in_array($user->role_id, [1, 2, 3]));
+          Gate::define('view-create-dre', fn($user) => in_array($user->role_id, [1, 2, 3]));
+          Gate::define('view-create-empenho', fn($user) => in_array($user->role_id, [1, 2, 3]));
+          Gate::define('view-index-host', fn($user) => in_array($user->role_id, [1, 2, 3]));
+          Gate::define('view-testar_host-monitoramentos', fn($user) => in_array($user->role_id, [1, 2, 3]));
+          Gate::define('view-create-host', fn($user) => in_array($user->role_id, [1, 2, 3]));
+          Gate::define('view-index-monitoramento', fn($user) => in_array($user->role_id, [1, 2, 3]));
+          Gate::define('view-index-host_testes', fn($user) => in_array($user->role_id, [1, 2, 3]));
+          Gate::define('view-dashboard-host_testes', fn($user) => in_array($user->role_id, [1, 2, 3]));
+          Gate::define('view-historico-host_testes', fn($user) => in_array($user->role_id, [1, 2, 3]));
+             Gate::define('view-index-projetos_soft', fn($user) => in_array($user->role_id, [1, 2, 3]));
+             Gate::define('view-show-projetos_soft', fn($user) => in_array($user->role_id, [1, 2, 3]));
 
 
 
 
-        Gate::define('view-index-empenhos', fn($user) => in_array($user->role_id, [1, 2, 3]));
-         Gate::define('view-create-empenhos', fn($user) => in_array($user->role_id, [1, 2, 3]));
-         Gate::define('view-show-empenhos', fn($user) => in_array($user->role_id, [1, 2, 3]));*/
+          Gate::define('view-index-empenhos', fn($user) => in_array($user->role_id, [1, 2, 3]));
+           Gate::define('view-create-empenhos', fn($user) => in_array($user->role_id, [1, 2, 3]));
+           Gate::define('view-show-empenhos', fn($user) => in_array($user->role_id, [1, 2, 3]));*/
         // Permite papel único (ID 1=Administrador)
         // Permite papel único (ID 1=Administrador)
         /*Gate::define('view-index-empresas', fn($user) => $user->role_id === 2);
@@ -72,5 +75,5 @@ class AuthServiceProvider extends ServiceProvider
          Gate::define('view-index-user_profiles', fn($user) => $user->role_id === 2);
            Gate::define('view-create-user_profiles', fn($user) => $user->role_id === 2);*/
 
-}
+    }
 }

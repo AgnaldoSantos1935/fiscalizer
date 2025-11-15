@@ -41,4 +41,9 @@ class Projeto extends Model
     public function itens() { return $this->hasMany(ProjetoItem::class); }
 
     public function boletins() { return $this->hasMany(BoletimMedicao::class); }
+    public function processoInstancia()
+{
+    return $this->morphOne(\App\Models\ProcessoInstancia::class, 'referencia');
+}
+
 }

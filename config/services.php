@@ -35,4 +35,6 @@ return [
         ],
     ],
 
+    'url' => [env('MONITOR_BACKEND_URL', 'http://localhost:8002')],
+
 ];

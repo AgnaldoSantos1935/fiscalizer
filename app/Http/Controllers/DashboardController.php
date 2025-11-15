@@ -29,11 +29,11 @@ class DashboardController extends Controller
 
         // 🔹 Top 5 projetos mais produtivos
         $topProjetos = BoletimMedicao::select(
-                'projetos.nome as projeto',
-                DB::raw('SUM(boletins_medicao.total_pf) as total_pf'),
-                DB::raw('SUM(boletins_medicao.total_ust) as total_ust'),
-                DB::raw('SUM(boletins_medicao.valor_total) as valor_total')
-            )
+            'projetos.nome as projeto',
+            DB::raw('SUM(boletins_medicao.total_pf) as total_pf'),
+            DB::raw('SUM(boletins_medicao.total_ust) as total_ust'),
+            DB::raw('SUM(boletins_medicao.valor_total) as valor_total')
+        )
             ->join('projetos', 'projetos.id', '=', 'boletins_medicao.projeto_id')
             ->groupBy('projetos.nome')
             ->orderByDesc('total_pf')
@@ -58,5 +58,17 @@ class DashboardController extends Controller
             'boletinsRecentes'
         ));
     }
+    public function desempenhoFiscalAdm()
+    {
+        $user = auth()->user();
 
+        $stats = [
+            'docs_enviados' => $user->documentos()->count(),
+            'medicoes_finalizadas' => $user->medicoes()->where('status', 'concluida')->count(),
+            'inconsistencias' => $user->logs()->where('acao', 'inconsistencia')->count(),
+            'tempo_medio' => 18.6,
+        ];
+
+        return view('dashboard.fiscal_adm', compact('stats'));
+    }
 }

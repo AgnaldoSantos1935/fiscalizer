@@ -8,50 +8,29 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Medicao extends Model
 {
-    use HasFactory, SoftDeletes;
-
-    protected $table = 'medicoes';
     protected $fillable = [
-        'contrato_id',
-        'mes_referencia',
-        'total_pf',
-        'valor_unitario_pf',
-        'valor_total',
-        'data_envio',
-        'status',
-        'observacao',
-        'created_by',
-        'updated_by',
+        'contrato_id','competencia','tipo','valor_bruto','valor_desconto',
+        'valor_liquido','sla_alcancado','sla_contratado','status',
+        'resumo_json','inconsistencias_json'
     ];
 
-    public $timestamps = true;
-
-    /**
-     * Relação com o contrato
-     */
     public function contrato()
     {
-        return $this->belongsTo(Contrato::class, 'contrato_id');
+        return $this->belongsTo(Contrato::class);
     }
 
-    /**
-     * Auditoria
-     */
-    public function criador()
+    public function itensSoftware()
     {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->hasMany(MedicaoItemSoftware::class);
     }
 
-    public function atualizador()
+    public function itensTelco()
     {
-        return $this->belongsTo(User::class, 'updated_by');
+        return $this->hasMany(MedicaoItemTelco::class);
     }
 
-    /**
-     * Retorna o valor total calculado dinamicamente (opcional)
-     */
-    public function getValorCalculadoAttribute()
+    public function itensFixo()
     {
-        return $this->total_pf * $this->valor_unitario_pf;
+        return $this->hasMany(MedicaoItemFixoMensal::class);
     }
 }

@@ -37,7 +37,12 @@ use App\Http\Controllers\PessoaController;
 use App\Http\Controllers\ServidorController;
 use App\Http\Controllers\BoletimMedicaoController;
 use App\Http\Controllers\ProjetoRelacionamentoController;
-
+use App\Http\Controllers\ProjetoWorkflowController;
+use App\Http\Controllers\MedicaoDocumentoController;
+use App\Http\Controllers\DemandaController;
+use App\Http\Controllers\AntifraudeDashboardController;
+use App\Http\Controllers\ContratoConformidadeController;
+use App\Http\Controllers\MedicaoTelcoController;
 use App\Http\Controllers\{
     RequisitoController, AtividadeController, CronogramaController, EquipeController
 };
@@ -83,6 +88,7 @@ Route::resource('projetos.fiscalizacoes', FiscalizacaoProjetoController::class)-
 Route::resource('pessoas', PessoaController::class);
 Route::resource('servidores', ServidorController::class);
 Route::resource('boletins', BoletimMedicaoController::class);
+Route::resource('demandas', DemandaController::class);
 
 // 🔹 Rotas testes de rede
 // 🔹 Rotas de testes de conexão (pings manuais, diagnóstico)
@@ -130,6 +136,8 @@ Route::post('/hosts/{id}/testar', [HostTesteController::class, 'executarTesteMan
 
 // Rotas para o mapa
 Route::get('/mapas/escolas', [MapaController::class, 'index'])->name('mapas.escolas');
+Route::get('medicoes/{medicao}/telco/mapa', [MedicaoTelcoController::class, 'mapa'])
+    ->name('medicoes.telco.mapa');
 
 Route::get('relatorios/gerar', [RelatorioController::class, 'gerar'])->name('relatorios.gerar');
 Route::get('relatorios', [RelatorioController::class, 'index'])->name('relatorios.index');
@@ -139,6 +147,8 @@ Route::get('boletins/{id}/pdf', [BoletimMedicaoController::class, 'exportPdf'])-
 //FIM DE BOLETIM DE MEDIÇÃO
 // DASHBOARD PROJETOS
 Route::get('/dashboard/projetos', [DashboardController::class, 'index'])->name('dashboard.projetos');
+Route::get('dashboard/antifraude', [AntifraudeDashboardController::class, 'index'])
+    ->name('dashboard.antifraude');
 Route::get('/projetos/{projeto}/gantt', [ProjetoController::class, 'gantt'])
     ->name('projetos.gantt');
 Route::get('/projetos/{projeto}/dashboard', [ProjetoController::class, 'dashboard'])
@@ -195,5 +205,55 @@ Route::get('/requisitos/{requisito}', [RequisitoController::class, 'show']);
 Route::get('/atividades/{atividade}', [AtividadeController::class, 'show']);
 Route::get('/cronograma/{cronograma}', [CronogramaController::class, 'show']);
 Route::get('/equipe/{equipe}', [EquipeController::class, 'show']);
+// FINAL DA ROTA DE REQUISITOS
 
-// FINA LDA ROTA DE REQUISITOS
+// inicio das rotas de workflow BPM
+
+
+Route::prefix('projetos/{projeto}')->group(function () {
+    Route::get('workflow', [ProjetoWorkflowController::class, 'show'])->name('projetos.workflow.show');
+    Route::post('workflow/iniciar', [ProjetoWorkflowController::class, 'iniciar'])->name('projetos.workflow.iniciar');
+    Route::post('workflow/avancar', [ProjetoWorkflowController::class, 'avancar'])->name('projetos.workflow.avancar');
+});
+//final das rotas de workflow BPM
+
+// inicio rotas workflow medição
+Route::post('medicoes/{medicao}/documentos/upload', [MedicaoDocumentoController::class, 'upload'])
+    ->name('medicoes.documentos.upload');
+
+Route::post('medicoes/{medicao}/documentos/validar_nf', [MedicaoDocumentoController::class, 'validarNF'])
+    ->name('medicoes.documentos.validar_nf');
+
+Route::post('medicoes/{medicao}/documentos/{doc}/revalidar', [MedicaoDocumentoController::class, 'revalidar'])
+    ->name('medicoes.documentos.revalidar');
+
+Route::post('medicoes/{medicao}/documentos/substituir_nf', [MedicaoDocumentoController::class, 'substituirNF'])
+    ->name('medicoes.documentos.substituir_nf');
+
+// fim das rotas workflow medição
+// inicio das rotas de documentos de medição
+
+
+Route::prefix('medicoes/{medicao}')->group(function () {
+    Route::post('documentos/upload',        [MedicaoDocumentoController::class, 'upload'])->name('medicoes.documentos.upload');
+    Route::post('documentos/validar-nf',    [MedicaoDocumentoController::class, 'validarNF'])->name('medicoes.documentos.validar_nf');
+    Route::post('documentos/{doc}/revalidar',[MedicaoDocumentoController::class, 'revalidar'])->name('medicoes.documentos.revalidar');
+    Route::post('documentos/substituir-nf', [MedicaoDocumentoController::class, 'substituirNF'])->name('medicoes.documentos.substituir_nf');
+    Route::get('comparacao',               [MedicaoDocumentoController::class, 'comparacao'])->name('medicoes.documentos.comparacao');
+});
+// final das rotas de documentos de medição
+// inicio rotas demandas
+
+
+Route::post('demandas/{demanda}/requisitos', [DemandaController::class, 'addRequisito'])
+    ->name('demandas.requisitos.store');
+Route::delete('demandas/{demanda}/requisitos/{requisito}', [DemandaController::class, 'deleteRequisito'])
+    ->name('demandas.requisitos.destroy');
+//final rotas demandas
+// Inicio Rotas Contratos
+Route::get('contratos/{contrato}/edit', [ContratoController::class, 'edit'])->name('contratos.edit');
+Route::put('contratos/{contrato}', [ContratoController::class, 'update'])->name('contratos.update');
+Route::get('dashboard/contratos/conformidade', [ContratoConformidadeController::class, 'index'])
+    ->name('dashboard.contratos.conformidade');
+
+//Final Rotas contratos
