@@ -95,7 +95,20 @@
             </div>
 
             <!-- 🔹 Tabela -->
-            <table id="tabelaHosts" class="table table-striped no-inner-borders w-100"></table>
+            <table id="tabelaHosts" class="table table-striped no-inner-borders w-100">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Host Alvo</th>
+                        <th>Porta</th>
+                        <th>Provedor</th>
+                        <th>Descrição</th>
+                        <th>Tecnologia</th>
+                        <th>Tipo Monitoramento</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+            </table>
 
         </div>
     </div>
@@ -107,8 +120,7 @@
 @endsection
 
 @section('js')
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
 
 <script>
 $(document).ready(function () {
@@ -139,41 +151,64 @@ $(document).ready(function () {
     // =====================================
     // 🔹 Inicializa DataTable (AJAX)
     // =====================================
-    let tabela = $('#tabelaHosts').DataTable({
-        ajax: "{{ route('api.hosts') }}",
-        language: { url: '{{ asset("js/pt-BR.json") }}' },
-        pageLength: 10,
-        order: [[1, 'asc']],
-        dom: 't<"bottom"p>',
-        responsive: true,
-        columns: [
-            {
-                data: 'id',
-                render: (id) => `<input type="radio" name="hostSelecionado" value="${id}">`,
-                className: 'text-center'
-            },
-            { data: 'nome_conexao', title: 'Nome' },
-            { data: 'provedor', title: 'Provedor' },
-            { data: 'tecnologia', title: 'Tecnologia' },
-            {
-                data: 'tipo_monitoramento',
-                title: 'Tipo',
-                render: (tipo) => {
-                    const map = tipos.find(t => t.slug === tipo) ?? {};
-                    return `<span class="badge bg-${map.cor || 'secondary'}">${tipo.toUpperCase()}</span>`;
-                }
-            },
-            { data: 'host_alvo', title: 'Host Alvo' },
-            { data: 'porta', title: 'Porta', render: p => p ?? '—' },
-            {
-                data: 'status',
-                title: 'Status',
-                render: s => s
-                    ? `<span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Ativo</span>`
-                    : `<span class="badge bg-danger"><i class="fas fa-times-circle me-1"></i>Inativo</span>`
+       let tabela = $('#tabelaHosts').DataTable({
+    ajax: `{{ route('api.hosts') }}`,
+    language: {
+        url: '{{ asset("js/pt-BR.json") }}'
+    },
+
+    pageLength: 10,
+    order: [[1, 'asc']],
+    dom: 't<"bottom"p>',
+    responsive: true,
+
+    columns: [
+        {
+            data: 'id',
+            title: '',
+            className: 'text-center',
+            orderable: false,
+            render: (id) => `
+                <input type="radio" name="hostSelecionado" value="${id}">
+            `
+        },
+
+        { data: 'nome_conexao', title: 'Nome' },
+        { data: 'ip_atingivel', title: 'Host Alvo' },
+
+        {
+            data: 'porta',
+            title: 'Porta',
+            render: p => p ? p : '—'
+        },
+
+        { data: 'provedor', title: 'Provedor' },
+        { data: 'descricao', title: 'Descrição' },
+        { data: 'tecnologia', title: 'Tecnologia' },
+
+        {
+            data: 'tipo_monitoramento',
+            title: 'Tipo',
+            render: (tipo) => {
+                if (!tipo) return '<span class="badge bg-secondary">—</span>';
+
+                const map = tipos.find(t => t.slug === tipo);
+
+                return map
+                    ? `<span class="badge bg-${map.cor}">${map.nome ?? tipo.toUpperCase()}</span>`
+                    : `<span class="badge bg-secondary">${tipo.toUpperCase()}</span>`;
             }
-        ]
-    });
+        },
+
+        {
+            data: 'status',
+            title: 'Status',
+            render: s => s
+                ? `<span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Ativo</span>`
+                : `<span class="badge bg-danger"><i class="fas fa-times-circle me-1"></i>Inativo</span>`
+        }
+    ]
+});
 
     // =====================================
     // Controle do radio + botão detalhes

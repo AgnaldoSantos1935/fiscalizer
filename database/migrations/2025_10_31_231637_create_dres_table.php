@@ -5,6 +5,11 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     public function up(): void {
+        // Evita erro quando a tabela já existe em ambientes com base pré-carregada
+        if (Schema::hasTable('dres')) {
+            return;
+        }
+
         Schema::create('dres', function (Blueprint $table) {
             $table->id();
             $table->string('codigodre', 10)->unique();

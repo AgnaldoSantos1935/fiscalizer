@@ -6,6 +6,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Documento;
+use App\Models\Medicao;
+use App\Models\LogSistema;
+
 
 class User extends Authenticatable
 {
@@ -77,6 +81,19 @@ public function pessoa()
 {
     return $this->hasOne(\App\Models\Pessoa::class);
 }
+public function documentos()
+{
+    return $this->hasMany(Documento::class, 'user_id');
+}
 
+public function medicoes()
+{
+    return $this->hasMany(Medicao::class, 'user_id');
+}
+
+public function logs()
+{
+    return $this->hasMany(LogSistema::class, 'user_id');
+}
 
 }

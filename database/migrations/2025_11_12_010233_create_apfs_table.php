@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
 public function up(): void {
+// Evita erro quando a tabela já existe em ambientes com base pré-carregada
+if (Schema::hasTable('apfs')) { return; }
+
 Schema::create('apfs', function (Blueprint $table) {
 $table->id();
 $table->unsignedBigInteger('projeto_id');

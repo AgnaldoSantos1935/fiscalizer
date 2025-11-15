@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 
 use Illuminate\Support\Str;
+use App\Models\User;
 use App\Models\Contrato;
 use App\Models\SituacaoContrato;
 use App\Models\Empresa;
@@ -14,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use yajra\laravel\datatables\oracle;
 use function PHPUnit\Framework\assertDoesNotMatchRegularExpression;
+use App\Services\ContratoRiscoService;
 
 class ContratoController extends Controller
 {
@@ -150,7 +152,7 @@ class ContratoController extends Controller
     public function create()
     {
         $empresas = Empresa::orderBy('razao_social')->get();
-        $pessoas = Pessoa::orderBy('nome')->get();
+        $pessoas = Pessoa::orderBy('nome_completo')->get();
 
         return view('contratos.create', compact('empresas', 'pessoas'));
     }

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Medicao extends Model
 {
+    protected $table = "medicoes";
     protected $fillable = [
         'contrato_id','competencia','tipo','valor_bruto','valor_desconto',
         'valor_liquido','sla_alcancado','sla_contratado','status',

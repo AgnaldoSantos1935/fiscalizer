@@ -7,6 +7,9 @@ use App\Models\Host;
 use App\Models\Projeto;
 use App\Models\BoletimMedicao;
 use App\Models\Medicao;
+use App\Models\User;
+use App\Models\Documento;
+use App\Models\ProcessoLog;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -60,12 +63,28 @@ class DashboardController extends Controller
     }
     public function desempenhoFiscalAdm()
     {
-        $user = auth()->user();
+        $user = auth()->user->id;
+
+        // Documentos enviados pelo usuário (campo created_by em Documento)
+        $docsEnviados = Documento::where('created_by', $user->id)->count();
+
+        // Medições finalizadas com participação do usuário (via logs vinculados à medição)
+        // Assume relação Medicao::logs() existente conforme uso em serviços de validação
+        $medicoesFinalizadas = Medicao::where('status', 'concluida')
+            ->whereHas('logs', function ($q) use ($user) {
+                $q->where('usuario_id', $user->id);
+            })
+            ->count();
+
+        // Inconsistências registradas pelo usuário (ProcessoLog com acao = 'inconsistencia')
+        $inconsistencias = ProcessoLog::where('usuario_id', $user->id)
+            ->where('acao', 'inconsistencia')
+            ->count();
 
         $stats = [
-            'docs_enviados' => $user->documentos()->count(),
-            'medicoes_finalizadas' => $user->medicoes()->where('status', 'concluida')->count(),
-            'inconsistencias' => $user->logs()->where('acao', 'inconsistencia')->count(),
+            'docs_enviados' => $docsEnviados,
+            'medicoes_finalizadas' => $medicoesFinalizadas,
+            'inconsistencias' => $inconsistencias,
             'tempo_medio' => 18.6,
         ];
 

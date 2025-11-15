@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
+        if (Schema::hasTable('documentos_tecnicos')) { return; }
+
         Schema::create('documentos_tecnicos', function (Blueprint $table) {
             $table->id();
 
@@ -28,7 +30,8 @@ return new class extends Migration {
 
             $table->timestamps();
 
-            $table->foreign('demanda_id')->references('demanda_id')->on('demandas')->cascadeOnDelete();
+            // FK correta para tabela demandas
+            $table->foreign('demanda_id')->references('id')->on('demandas')->cascadeOnDelete();
         });
     }
 

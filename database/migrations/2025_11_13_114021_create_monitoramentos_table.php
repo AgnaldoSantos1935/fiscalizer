@@ -11,6 +11,11 @@ return new class extends Migration
      */
    public function up(): void
     {
+        // Evita erro quando a tabela já existe em ambientes com base pré-carregada
+        if (Schema::hasTable('monitoramentos')) {
+            return;
+        }
+
         Schema::create('monitoramentos', function (Blueprint $table) {
             $table->id();
 

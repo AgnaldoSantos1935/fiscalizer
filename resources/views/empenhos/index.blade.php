@@ -39,7 +39,7 @@
 <script>
 $(function() {
   $('#tabelaEmpenhos').DataTable({
-    ajax: '{{ route('empenhos.data') }}',
+    ajax: `{{ route('empenhos.data') }}`,
      language: { url: '{{ asset(`js/pt-BR.json`) }}' },
         pageLength: 10,
         order: [[1, 'asc']],

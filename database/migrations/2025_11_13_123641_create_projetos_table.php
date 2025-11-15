@@ -8,6 +8,9 @@ return new class extends Migration
 {
    public function up()
 {
+    // Evita erro quando a tabela já existe em ambientes com base pré-carregada
+    if (Schema::hasTable('projetos')) { return; }
+
     Schema::create('projetos', function (Blueprint $table) {
         $table->id();
 
@@ -74,5 +77,10 @@ return new class extends Migration
         $table->timestamps();
     });
 }
+
+   public function down(): void
+   {
+       Schema::dropIfExists('projetos');
+   }
 
 };

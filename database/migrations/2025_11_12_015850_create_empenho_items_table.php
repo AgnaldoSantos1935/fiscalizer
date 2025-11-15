@@ -5,6 +5,11 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     public function up(): void {
+        // Evita criar duplicado em base já existente
+        if (Schema::hasTable('notas_empenho_itens')) {
+            return;
+        }
+
         Schema::create('notas_empenho_itens', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('nota_empenho_id');
@@ -19,7 +24,7 @@ return new class extends Migration {
 
             $table->foreign('nota_empenho_id')
                 ->references('id')
-                ->on('notas_empenho')
+                ->on('empenhos')
                 ->cascadeOnDelete();
         });
     }

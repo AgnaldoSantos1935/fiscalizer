@@ -43,14 +43,38 @@ export function wireCnpjAutoFill() {
         return;
       }
 
-      if (campos.razao_social) document.getElementById(campos.razao_social)?.value = data.razao_social || '';
-      if (campos.nome_fantasia) document.getElementById(campos.nome_fantasia)?.value = data.nome_fantasia || '';
-      if (campos.logradouro) document.getElementById(campos.logradouro)?.value = data.logradouro || '';
-      if (campos.numero) document.getElementById(campos.numero)?.value = data.numero || '';
-      if (campos.bairro) document.getElementById(campos.bairro)?.value = data.bairro || '';
-      if (campos.municipio) document.getElementById(campos.municipio)?.value = data.municipio || '';
-      if (campos.uf) document.getElementById(campos.uf)?.value = data.uf || '';
-      if (campos.cep) document.getElementById(campos.cep)?.value = (data.cep || '').replace(/(\d{5})(\d{3})/, '$1-$2');
+      if (campos.razao_social) {
+        const elRazao = document.getElementById(campos.razao_social);
+        if (elRazao) elRazao.value = data.razao_social || '';
+      }
+      if (campos.nome_fantasia) {
+        const elFantasia = document.getElementById(campos.nome_fantasia);
+        if (elFantasia) elFantasia.value = data.nome_fantasia || '';
+      }
+      if (campos.logradouro) {
+        const elLogradouro = document.getElementById(campos.logradouro);
+        if (elLogradouro) elLogradouro.value = data.logradouro || '';
+      }
+      if (campos.numero) {
+        const elNumero = document.getElementById(campos.numero);
+        if (elNumero) elNumero.value = data.numero || '';
+      }
+      if (campos.bairro) {
+        const elBairro = document.getElementById(campos.bairro);
+        if (elBairro) elBairro.value = data.bairro || '';
+      }
+      if (campos.municipio) {
+        const elMunicipio = document.getElementById(campos.municipio);
+        if (elMunicipio) elMunicipio.value = data.municipio || '';
+      }
+      if (campos.uf) {
+        const elUf = document.getElementById(campos.uf);
+        if (elUf) elUf.value = data.uf || '';
+      }
+      if (campos.cep) {
+        const elCep = document.getElementById(campos.cep);
+        if (elCep) elCep.value = (data.cep || '').replace(/(\d{5})(\d{3})/, '$1-$2');
+      }
 
       showToast('info', 'Dados da empresa preenchidos automaticamente!');
     } catch (err) {

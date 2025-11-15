@@ -38,7 +38,23 @@
             @endif
         </h1>
     @endif
+
 @stop
+
+@section('adminlte_topnav_right')
+@php
+$notiCount = \App\Models\UserNotification::where('user_id', auth()->id())
+    ->where('lida', false)->count();
+
+$ultimas = \App\Models\UserNotification::where('user_id', auth()->id())
+    ->latest()->limit(5)->get();
+@endphp
+
+
+    @include('layouts.components.notificacoes')
+
+    @endsection
+
 
 {{-- ========================================= --}}
 {{-- 🔹 Conteúdo Principal --}}
@@ -107,6 +123,25 @@
     $(function () {
         // JS comum a todas as páginas
         console.log("AdminLTE layout carregado com sucesso!");
+
+          self.addEventListener('push', function(event) {
+    const data = event.data.json();
+
+    const title = data.title || 'Fiscalizer';
+    const options = {
+        body: data.body || '',
+        icon: '/icons/icon-192x192.png',
+        data: { url: data.action || '/' }
+    };
+
+    event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('notificationclick', function(event) {
+    event.notification.close();
+    event.waitUntil(clients.openWindow(event.notification.data.url));
+});
+
     });
 </script>
 @endpush
@@ -132,7 +167,28 @@
     .alert-success {
         border-left: 5px solid #198754;
     }
+    .notif-pulse > a .fa-bell {
+    position: relative;
+}
 
+.notif-pulse > a .fa-bell::after {
+    content: '';
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #ff4757;
+    box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7);
+    animation: pulse-notif 1.5s infinite;
+}
+
+@keyframes pulse-notif {
+    0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7); }
+    70% { transform: scale(1.3); box-shadow: 0 0 0 10px rgba(255, 71, 87, 0); }
+    100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(255, 71, 87, 0); }
+}
 </style>
 @endpush
 

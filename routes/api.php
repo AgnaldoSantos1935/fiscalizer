@@ -65,7 +65,7 @@ Route::get('/monitoramentos/historico/{id}', [MonitoramentoController::class, 'h
 
 Route::get('/hosts/status', [HostApiController::class, 'status']);
 
-Route::get('/hosts', [HostApiController::class, 'index'])->name('api.hosts');
+Route::get('api/hosts', [HostApiController::class, 'index'])->name('api.hosts');
 Route::get('/monitoramentos/latencia-geral', function () {
     $media = \App\Models\Monitoramento::latest()
         ->take(100)

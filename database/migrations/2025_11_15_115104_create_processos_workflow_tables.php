@@ -9,17 +9,20 @@ return new class extends Migration
     public function up(): void
     {
         // 🔹 Modelos de processos (genérico)
-        Schema::create('processos', function (Blueprint $table) {
-            $table->id();
-            $table->string('nome');
-            $table->string('codigo')->nullable(); // ex: PROJ_DEV_SIST
-            $table->text('descricao')->nullable();
-            $table->string('versao')->default('1.0');
-            $table->boolean('ativo')->default(true);
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('processos')) {
+            Schema::create('processos', function (Blueprint $table) {
+                $table->id();
+                $table->string('nome');
+                $table->string('codigo')->nullable(); // ex: PROJ_DEV_SIST
+                $table->text('descricao')->nullable();
+                $table->string('versao')->default('1.0');
+                $table->boolean('ativo')->default(true);
+                $table->timestamps();
+            });
+        }
 
         // 🔹 Etapas do processo
+        if (!Schema::hasTable('processo_etapas')) {
         Schema::create('processo_etapas', function (Blueprint $table) {
             $table->id();
             $table->foreignId('processo_id')->constrained('processos')->onDelete('cascade');
@@ -32,8 +35,10 @@ return new class extends Migration
             $table->boolean('ativa')->default(true);
             $table->timestamps();
         });
+        }
 
         // 🔹 Fluxos entre etapas (regras de transição)
+        if (!Schema::hasTable('processo_fluxos')) {
         Schema::create('processo_fluxos', function (Blueprint $table) {
             $table->id();
             $table->foreignId('processo_id')->constrained('processos')->onDelete('cascade');
@@ -43,8 +48,10 @@ return new class extends Migration
             $table->string('acao_automatica')->nullable(); // ex: 'notificar_gestor', 'gerar_documento'
             $table->timestamps();
         });
+        }
 
         // 🔹 Instância de processo (para cada projeto)
+        if (!Schema::hasTable('processo_instancias')) {
         Schema::create('processo_instancias', function (Blueprint $table) {
             $table->id();
             $table->foreignId('processo_id')->constrained('processos')->onDelete('cascade');
@@ -58,8 +65,10 @@ return new class extends Migration
             $table->timestamp('data_fim')->nullable();
             $table->timestamps();
         });
+        }
 
         // 🔹 Etapas da instância (execução real)
+        if (!Schema::hasTable('processo_instancia_etapas')) {
         Schema::create('processo_instancia_etapas', function (Blueprint $table) {
             $table->id();
             $table->foreignId('instancia_id')->constrained('processo_instancias')->onDelete('cascade');
@@ -74,8 +83,10 @@ return new class extends Migration
 
             $table->timestamps();
         });
+        }
 
         // 🔹 Logs (trilha de auditoria)
+        if (!Schema::hasTable('processo_logs')) {
         Schema::create('processo_logs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('instancia_id')->constrained('processo_instancias')->onDelete('cascade');
@@ -85,6 +96,7 @@ return new class extends Migration
             $table->text('mensagem')->nullable();
             $table->timestamps();
         });
+        }
     }
 
     public function down(): void

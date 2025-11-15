@@ -7,10 +7,33 @@ use Illuminate\Http\Request;
 
 class HostController extends Controller
 {
+    public function index()
+    {
+
+        return view("hosts.index");
+    }
     public function create()
     {
         return view('hosts.create');
     }
+public function getHostsJson()
+{
+    $hosts = Host::orderBy('nome_conexao')->get([
+        'id',
+        'nome_conexao',
+        'ip_atingivel',
+        'porta',
+        'provedor',
+        'descricao',
+        'tecnologia',
+        'tipo_monitoramento',
+        'status'
+    ]);
+
+    return response()->json([
+        'data' => $hosts   // <-- DataTables SÓ FUNCIONA com "data"
+    ]);
+}
 
     public function store(Request $r)
     {
