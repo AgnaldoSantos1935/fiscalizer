@@ -135,7 +135,7 @@ return [
 
     'usermenu_enabled' => true,
     'usermenu_header' => true,
-    'usermenu_header_class' => 'bg-primary',
+    'usermenu_header_class' => 'bg-secondary',
     'usermenu_image' => false,
     'usermenu_desc' => false,
     'usermenu_profile_url' => false,
@@ -171,7 +171,7 @@ return [
     |
     */
 
-    'classes_auth_card' => 'card-outline card-primary',
+    'classes_auth_card' => 'card-outline',
     'classes_auth_header' => '',
     'classes_auth_body' => '',
     'classes_auth_footer' => '',
@@ -236,11 +236,11 @@ return [
     |
     */
 
-    'right_sidebar' => true,
+    'right_sidebar' => false,
     'right_sidebar_icon' => 'fas fa-cogs',
     'right_sidebar_theme' => 'light',
-    'right_sidebar_slide' => true,
-    'right_sidebar_push' => true,
+    'right_sidebar_slide' => false,
+    'right_sidebar_push' => false,
     'right_sidebar_scrollbar_theme' => 'os-theme-light',
     'right_sidebar_scrollbar_auto_hide' => 'l',
 
@@ -301,11 +301,6 @@ return [
     'menu' => [
 
         // 🔍 Barra superior
-        [
-            'type' => 'navbar-search',
-            'text' => 'Buscar...',
-            'topnav_right' => true,
-        ],
         [
             'type' => 'fullscreen-widget',
             'topnav_right' => true,

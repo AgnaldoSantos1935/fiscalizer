@@ -41,7 +41,7 @@
 
 @stop
 
-@section('adminlte_topnav_right')
+@section('topnav_right')
 @php
 $notiCount = \App\Models\UserNotification::where('user_id', auth()->id())
     ->where('lida', false)->count();
@@ -123,26 +123,12 @@ $ultimas = \App\Models\UserNotification::where('user_id', auth()->id())
     $(function () {
         // JS comum a todas as páginas
         console.log("AdminLTE layout carregado com sucesso!");
-
-          self.addEventListener('push', function(event) {
-    const data = event.data.json();
-
-    const title = data.title || 'Fiscalizer';
-    const options = {
-        body: data.body || '',
-        icon: '/icons/icon-192x192.png',
-        data: { url: data.action || '/' }
-    };
-
-    event.waitUntil(self.registration.showNotification(title, options));
-});
-
-self.addEventListener('notificationclick', function(event) {
-    event.notification.close();
-    event.waitUntil(clients.openWindow(event.notification.data.url));
-});
-
     });
+</script>
+<script>
+  window.AppUserId = @json(auth()->id());
+  window.AppIsAuthenticated = @json(auth()->check());
+  window.CSRFToken = @json(csrf_token());
 </script>
 @endpush
 
@@ -189,6 +175,10 @@ self.addEventListener('notificationclick', function(event) {
     70% { transform: scale(1.3); box-shadow: 0 0 0 10px rgba(255, 71, 87, 0); }
     100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(255, 71, 87, 0); }
 }
+
+/* Ordenação: sino antes da área do usuário no topo */
+.navbar-nav .notif-dropdown { order: 0; }
+.navbar-nav .user-menu { order: 1; }
 </style>
 @endpush
 

@@ -3,7 +3,29 @@
 @section('content')
     <div class="container">
 
-        <h3 class="mb-4">Revisão de Informações Extraídas</h3>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="mb-0">Revisão de Informações Extraídas</h3>
+            <div>
+                <a href="{{ \Illuminate\Support\Facades\Storage::url($arquivo_path) }}" target="_blank" class="btn btn-outline-primary">
+                    Ver PDF do Contrato
+                </a>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+                <h5 class="mb-3">Visualização do PDF</h5>
+                <div class="w-100" style="height: 70vh;">
+                    <iframe
+                        src="{{ \Illuminate\Support\Facades\Storage::url($arquivo_path) }}"
+                        class="w-100"
+                        style="height: 100%;"
+                        frameborder="0"
+                        title="Visualizador de PDF do Contrato"></iframe>
+                </div>
+                <p class="text-muted small mt-2">Se o PDF não carregar, use o botão "Ver PDF do Contrato" para abrir em nova aba.</p>
+            </div>
+        </div>
 
         <form action="{{ route('contratos.salvar') }}" method="POST">
             @csrf

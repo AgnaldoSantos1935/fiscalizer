@@ -242,3 +242,62 @@ div.dataTables_wrapper {
 .modal-backdrop.show { z-index: 1040 !important; }
 .modal { z-index: 1050 !important; }
  #formFiltros .btn-sep + .btn-sep { margin-left: .5rem !important; }
+
+/* ===============================================
+   Login (Auth) View Scoped Styles
+   Regras globais aplicadas apenas na página de login
+   Use a classe wrapper `.auth-login` no container da view
+   =============================================== */
+.auth-login .card {
+  border-radius: 6px;
+  overflow: hidden;
+  background-color: #ffffff; /* branco */
+  color: #1f2937; /* texto escuro */
+  border: 1px solid #000; /* borda preta */
+}
+
+.auth-login .card-header {
+  border-top-left-radius: 6px !important;
+  border-top-right-radius: 6px !important;
+}
+
+.auth-login .input-group-text {
+  background-color: #f8f9fa;
+  border-right: none;
+}
+
+.auth-login .form-control {
+  border-left: none;
+}
+
+.auth-login .btn-primary {
+  padding: 10px 20px;
+  font-weight: 600;
+  background-color: #0ea5e9;
+  border-color: #0ea5e9;
+}
+
+.auth-login .brand-title {
+  font-weight: 800;
+  font-size: 1.125rem;
+  letter-spacing: 0.5px;
+  background: linear-gradient(90deg, #0ea5e9, #6366f1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ===============================================
+   Efeitos de background para o layout de autenticação
+   Aplicado no <body class="auth-bg">
+   =============================================== */
+.auth-bg {
+  /* cor base solicitada */
+  background-color: #D1CAC9;
+  /* efeitos suaves com múltiplos backgrounds */
+  background-image:
+    radial-gradient(60% 60% at 10% 10%, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.0) 60%),
+    radial-gradient(50% 50% at 90% 15%, rgba(0,0,0,0.03) 0%, rgba(0,0,0,0.0) 55%),
+    linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(0,0,0,0.02) 100%);
+  background-blend-mode: normal, normal, normal;
+  background-attachment: fixed;
+}

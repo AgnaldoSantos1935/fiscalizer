@@ -6,6 +6,7 @@
 
 <form action="{{ route('contratos.store') }}" method="POST" class="card p-4 shadow-sm">
   @csrf
+  <!-- Upload de PDF removido: anexar somente na tela de detalhes do contrato -->
   <div class="row mb-3">
     <div class="col-md-4">
       <label class="form-label">Número *</label>
@@ -49,8 +50,6 @@
 
 @endsection
 @section('js')
-<script>
-
-</script>
+<!-- Sem JS de extração: PDF será anexado na página de detalhes do contrato -->
 
 @endsection

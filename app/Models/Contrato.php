@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Carbon\Carbon;
 use App\Models\Pessoa;
 
 class Contrato extends Model
@@ -79,7 +80,7 @@ class Contrato extends Model
 
     public function situacaoContrato()
     {
-        return $this->belongsTo(SituacaoContrato::class, 'id');
+        return $this->belongsTo(SituacaoContrato::class, 'situacao_contrato_id');
     }
 
     /**
@@ -157,5 +158,65 @@ class Contrato extends Model
     {
         return $this->fiscais()->wherePivot('tipo', 'gestor');
     }
+
+public function empresa()
+{
+    return $this->belongsTo(Empresa::class);
+}
+
+    /**
+     * 🔹 Documentos vinculados ao contrato
+     */
+    public function documentos()
+    {
+        return $this->hasMany(\App\Models\Documento::class, 'contrato_id');
+    }
+
+    public function getDataFinalAttribute()
+    {
+        $fimContrato = $this->getAttribute('data_fim') ?? $this->getAttribute('data_fim_vigencia');
+        // Considera apenas documentos cujo tipo permite alterar a vigência
+        $novaDatas = $this->documentos
+            ? $this->documentos
+                ->filter(function ($doc) {
+                    return optional($doc->documentoTipo)->permite_nova_data_fim && !empty($doc->nova_data_fim);
+                })
+                ->pluck('nova_data_fim')
+                ->filter()
+                ->map(fn($d) => Carbon::parse($d))
+            : collect();
+
+        $dataFimContrato = $fimContrato ? Carbon::parse($fimContrato) : null;
+        $dataFinal = $dataFimContrato;
+
+        if ($novaDatas->isNotEmpty()) {
+            $maisRecente = $novaDatas->max();
+            if (!$dataFinal || $maisRecente->gt($dataFinal)) {
+                $dataFinal = $maisRecente;
+            }
+        }
+
+        return $dataFinal;
+    }
+
+    public function getVigenciaMesesAttribute()
+    {
+        $inicio = $this->getAttribute('data_inicio')
+            ?? $this->getAttribute('data_inicio_vigencia')
+            ?? $this->getAttribute('data_assinatura');
+
+        $final = $this->data_final;
+
+        if (!$inicio || !$final) {
+            return null;
+        }
+
+        $inicioC = Carbon::parse($inicio);
+        $finalC = $final instanceof Carbon ? $final : Carbon::parse($final);
+
+        $meses = $inicioC->diffInMonths($finalC);
+        return $meses;
+    }
+
 
 }

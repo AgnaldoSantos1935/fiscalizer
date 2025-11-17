@@ -35,6 +35,11 @@ return [
         ],
     ],
 
+    // OpenAI configuration for IAContratoService
+    'openai' => [
+        'key' => env('OPENAI_API_KEY'),
+    ],
+
     'url' => [env('MONITOR_BACKEND_URL', 'http://localhost:8002')],
 
 ];

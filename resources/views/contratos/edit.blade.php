@@ -10,6 +10,12 @@
         Editar Contrato – {{ $contrato->numero }}
     </h3>
 
+    <div class="mb-3">
+        <a href="{{ route('contratos.pdf', $contrato->id) }}" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-file-pdf"></i> Ver PDF do Contrato
+        </a>
+    </div>
+
     <form action="{{ route('contratos.update', $contrato->id) }}" method="POST">
         @csrf
         @method('PUT')

@@ -42,6 +42,7 @@ use App\Http\Controllers\MedicaoDocumentoController;
 use App\Http\Controllers\DemandaController;
 use App\Http\Controllers\AntifraudeDashboardController;
 use App\Http\Controllers\ContratoConformidadeController;
+use App\Http\Controllers\ContratoInteligenteController;
 use App\Http\Controllers\MedicaoTelcoController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\{
@@ -73,9 +74,22 @@ Route::resource('contratos', ContratoController::class);
 Route::resource('medicoes', MedicaoController::class);
 Route::resource('funcoes-sistema', FuncaoSistemaController::class);
 Route::resource('documentos', DocumentoController::class);
+// Visualizador de PDFs e streaming inline
+Route::get('documentos/{documento}/visualizar', [DocumentoController::class, 'visualizar'])->name('documentos.visualizar');
+Route::get('documentos/{documento}/stream', [DocumentoController::class, 'stream'])->name('documentos.stream');
+Route::get('documentos/{documento}/download', [DocumentoController::class, 'download'])->name('documentos.download');
+Route::get('documentos/{documento}/print', [DocumentoController::class, 'print'])->name('documentos.print');
+
+// Atalho para abrir PDF do contrato
+Route::get('contratos/{contrato}/pdf', [ContratoController::class, 'pdf'])->name('contratos.pdf');
+// Cadastro de documentos vinculados ao contrato
+Route::get('contratos/{contrato}/documentos/create', [App\Http\Controllers\ContratoController::class, 'createDocumento'])
+    ->name('contratos.documentos.create');
 Route::resource('ocorrencias-fiscalizacao', OcorrenciaFiscalizacaoController::class);
 Route::resource('ocorrencias', OcorrenciaController::class);
 Route::resource('projetos', ProjetoController::class);
+// API para DataTables da tela de Projetos
+Route::get('/api/projetos', [ProjetoController::class, 'getJsonProjetos'])->name('api.projetos');
 Route::resource('user_profiles', UserProfileController::class);
  Route::resource('usuarios',UserProfileController::class);
  Route::resource('empresas', EmpresaController::class);
@@ -83,7 +97,6 @@ Route::resource('empenhos', EmpenhoController::class);
 Route::resource('hosts', HostController::class);
 Route::resource('dres', DREController::class);
 Route::resource('host_testes', HostTesteController::class)->only(['index', 'show']);
-Route::resource('projetos', ProjetoSoftwareController::class);
 Route::resource('projetos.apfs', ApfController::class); // nested: /projetos/{projeto}/apfs
 Route::resource('projetos.fiscalizacoes', FiscalizacaoProjetoController::class)->shallow();
 Route::resource('pessoas', PessoaController::class);
@@ -216,6 +229,12 @@ Route::prefix('projetos/{projeto}')->group(function () {
     Route::post('workflow/iniciar', [ProjetoWorkflowController::class, 'iniciar'])->name('projetos.workflow.iniciar');
     Route::post('workflow/avancar', [ProjetoWorkflowController::class, 'avancar'])->name('projetos.workflow.avancar');
 });
+Route::prefix('projetos/{projeto}')->group(function () {
+    Route::get('workflow', [ProjetoWorkflowController::class, 'show'])->name('projetos.workflow.show');
+    Route::post('workflow/iniciar', [ProjetoWorkflowController::class, 'iniciar'])->name('projetos.workflow.iniciar');
+    Route::post('workflow/avancar', [ProjetoWorkflowController::class, 'avancar'])->name('projetos.workflow.avancar');
+});
+
 //final das rotas de workflow BPM
 
 // inicio rotas workflow medição
@@ -256,6 +275,13 @@ Route::get('contratos/{contrato}/edit', [ContratoController::class, 'edit'])->na
 Route::put('contratos/{contrato}', [ContratoController::class, 'update'])->name('contratos.update');
 Route::get('dashboard/contratos/conformidade', [ContratoConformidadeController::class, 'index'])
     ->name('dashboard.contratos.conformidade');
+// Upload inteligente (IA) – página e processamento opcional
+Route::get('contratos/upload', [ContratoInteligenteController::class, 'uploadForm'])->name('contratos.upload');
+Route::post('contratos/upload', [ContratoInteligenteController::class, 'receberUpload'])->name('contratos.upload.receber');
+Route::post('contratos/salvar', [ContratoInteligenteController::class, 'salvar'])->name('contratos.salvar');
+Route::post('contratos/extrair', [ContratoController::class, 'extrair'])->name('contratos.extrair');
+// Upload de PDF vinculado a um contrato já existente
+Route::post('contratos/{contrato}/pdf', [ContratoController::class, 'uploadPdf'])->name('contratos.pdf.upload');
 
 //Final Rotas contratos
 // Rotas de notificação

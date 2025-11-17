@@ -1,17 +1,16 @@
 @extends('layouts.auth')
 
 @section('content')
-    <div class="container">
+    <div class="container auth-login">
         <div class="row justify-content-center">
             <div class="col-md-6 col-lg-5 col-xl-4">
-                <div class="card shadow-lg border-0 rounded-lg mt-5">
-                    <div class="card-header bg-primary text-white">
-                        <h3 class="text-center font-weight-light my-2">Fiscalizer - Login</h3>
-                    </div>
+                <div class="card shadow-lg mt-5">
+        <div class="card-header bg-primary text-white">
+            <h3 class="text-center font-weight-light my-2">{{ config('adminlte.title', config('app.name', 'Fiscalizer')) }}</h3>
+        </div>
                     <div class="card-body">
                         <div class="text-center mb-4">
-                            <img src="{{ asset('img/logo/fiscalizer-sistema.png') }}" alt="Fiscalizer Sistema"
-                                style="max-height: 100px;">
+                            <div class="brand-title">Dados de Usuário</div>
                         </div>
                         @if ($errors->any())
                             <div class="alert alert-danger text-center shadow-sm">
@@ -84,42 +83,12 @@
                         </form>
                     </div>
                     <div class="card-footer text-center py-3">
-                        <div class="small">Sistema de Fiscalização de Obras e Serviços</div>
+                        <div class="small font-weight-bold">Sistema de Fiscalização de Obras e Serviços</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <style>
-        body {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-        }
-
-        .card {
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .card-header {
-            border-radius: 10px 10px 0 0 !important;
-        }
-
-        .input-group-text {
-            background-color: #f8f9fa;
-            border-right: none;
-        }
-
-        .form-control {
-            border-left: none;
-        }
-
-        .btn-primary {
-            padding: 10px 20px;
-            font-weight: 600;
-        }
-    </style>
+    
 @endsection

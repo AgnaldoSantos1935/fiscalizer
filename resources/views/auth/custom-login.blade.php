@@ -11,16 +11,19 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
+<div class="container auth-login">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card shadow-lg border-0 rounded-lg mt-5">
+            <div class="card shadow-lg rounded-lg mt-5">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="text-center font-weight-light my-2">Fiscalizer - Login</h5>
+                    <h5 class="text-center font-weight-light my-2">{{ config('adminlte.title', config('app.name', 'Fiscalizer')) }}</h5>
                 </div>
                 <div class="card-body">
                     <div class="text-center mb-4">
             <img src="{{ asset('img/logo/fiscalizer-sistema.png') }}" alt="Fiscalizer Sistema" style="max-height: 100px;">
+                    </div>
+                    <div class="text-center mb-3">
+                        <div class="brand-title">Dados de Usuário</div>
                     </div>
 
                     <form method="POST" action="{{ route('login') }}">
@@ -87,35 +90,5 @@
     </div>
 </div>
 
-<style>
-    body {
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-    }
-
-    .card {
-        border-radius: 10px;
-        overflow: hidden;
-    }
-
-    .card-header {
-        border-radius: 10px 10px 0 0 !important;
-    }
-
-    .input-group-text {
-        background-color: #f8f9fa;
-        border-right: none;
-    }
-
-    .form-control {
-        border-left: none;
-    }
-
-    .btn-primary {
-        padding: 10px 20px;
-        font-weight: 600;
-    }
-</style>
+{{-- CSS inline removido; regras vêm de resources/css/custom.css (escopo .auth-login) --}}
 @endsection

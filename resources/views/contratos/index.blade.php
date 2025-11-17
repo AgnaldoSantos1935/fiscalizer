@@ -93,9 +93,7 @@ use Illuminate\Support\Str;
 </div>
 <!---->
             <!-- 🔹 Tabela -->
-      <table id="tabelaContratos" class="table table-striped no-inner-borders w-100">
-
-</table>
+      <table id="tabelaContratos" class="table table-striped no-inner-borders w-100"></table>
 
 
 
@@ -104,7 +102,7 @@ use Illuminate\Support\Str;
 </div>
 
 <!-- Modal de Itens Contratados -->
-<!--<div class="modal fade" id="modalItensContrato" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="modalItensContrato" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header bg-primary text-white">
@@ -127,7 +125,31 @@ use Illuminate\Support\Str;
       </div>
     </div>
   </div>
-</div> -->
+</div>
+
+<!-- Modal de Detalhes do Contrato -->
+<div class="modal fade" id="modalDetalhesContrato" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-secondary text-white">
+        <h5 class="modal-title"><i class="fas fa-file-contract"></i> Detalhes do Contrato</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3">
+          <div class="col-md-6"><div><strong>Número</strong></div><div id="detNumero">—</div></div>
+          <div class="col-md-6"><div><strong>Situação</strong></div><div id="detSituacao">—</div></div>
+          <div class="col-md-12"><div><strong>Objeto</strong></div><div id="detObjeto">—</div></div>
+          <div class="col-md-6"><div><strong>Contratada</strong></div><div id="detEmpresa">—</div></div>
+          <div class="col-md-6"><div><strong>CNPJ</strong></div><div id="detCnpj">—</div></div>
+          <div class="col-md-4"><div><strong>Valor Global</strong></div><div id="detValorGlobal">—</div></div>
+          <div class="col-md-4"><div><strong>Data Início</strong></div><div id="detDataInicio">—</div></div>
+          <div class="col-md-4"><div><strong>Data Fim</strong></div><div id="detDataFim">—</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 @endsection
 
@@ -154,7 +176,7 @@ fetch(`{{ route('api.situacoes') }}`)
 
       situacoes.forEach(s => {
           // define cor + ícone
-          const map = badgeClassFromColor(s.cor);
+          const map = legendMapFromColor(s.cor);
           const descricao = s.descricao ? s.descricao.replace(/"/g, '&quot;') : 'Sem descrição.';
 
           // adiciona no filtro
@@ -171,9 +193,13 @@ fetch(`{{ route('api.situacoes') }}`)
           `);
       });
 
-      // inicializa tooltips do Bootstrap
+      // inicializa tooltips (compatível com Bootstrap 5 e fallback jQuery/BS4)
       const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-      tooltipTriggerList.map(el => new bootstrap.Tooltip(el));
+      if (window.bootstrap && typeof bootstrap.Tooltip === 'function') {
+          tooltipTriggerList.map(el => new bootstrap.Tooltip(el));
+      } else if (typeof $ !== 'undefined' && $.fn && $.fn.tooltip) {
+          $('[data-bs-toggle="tooltip"]').tooltip();
+      }
   })
   .catch(err => console.error('Erro ao carregar situações:', err));
 
@@ -182,7 +208,7 @@ fetch(`{{ route('api.situacoes') }}`)
     // ==============================
     const tabela = $('#tabelaContratos').DataTable({
         ajax: `{{ route('api.contratos') }}`,
-        language: { url: '{{ asset(`js/pt-BR.json`) }}' },
+        language: { url: "{{ asset('js/pt-BR.json') }}" },
         pageLength: 10,
         order: [[1, 'asc']],
         dom: 't<"bottom"p>',
@@ -237,6 +263,13 @@ fetch(`{{ route('api.situacoes') }}`)
         if (!contratoSelecionado) return;
         window.location.href = '{{ url("contratos") }}/' + contratoSelecionado;
     });
+
+    // ===================================
+    // 📦 Abrir modal de itens do contrato
+    // ===================================
+    const detalhesBaseUrl = "{{ url('/api/contratos/detalhes')}}";
+
+    // Removidos: ações por linha (Detalhes/Itens); usar apenas "Exibir Detalhes" do topo
 
     // ===================================
     // 🔍 Aplicar filtros (funciona igual à versão antiga)
@@ -300,6 +333,29 @@ fetch(`{{ route('api.situacoes') }}`)
   const cls = map[slug] || 'secondary';
   const needsDark = cls === 'warning' || cls === 'light';
   return `badge bg-${cls}${needsDark ? ' text-dark' : ''}`;
+}
+
+// Mapeia classes e ícones para a legenda (separado da função acima)
+function legendMapFromColor(cor) {
+  const baseClass = badgeClassFromColor(cor);
+  // Ícones genéricos por "tipo" de cor
+  const colorToIcon = {
+    primary: 'fa-info-circle',
+    success: 'fa-check',
+    warning: 'fa-exclamation-triangle',
+    danger: 'fa-times-circle',
+    secondary: 'fa-tag',
+    dark: 'fa-minus-circle',
+    light: 'fa-circle',
+    info: 'fa-info'
+  };
+
+  // extrai o sufixo da classe gerada: bg-<color>
+  const match = baseClass.match(/bg-(primary|success|warning|danger|secondary|dark|light|info)/);
+  const colorKey = match ? match[1] : 'secondary';
+  const icon = colorToIcon[colorKey] || 'fa-tag';
+
+  return { cls: baseClass, icon };
 }
 
 

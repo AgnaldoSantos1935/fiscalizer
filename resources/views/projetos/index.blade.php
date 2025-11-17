@@ -1,110 +1,199 @@
 @extends('layouts.app')
 @php
     use Illuminate\Support\Str;
+    $badgeMap = [
+        'analise'              => 'secondary',
+        'planejado'            => 'info',
+        'em_execucao'          => 'primary',
+        'homologacao'          => 'warning',
+        'aguardando_pagamento' => 'dark',
+        'concluido'            => 'success',
+        'suspenso'             => 'danger',
+        'cancelado'            => 'danger',
+    ];
 @endphp
 
-@section('title', 'Projetos de Software')
+@section('title', 'Projetos')
 
 @section('content')
 <div class="container-fluid">
-
+    <!-- 🔹 Card de Filtros -->
     <div class="card shadow-sm border-0 rounded-4 mb-4">
-        <div class="card-header bg-white d-flex justify-content-between align-items-center">
-            <h4 class="mb-0 text-secondary">
-                <i class="fas fa-code-branch me-2 text-primary"></i>Projetos de Software
+        <div class="card-header bg-white border-0 d-flex align-items-center justify-content-between">
+            <h4 class="mb-0 text-secondary fw-semibold">
+                <i class="fas fa-search me-2 text-primary"></i>Filtros de Pesquisa
             </h4>
-            <a href="{{ route('projetos.create') }}" class="btn btn-primary btn-sm">
-                <i class="fas fa-plus me-1"></i> Novo
-            </a>
         </div>
 
-        <div class="card-body">
-
-            <form method="get" class="row g-2 mb-3">
+        <div class="card-body bg-white">
+            <form id="formFiltros" class="row g-3 bg-light p-3 rounded-4 shadow-sm align-items-end mb-3">
                 <div class="col-md-4">
-                    <input type="text" name="q" value="{{ request('q') }}"
-                           class="form-control" placeholder="Buscar por código, título, sistema...">
+                    <label for="filtroBusca" class="form-label fw-semibold text-secondary small">Buscar</label>
+                    <input type="text" id="filtroBusca" class="form-control form-control-sm" placeholder="Código, título, sistema...">
                 </div>
 
                 <div class="col-md-3">
-                    <select name="situacao" class="form-select">
-                        <option value="">Todas as Situações</option>
+                    <label for="filtroSituacao" class="form-label fw-semibold text-secondary small">Situação</label>
+                    <select id="filtroSituacao" class="custom-select form-control-border">
+                        <option value="">Todas</option>
                         @foreach($situacoes as $key => $label)
-                            <option value="{{ $key }}" @selected(request('situacao') == $key)>{{ $label }}</option>
+                            <option value="{{ $key }}">{{ $label }}</option>
                         @endforeach
                     </select>
                 </div>
 
-                <div class="col-md-2">
-                    <button class="btn btn-outline-secondary w-100">
-                        <i class="fas fa-search"></i> Filtrar
-                    </button>
+                <div class="col-md-2 d-flex justify-content-end align-items-end">
+                    <div class="d-flex w-100">
+                        <button type="button" id="btnAplicarFiltros" class="btn btn-primary btn-sm btn-sep flex-grow-1">
+                            <i class="fas fa-filter me-1"></i> Filtrar
+                        </button>
+                        <button type="button" id="btnLimpar" class="btn btn-outline-secondary btn-sm btn-sep flex-grow-1">
+                            <i class="fas fa-undo me-1"></i> Limpar
+                        </button>
+                    </div>
                 </div>
             </form>
-
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead>
-                        <tr>
-                            <th>Código</th>
-                            <th>Título</th>
-                            <th>Sistema/Módulo</th>
-                            <th>PF Planejado</th>
-                            <th>Situação</th>
-                            <th class="text-end"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($projetos as $p)
-                            <tr>
-                                <td class="fw-semibold">{{ $p->codigo }}</td>
-                                <td>{{ $p->titulo }}</td>
-                                <td>{{ $p->sistema }} @if($p->modulo) / {{ $p->modulo }} @endif</td>
-                                <td>{{ number_format($p->pf_planejado ?? 0, 2, ',', '.') }}</td>
-                                <td>
-                                    @php
-                                        $mapBadge = [
-                                            'analise'              => 'secondary',
-                                            'planejado'            => 'info',
-                                            'em_execucao'          => 'primary',
-                                            'homologacao'          => 'warning',
-                                            'aguardando_pagamento' => 'dark',
-                                            'concluido'            => 'success',
-                                            'suspenso'             => 'danger',
-                                            'cancelado'            => 'danger',
-                                        ];
-                                        $clsBadge = $mapBadge[$p->situacao] ?? 'secondary';
-                                    @endphp
-                                    <span class="badge bg-{{ $clsBadge }}">
-                                        {{ $situacoes[$p->situacao] ?? $p->situacao }}
-                                    </span>
-                                </td>
-                                <td class="text-end">
-                                    <a class="btn btn-sm btn-outline-primary"
-                                       href="{{ route('projetos.show', $p->id) }}">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <a class="btn btn-sm btn-outline-secondary"
-                                       href="{{ route('projetos.edit', $p->id) }}">
-                                        <i class="fas fa-pen"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" class="text-center text-muted py-4">
-                                    Nenhum projeto encontrado.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-
-            {{ $projetos->withQueryString()->links() }}
-
         </div>
     </div>
 
+    <!-- 🔹 Card Principal -->
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header bg-white border-0 d-flex align-items-center justify-content-between">
+            <h4 class="mb-0 text-secondary fw-semibold">
+                <i class="fas fa-code-branch me-2 text-primary"></i>Projetos Cadastrados
+            </h4>
+        </div>
+
+        <div class="card-body bg-white">
+            <!-- 🔹 Navbar de ações -->
+            <nav class="nav nav-pills flex-column flex-sm-row">
+                <ul class="nav nav-pills">
+                    <li class="nav-item">
+                        <a id="navDetalhes" class="nav-link disabled" href="#">
+                            <i class="fas fa-eye text-info me-2"></i> Exibir Detalhes
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('projetos.create') }}" class="nav-link active">
+                            <i class="fas fa-plus-circle me-1"></i> Novo Projeto
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <br>
+
+            <!-- 🔹 Legendas de situação -->
+            <div id="legendaSituacoes" class="mb-3 d-flex flex-wrap align-items-center gap-2 small text-secondary">
+                <i class="fas fa-info-circle me-2 text-primary"></i>
+                <span>Legenda de Situações:</span>
+                <div id="listaLegendas" class="d-flex flex-wrap gap-2 ms-2">
+                    @foreach($situacoes as $key => $label)
+                        @php $cls = $badgeMap[$key] ?? 'secondary'; @endphp
+                        <span class="badge bg-{{ $cls }}">{{ $label }}</span>
+                    @endforeach
+                </div>
+            </div>
+
+            <!-- 🔹 Tabela -->
+            <table id="tabelaProjetos" class="table table-striped no-inner-borders w-100"></table>
+        </div>
+    </div>
 </div>
+@endsection
+
+@section('css')
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+@endsection
+
+@section('js')
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script>
+$(function() {
+    const SITUACOES = @json($situacoes);
+    const badgeMap = @json($badgeMap);
+
+    function badgeClass(situacao) {
+        return badgeMap[situacao] ? `badge bg-${badgeMap[situacao]}` : 'badge bg-secondary';
+    }
+
+    const tabela = $('#tabelaProjetos').DataTable({
+        ajax: `{{ route('api.projetos') }}`,
+        language: { url: "{{ asset('js/pt-BR.json') }}" },
+        pageLength: 10,
+        order: [[1, 'asc']],
+        dom: 't<"bottom"p>',
+        responsive: true,
+        columns: [
+            {
+                data: null,
+                className: 'text-center',
+                render: (d) => `<input type="radio" name="projetoSelecionado" value="${d.id}">`
+            },
+            { data: 'codigo', defaultContent: '—', title: 'Código' },
+            { data: 'titulo', defaultContent: '—', title: 'Título' },
+            {
+                data: null,
+                title: 'Sistema/Módulo',
+                render: d => {
+                    const sis = d.sistema || '';
+                    const mod = d.modulo || '';
+                    return sis && mod ? `${sis} / ${mod}` : (sis || mod || '—');
+                }
+            },
+            {
+                data: 'pf_planejado',
+                title: 'PF Planejado',
+                className: 'text-end fw-semibold',
+                render: v => (v != null) ? Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '0,00'
+            },
+            {
+                data: 'situacao',
+                title: 'Situação',
+                render: s => `<span class="${badgeClass(s)}">${SITUACOES[s] ?? s ?? '—'}</span>`
+            }
+        ]
+    });
+
+    let projetoSelecionado = null;
+    $('#tabelaProjetos').on('change', 'input[name="projetoSelecionado"]', function () {
+        projetoSelecionado = $(this).val();
+        $('#navDetalhes').removeClass('disabled');
+    });
+
+    $('#navDetalhes').on('click', function (e) {
+        e.preventDefault();
+        if (!projetoSelecionado) return;
+        window.location.href = '{{ url('projetos') }}' + '/' + projetoSelecionado;
+    });
+
+    $('#btnAplicarFiltros').on('click', function (e) {
+        e.preventDefault();
+        const busca = $('#filtroBusca').val().trim();
+        const situacao = $('#filtroSituacao').val().trim().toLowerCase();
+
+        tabela.column(1).search(busca);
+        tabela.column(2).search(busca);
+        tabela.column(3).search(busca);
+        tabela.draw();
+
+        // Filtro de situação (badge HTML)
+        $('#tabelaProjetos tbody tr').each(function () {
+            const badgeText = $(this).find('td:nth-child(6) span').text().trim().toLowerCase();
+            const match = !situacao || badgeText.includes(situacao);
+            $(this).toggle(match);
+        });
+    });
+
+    $('#btnLimpar').on('click', function (e) {
+        e.preventDefault();
+        $('#formFiltros')[0].reset();
+        tabela.search('');
+        tabela.columns().search('');
+        tabela.order([1, 'asc']);
+        tabela.ajax.reload(null, false);
+    });
+});
+</script>
 @endsection
