@@ -1,0 +1,39 @@
+name: Laravel CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: sqlite3, pdo_sqlite, mbstring, dom, curl
+          coverage: none
+
+      - name: Validate Composer
+        run: composer validate --no-interaction || true
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest --no-interaction
+
+      - name: Copy phpunit sqlite DB
+        run: |
+          mkdir -p database
+          touch database/testing.sqlite
+
+      - name: Run tests
+        env:
+          APP_ENV: testing
+        run: |
+          ./vendor/bin/phpunit --colors=always
