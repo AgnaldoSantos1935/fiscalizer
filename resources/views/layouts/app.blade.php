@@ -60,6 +60,30 @@ $ultimas = \App\Models\UserNotification::where('user_id', auth()->id())
 {{-- 🔹 Conteúdo Principal --}}
 {{-- ========================================= --}}
 @section('content')
+    {{-- Breadcrumb opcional fornecido pela view --}}
+    @hasSection('breadcrumb')
+        <div class="container-fluid mb-2">
+            @yield('breadcrumb')
+        </div>
+    @endif
+    @if (!View::hasSection('breadcrumb'))
+        @php $segs = request()->segments(); $acc=''; @endphp
+        <div class="container-fluid mb-2">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb bg-white px-3 py-2 rounded-3 shadow-sm">
+                    <li class="breadcrumb-item"><a href="{{ url('/') }}" class="text-decoration-none text-primary fw-semibold">Início</a></li>
+                    @foreach($segs as $i => $seg)
+                        @php $acc .= '/'.$seg; @endphp
+                        @if($i < count($segs)-1)
+                            <li class="breadcrumb-item"><a href="{{ url($acc) }}" class="text-decoration-none text-primary fw-semibold">{{ ucfirst(str_replace('-', ' ', $seg)) }}</a></li>
+                        @else
+                            <li class="breadcrumb-item active text-secondary fw-semibold">{{ ucfirst(str_replace('-', ' ', $seg)) }}</li>
+                        @endif
+                    @endforeach
+                </ol>
+            </nav>
+        </div>
+    @endif
     {{-- Área para inserir o conteúdo da página --}}
     @yield('content_body')
     {{-- TOASTS Bootstrap --}}
@@ -130,6 +154,49 @@ $ultimas = \App\Models\UserNotification::where('user_id', auth()->id())
   window.AppIsAuthenticated = @json(auth()->check());
   window.CSRFToken = @json(csrf_token());
 </script>
+<script>
+(function(){
+  function formatInput(inp){
+    var raw = inp.value || '';
+    var digits = raw.replace(/\D/g,'');
+    var num = (parseInt(digits || '0',10))/100;
+    inp.value = num.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    document.querySelectorAll('input.money-br-input').forEach(function(inp){
+      inp.addEventListener('input', function(){ formatInput(inp); });
+      inp.addEventListener('focus', function(){ if(!inp.value){ inp.value = 'R$ 0,00'; } });
+      if(inp.value){ formatInput(inp); }
+    });
+    document.querySelectorAll('[data-format="currency"]').forEach(function(el){
+      var val = el.getAttribute('data-value') || el.textContent;
+      var num = parseFloat(String(val).replace(/[^\d,.-]/g,'').replace(/\./g,'').replace(',','.'));
+      if(!isNaN(num)){
+        el.textContent = num.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+      }
+    });
+  });
+})();
+</script>
+<script>
+(function(){
+  function formatCNPJ(inp){
+    var d = (inp.value || '').replace(/\D/g,'').slice(0,14);
+    var out = d;
+    if(d.length > 2 && d.length <= 5){ out = d.slice(0,2)+'.'+d.slice(2); }
+    else if(d.length > 5 && d.length <= 8){ out = d.slice(0,2)+'.'+d.slice(2,5)+'.'+d.slice(5); }
+    else if(d.length > 8 && d.length <= 12){ out = d.slice(0,2)+'.'+d.slice(2,5)+'.'+d.slice(5,8)+'/'+d.slice(8); }
+    else if(d.length > 12){ out = d.slice(0,2)+'.'+d.slice(2,5)+'.'+d.slice(5,8)+'/'+d.slice(8,12)+'-'+d.slice(12,14); }
+    inp.value = out;
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    document.querySelectorAll('input.cnpj-input').forEach(function(inp){
+      inp.addEventListener('input', function(){ formatCNPJ(inp); });
+      if(inp.value){ formatCNPJ(inp); }
+    });
+  });
+})();
+</script>
 @endpush
 
 {{-- ========================================= --}}
@@ -181,4 +248,3 @@ $ultimas = \App\Models\UserNotification::where('user_id', auth()->id())
 .navbar-nav .user-menu { order: 1; }
 </style>
 @endpush
-

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Processo;
-use App\Models\ProcessoInstancia;
 use App\Models\Projeto;
 use App\Services\WorkflowService;
 use Illuminate\Http\Request;
@@ -16,7 +15,7 @@ class ProjetoWorkflowController extends Controller
 
     public function show($projetoId)
     {
-        $projeto   = Projeto::findOrFail($projetoId);
+        $projeto = Projeto::findOrFail($projetoId);
         $instancia = $projeto->processoInstancia;
 
         return view('projetos.workflow.show', compact('projeto', 'instancia'));
@@ -43,7 +42,7 @@ class ProjetoWorkflowController extends Controller
 
     public function avancar(Request $request, $projetoId)
     {
-        $projeto   = Projeto::findOrFail($projetoId);
+        $projeto = Projeto::findOrFail($projetoId);
         $instancia = $projeto->processoInstancia;
 
         if (! $instancia) {

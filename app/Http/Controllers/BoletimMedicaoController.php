@@ -7,8 +7,8 @@ use App\Models\Medicao;
 use App\Models\MedicaoItem;
 use App\Models\Projeto;
 use Illuminate\Http\Request;
-use Yajra\DataTables\Facades\DataTables;
 use PDF;
+use Yajra\DataTables\Facades\DataTables;
 
 class BoletimMedicaoController extends Controller
 {
@@ -21,14 +21,14 @@ class BoletimMedicaoController extends Controller
             $query = BoletimMedicao::with(['medicao', 'projeto']);
 
             return DataTables::of($query)
-                ->addColumn('projeto', fn($b) => $b->projeto->nome ?? '—')
-                ->addColumn('mes', fn($b) => optional($b->medicao)->mes_referencia ?? '—')
-                ->editColumn('valor_total', fn($b) => 'R$ ' . number_format($b->valor_total, 2, ',', '.'))
+                ->addColumn('projeto', fn ($b) => $b->projeto->nome ?? '—')
+                ->addColumn('mes', fn ($b) => optional($b->medicao)->mes_referencia ?? '—')
+                ->editColumn('valor_total', fn ($b) => 'R$ '.number_format($b->valor_total, 2, ',', '.'))
                 ->addColumn('acoes', function ($b) {
                     return '
-                        <a href="' . route('boletins.show', $b->id) . '" class="btn btn-sm btn-primary"><i class="fas fa-eye"></i></a>
-                        <form method="POST" action="' . route('boletins.destroy', $b->id) . '" style="display:inline;">
-                            ' . csrf_field() . method_field('DELETE') . '
+                        <a href="'.route('boletins.show', $b->id).'" class="btn btn-sm btn-primary"><i class="fas fa-eye"></i></a>
+                        <form method="POST" action="'.route('boletins.destroy', $b->id).'" style="display:inline;">
+                            '.csrf_field().method_field('DELETE').'
                             <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm(\'Excluir este boletim?\')">
                                 <i class="fas fa-trash"></i>
                             </button>
@@ -94,6 +94,7 @@ class BoletimMedicaoController extends Controller
     public function show(BoletimMedicao $boletim)
     {
         $boletim->load(['medicao.itens', 'projeto']);
+
         return view('boletins.show', compact('boletim'));
     }
 
@@ -115,6 +116,7 @@ class BoletimMedicaoController extends Controller
     public function destroy(BoletimMedicao $boletim)
     {
         $boletim->delete();
+
         return redirect()->route('boletins.index')->with('success', 'Boletim excluído com sucesso!');
     }
 }

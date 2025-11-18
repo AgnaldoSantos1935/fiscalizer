@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
@@ -12,27 +13,21 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        // Register your custom commands here, e.g. \App\Console\Commands\MyCommand::class,
         \App\Console\Commands\TestarConectividadeHosts::class,
-
+        \App\Console\Commands\AtasAtualizarVigencia::class,
     ];
 
     /**
      * Define the application's command schedule.
      *
-     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
      * @return void
      */
-protected function schedule(Schedule $schedule)
-{
- $schedule->command('hosts:testar')->everyFiveMinutes();
-    // Executa o job a cada 10 minutos
-  //  $schedule->job(new \App\Jobs\MonitorarHostsJob)->everyTenMinutes();
-//$schedule->command('medicao:gerar-boletins')->monthlyOn(1, '02:00');
-    // 🔧 Pode ajustar conforme a carga:
-    // $schedule->command('monitorar:rede')->hourly();
-    // $schedule->command('monitorar:rede')->everyFiveMinutes();
-}
+    protected function schedule(Schedule $schedule)
+    {
+        $schedule->command('hosts:testar')->everyFiveMinutes();
+        $schedule->command('atas:atualizar-vigencia')->dailyAt('01:15');
+    }
+
     /**
      * Register the commands for the application.
      *

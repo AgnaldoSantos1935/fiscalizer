@@ -3,13 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class SituacaoContrato extends Model
 {
-        protected $table = 'situacoes_contratos';
+    protected $table = 'situacoes_contratos';
 
-    protected $fillable = ['nome', 'slug','descricao', 'cor'];
+    protected $fillable = ['nome', 'slug', 'descricao', 'cor'];
 
     public function contratos()
     {

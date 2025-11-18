@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class UserNotification extends Model
 {
     protected $fillable = [
-        'user_id', 'tipo', 'titulo', 'mensagem', 'link', 'lida', 'lida_em'
+        'user_id', 'tipo', 'titulo', 'mensagem', 'link', 'lida', 'lida_em',
     ];
 
     protected $casts = [
@@ -15,7 +15,8 @@ class UserNotification extends Model
         'lida_em' => 'datetime',
     ];
 
-    public function user() {
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 }

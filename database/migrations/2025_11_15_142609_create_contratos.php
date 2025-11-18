@@ -12,56 +12,58 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (Schema::hasTable('contratos')) { return; }
+        if (Schema::hasTable('contratos')) {
+            return;
+        }
 
         Schema::create('contratos', function (Blueprint $table) {
-    $table->id();
+            $table->id();
 
-    $table->string('numero')->unique();
-    $table->string('processo_origem')->nullable();
-    $table->string('modalidade')->nullable();
+            $table->string('numero')->unique();
+            $table->string('processo_origem')->nullable();
+            $table->string('modalidade')->nullable();
 
-    $table->text('objeto');
-    $table->text('objeto_resumido')->nullable();
+            $table->text('objeto');
+            $table->text('objeto_resumido')->nullable();
 
-    $table->decimal('valor_global', 18, 2)->nullable();
-    $table->decimal('valor_mensal', 18, 2)->nullable();
-    $table->integer('quantidade_meses')->nullable();
+            $table->decimal('valor_global', 18, 2)->nullable();
+            $table->decimal('valor_mensal', 18, 2)->nullable();
+            $table->integer('quantidade_meses')->nullable();
 
-    $table->date('data_assinatura')->nullable();
-    $table->date('data_inicio_vigencia')->nullable();
-    $table->date('data_fim_vigencia')->nullable();
+            $table->date('data_assinatura')->nullable();
+            $table->date('data_inicio_vigencia')->nullable();
+            $table->date('data_fim_vigencia')->nullable();
 
-    // Empresa
-    $table->string('empresa_razao_social')->nullable();
-    $table->string('empresa_cnpj', 20)->nullable();
-    $table->string('empresa_endereco')->nullable();
-    $table->string('empresa_representante')->nullable();
-    $table->string('empresa_contato')->nullable();
-    $table->string('empresa_email')->nullable();
+            // Empresa
+            $table->string('empresa_razao_social')->nullable();
+            $table->string('empresa_cnpj', 20)->nullable();
+            $table->string('empresa_endereco')->nullable();
+            $table->string('empresa_representante')->nullable();
+            $table->string('empresa_contato')->nullable();
+            $table->string('empresa_email')->nullable();
 
-    // Fiscais
-    $table->string('fiscal_tecnico')->nullable();
-    $table->string('fiscal_administrativo')->nullable();
-    $table->string('gestor')->nullable();
+            // Fiscais
+            $table->string('fiscal_tecnico')->nullable();
+            $table->string('fiscal_administrativo')->nullable();
+            $table->string('gestor')->nullable();
 
-    // Riscos
-    $table->integer('risco_score')->nullable();
-    $table->string('risco_nivel', 20)->nullable();
-    $table->json('risco_detalhes_json')->nullable();
+            // Riscos
+            $table->integer('risco_score')->nullable();
+            $table->string('risco_nivel', 20)->nullable();
+            $table->json('risco_detalhes_json')->nullable();
 
-    // JSONs
-    $table->json('obrigacoes_contratada')->nullable();
-    $table->json('obrigacoes_contratante')->nullable();
-    $table->json('itens_fornecimento')->nullable();
-    $table->json('anexos_detectados')->nullable();
-    $table->json('clausulas')->nullable();
-    $table->json('riscos_detectados')->nullable();
+            // JSONs
+            $table->json('obrigacoes_contratada')->nullable();
+            $table->json('obrigacoes_contratante')->nullable();
+            $table->json('itens_fornecimento')->nullable();
+            $table->json('anexos_detectados')->nullable();
+            $table->json('clausulas')->nullable();
+            $table->json('riscos_detectados')->nullable();
 
-    $table->string('status')->default('Ativo');
+            $table->string('status')->default('Ativo');
 
-    $table->timestamps();
-});
+            $table->timestamps();
+        });
 
     }
 

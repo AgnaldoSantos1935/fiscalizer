@@ -35,10 +35,10 @@ return new class extends Migration
 
             // 🔑 Foreign key
             $table->foreign('contrato_id')
-                  ->references('id')
-                  ->on('contratos')
-                  ->onDelete('cascade')
-                  ->onUpdate('cascade');
+                ->references('id')
+                ->on('contratos')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
         });
     }
 

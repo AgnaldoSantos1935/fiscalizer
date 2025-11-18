@@ -1,6 +1,7 @@
 <?php
 
 // app/Models/Indisponibilidade.php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -8,12 +9,12 @@ use Illuminate\Database\Eloquent\Model;
 class Indisponibilidade extends Model
 {
     protected $fillable = [
-        'host_id', 'inicio', 'fim', 'duracao_segundos', 'motivo', 'detalhes'
+        'host_id', 'inicio', 'fim', 'duracao_segundos', 'motivo', 'detalhes',
     ];
 
     protected $casts = [
         'inicio' => 'datetime',
-        'fim'    => 'datetime',
+        'fim' => 'datetime',
     ];
 
     public function host()

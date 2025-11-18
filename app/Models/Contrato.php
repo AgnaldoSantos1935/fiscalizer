@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Carbon\Carbon;
-use App\Models\Pessoa;
+use Illuminate\Support\Facades\DB;
 
 class Contrato extends Model
 {
@@ -18,7 +18,11 @@ class Contrato extends Model
         'objeto',
         'contratada_id',
         'fiscal_tecnico_id',
+        'suplente_fiscal_tecnico_id',
+        'suplente_fiscal_tecnico_ativo',
         'fiscal_administrativo_id',
+        'suplente_fiscal_administrativo_id',
+        'suplente_fiscal_administrativo_ativo',
         'gestor_id',
         'valor_global',
         'data_inicio',
@@ -33,8 +37,11 @@ class Contrato extends Model
 
     protected $casts = [
         'valor_global' => 'decimal:2',
+        'valor_mensal' => 'decimal:2',
         'data_inicio' => 'date',
         'data_fim' => 'date',
+        'suplente_fiscal_tecnico_ativo' => 'boolean',
+        'suplente_fiscal_administrativo_ativo' => 'boolean',
     ];
 
     /**
@@ -61,6 +68,16 @@ class Contrato extends Model
         return $this->belongsTo(Pessoa::class, 'fiscal_administrativo_id');
     }
 
+    public function suplenteFiscalTecnico()
+    {
+        return $this->belongsTo(Pessoa::class, 'suplente_fiscal_tecnico_id');
+    }
+
+    public function suplenteFiscalAdministrativo()
+    {
+        return $this->belongsTo(Pessoa::class, 'suplente_fiscal_administrativo_id');
+    }
+
     /**
      * 🔹 Gestor do contrato
      */
@@ -68,7 +85,6 @@ class Contrato extends Model
     {
         return $this->belongsTo(Pessoa::class, 'gestor_id');
     }
-
 
     /**
      * 🔹 Empenhos vinculados
@@ -120,12 +136,12 @@ class Contrato extends Model
      */
     public function getValorEmpenhadoAttribute()
     {
-        return $this->empenhos->sum('valor');
+        return $this->empenhos->sum('valor_total');
     }
 
     public function getValorPagoAttribute()
     {
-        return $this->empenhos->sum(fn($e) => $e->pagamentos->sum('valor_pagamento'));
+        return $this->empenhos->sum(fn ($e) => $e->pagamentos->sum('valor_pagamento'));
     }
 
     public function getSaldoContratoAttribute()
@@ -137,6 +153,7 @@ class Contrato extends Model
     {
         return $query->where('tipo', $tipo);
     }
+
     public function fiscais()
     {
         return $this->belongsToMany(User::class, 'contrato_fiscais')
@@ -159,10 +176,61 @@ class Contrato extends Model
         return $this->fiscais()->wherePivot('tipo', 'gestor');
     }
 
-public function empresa()
-{
-    return $this->belongsTo(Empresa::class);
-}
+    public function usuarioVinculado(User $user): bool
+    {
+        $pessoaId = Pessoa::where('user_id', $user->id)->value('id');
+
+        if ($pessoaId) {
+            if (in_array($pessoaId, [
+                $this->fiscal_tecnico_id,
+                $this->fiscal_administrativo_id,
+                $this->gestor_id,
+            ], true)) {
+                return true;
+            }
+            if ($this->suplente_fiscal_tecnico_ativo && $pessoaId === $this->suplente_fiscal_tecnico_id) {
+                return true;
+            }
+            if ($this->suplente_fiscal_administrativo_ativo && $pessoaId === $this->suplente_fiscal_administrativo_id) {
+                return true;
+            }
+        }
+
+        return $this->fiscais()->where('users.id', $user->id)->exists();
+    }
+
+    public function scopeDoUsuario($query, User $user)
+    {
+        $pessoaId = Pessoa::where('user_id', $user->id)->value('id');
+
+        return $query->where(function ($q) use ($user, $pessoaId) {
+            if ($pessoaId) {
+                $q->where('fiscal_tecnico_id', $pessoaId)
+                    ->orWhere('fiscal_administrativo_id', $pessoaId)
+                    ->orWhere('gestor_id', $pessoaId)
+                    ->orWhere(function ($qq) use ($pessoaId) {
+                        $qq->where('suplente_fiscal_tecnico_id', $pessoaId)
+                            ->where('suplente_fiscal_tecnico_ativo', true);
+                    })
+                    ->orWhere(function ($qq) use ($pessoaId) {
+                        $qq->where('suplente_fiscal_administrativo_id', $pessoaId)
+                            ->where('suplente_fiscal_administrativo_ativo', true);
+                    });
+            }
+
+            $q->orWhereExists(function ($sub) use ($user) {
+                $sub->select(DB::raw(1))
+                    ->from('contrato_fiscais')
+                    ->whereColumn('contrato_fiscais.contrato_id', 'contratos.id')
+                    ->where('contrato_fiscais.user_id', $user->id);
+            });
+        });
+    }
+
+    public function empresa()
+    {
+        return $this->belongsTo(Empresa::class);
+    }
 
     /**
      * 🔹 Documentos vinculados ao contrato
@@ -179,11 +247,11 @@ public function empresa()
         $novaDatas = $this->documentos
             ? $this->documentos
                 ->filter(function ($doc) {
-                    return optional($doc->documentoTipo)->permite_nova_data_fim && !empty($doc->nova_data_fim);
+                    return optional($doc->documentoTipo)->permite_nova_data_fim && ! empty($doc->nova_data_fim);
                 })
                 ->pluck('nova_data_fim')
                 ->filter()
-                ->map(fn($d) => Carbon::parse($d))
+                ->map(fn ($d) => Carbon::parse($d))
             : collect();
 
         $dataFimContrato = $fimContrato ? Carbon::parse($fimContrato) : null;
@@ -191,7 +259,7 @@ public function empresa()
 
         if ($novaDatas->isNotEmpty()) {
             $maisRecente = $novaDatas->max();
-            if (!$dataFinal || $maisRecente->gt($dataFinal)) {
+            if (! $dataFinal || $maisRecente->gt($dataFinal)) {
                 $dataFinal = $maisRecente;
             }
         }
@@ -207,7 +275,7 @@ public function empresa()
 
         $final = $this->data_final;
 
-        if (!$inicio || !$final) {
+        if (! $inicio || ! $final) {
             return null;
         }
 
@@ -215,8 +283,7 @@ public function empresa()
         $finalC = $final instanceof Carbon ? $final : Carbon::parse($final);
 
         $meses = $inicioC->diffInMonths($finalC);
+
         return $meses;
     }
-
-
 }

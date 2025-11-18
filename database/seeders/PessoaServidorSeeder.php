@@ -2,11 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Pessoa;
 use App\Models\Servidor;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Str;
 
 class PessoaServidorSeeder extends Seeder
 {
@@ -15,37 +14,39 @@ class PessoaServidorSeeder extends Seeder
         // Caminho do JSON com os dados
         $path = database_path('seeders/data/pessoas_servidores.json');
 
-        if (!File::exists($path)) {
+        if (! File::exists($path)) {
             $this->command->error("❌ Arquivo JSON não encontrado em: {$path}");
+
             return;
         }
 
         $data = json_decode(File::get($path), true);
 
-        if (!$data) {
-            $this->command->error("❌ Erro ao ler o JSON: formato inválido.");
+        if (! $data) {
+            $this->command->error('❌ Erro ao ler o JSON: formato inválido.');
+
             return;
         }
 
-        $this->command->info("📦 Iniciando importação de " . count($data) . " pessoas...");
+        $this->command->info('📦 Iniciando importação de '.count($data).' pessoas...');
 
         foreach ($data as $pessoaData) {
             // Criação ou atualização da Pessoa
             $pessoa = Pessoa::updateOrCreate(
                 ['cpf' => $pessoaData['cpf']],
                 [
-                    'nome_completo'   => $pessoaData['nome_completo'],
-                    'rg'              => $pessoaData['rg'] ?? null,
+                    'nome_completo' => $pessoaData['nome_completo'],
+                    'rg' => $pessoaData['rg'] ?? null,
                     'data_nascimento' => $pessoaData['data_nascimento'] ?? null,
-                    'sexo'            => $pessoaData['sexo'] ?? null,
-                    'email'           => $pessoaData['email'] ?? null,
-                    'telefone'        => $pessoaData['telefone'] ?? null,
-                    'cep'             => $pessoaData['cep'] ?? null,
-                    'logradouro'      => $pessoaData['logradouro'] ?? null,
-                    'numero'          => $pessoaData['numero'] ?? null,
-                    'bairro'          => $pessoaData['bairro'] ?? null,
-                    'cidade'          => $pessoaData['cidade'] ?? null,
-                    'uf'              => $pessoaData['uf'] ?? null,
+                    'sexo' => $pessoaData['sexo'] ?? null,
+                    'email' => $pessoaData['email'] ?? null,
+                    'telefone' => $pessoaData['telefone'] ?? null,
+                    'cep' => $pessoaData['cep'] ?? null,
+                    'logradouro' => $pessoaData['logradouro'] ?? null,
+                    'numero' => $pessoaData['numero'] ?? null,
+                    'bairro' => $pessoaData['bairro'] ?? null,
+                    'cidade' => $pessoaData['cidade'] ?? null,
+                    'uf' => $pessoaData['uf'] ?? null,
                 ]
             );
 
@@ -56,14 +57,14 @@ class PessoaServidorSeeder extends Seeder
                 Servidor::updateOrCreate(
                     ['matricula' => $servidorData['matricula']],
                     [
-                        'pessoa_id'     => $pessoa->id,
-                        'cargo'         => $servidorData['cargo'] ?? null,
-                        'funcao'        => $servidorData['funcao'] ?? null,
-                        'lotacao'       => $servidorData['lotacao'] ?? null,
+                        'pessoa_id' => $pessoa->id,
+                        'cargo' => $servidorData['cargo'] ?? null,
+                        'funcao' => $servidorData['funcao'] ?? null,
+                        'lotacao' => $servidorData['lotacao'] ?? null,
                         'data_admissao' => $servidorData['data_admissao'] ?? null,
-                        'vinculo'       => $servidorData['vinculo'] ?? 'efetivo',
-                        'situacao'      => $servidorData['situacao'] ?? 'ativo',
-                        'salario'       => $servidorData['salario'] ?? 0,
+                        'vinculo' => $servidorData['vinculo'] ?? 'efetivo',
+                        'situacao' => $servidorData['situacao'] ?? 'ativo',
+                        'salario' => $servidorData['salario'] ?? 0,
                     ]
                 );
 
@@ -73,6 +74,6 @@ class PessoaServidorSeeder extends Seeder
             }
         }
 
-        $this->command->info("🎯 Importação concluída com sucesso!");
+        $this->command->info('🎯 Importação concluída com sucesso!');
     }
 }

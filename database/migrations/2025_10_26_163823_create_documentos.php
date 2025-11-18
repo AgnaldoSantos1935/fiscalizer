@@ -27,7 +27,7 @@ return new class extends Migration
                 'PARECER',       // Parecer Técnico ou Jurídico
                 'NOTA_TECNICA',  // Nota Técnica
                 'RELATORIO',     // Relatório
-                'OUTROS'         // Qualquer outro documento
+                'OUTROS',         // Qualquer outro documento
             ])->default('OUTROS');
 
             // Identificação e controle

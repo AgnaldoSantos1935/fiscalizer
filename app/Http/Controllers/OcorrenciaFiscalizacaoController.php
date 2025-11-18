@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\OcorrenciaFiscalizacao;
 use App\Models\Contrato;
+use App\Models\OcorrenciaFiscalizacao;
 use Illuminate\Http\Request;
 
 class OcorrenciaFiscalizacaoController extends Controller
@@ -11,12 +11,14 @@ class OcorrenciaFiscalizacaoController extends Controller
     public function index()
     {
         $ocorrencias = OcorrenciaFiscalizacao::with('contrato')->get();
+
         return view('ocorrencias.index', compact('ocorrencias'));
     }
 
     public function create()
     {
         $contratos = Contrato::all();
+
         return view('ocorrencias.create', compact('contratos'));
     }
 
@@ -30,6 +32,7 @@ class OcorrenciaFiscalizacaoController extends Controller
         ]);
 
         OcorrenciaFiscalizacao::create($validated);
+
         return redirect()->route('ocorrencias.index')->with('success', 'Ocorrência registrada com sucesso!');
     }
 }

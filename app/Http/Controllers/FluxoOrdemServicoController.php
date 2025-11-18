@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Demanda;
 use App\Models\DocumentoTecnico;
-use App\Models\OrdemServico;
 use App\Services\DocumentoTecnicoIaService;
 use App\Services\OrdemServicoPdfService;
 use Illuminate\Http\Request;
@@ -29,24 +28,24 @@ class FluxoOrdemServicoController extends Controller
     public function salvarDemanda(Request $request)
     {
         $data = $request->validate([
-            'titulo'          => 'required|string|max:255',
-            'descricao'       => 'nullable|string',
-            'sistema_id'      => 'nullable|integer',
-            'modulo_id'       => 'nullable|integer',
+            'titulo' => 'required|string|max:255',
+            'descricao' => 'nullable|string',
+            'sistema_id' => 'nullable|integer',
+            'modulo_id' => 'nullable|integer',
             'tipo_manutencao' => 'required|string',
-            'prioridade'      => 'required|string',
-            'email_empresa'   => 'required|email',
+            'prioridade' => 'required|string',
+            'email_empresa' => 'required|email',
         ]);
 
         $demanda = Demanda::create([
-            'titulo'          => $data['titulo'],
-            'descricao'       => $data['descricao'] ?? null,
-            'sistema_id'      => $data['sistema_id'] ?? null,
-            'modulo_id'       => $data['modulo_id'] ?? null,
+            'titulo' => $data['titulo'],
+            'descricao' => $data['descricao'] ?? null,
+            'sistema_id' => $data['sistema_id'] ?? null,
+            'modulo_id' => $data['modulo_id'] ?? null,
             'tipo_manutencao' => $data['tipo_manutencao'],
-            'prioridade'      => $data['prioridade'],
-            'status'          => 'Aguardando Documento da Empresa',
-            'data_abertura'   => now(),
+            'prioridade' => $data['prioridade'],
+            'status' => 'Aguardando Documento da Empresa',
+            'data_abertura' => now(),
         ]);
 
         // gera token único pra upload público
@@ -67,11 +66,11 @@ class FluxoOrdemServicoController extends Controller
         $urlUpload = route('empresa.upload_documento', $demanda->upload_token);
 
         Mail::raw(
-            "Prezados,\n\nUma nova demanda foi registrada.\n" .
-            "Número da demanda: {$demanda->id}\n" .
-            "Título: {$demanda->titulo}\n\n" .
-            "Por favor, acessem o link a seguir para enviar o documento técnico " .
-            "de levantamento de requisitos, cronograma, protótipos e estimativa de PF/UST:\n" .
+            "Prezados,\n\nUma nova demanda foi registrada.\n".
+            "Número da demanda: {$demanda->id}\n".
+            "Título: {$demanda->titulo}\n\n".
+            'Por favor, acessem o link a seguir para enviar o documento técnico '.
+            "de levantamento de requisitos, cronograma, protótipos e estimativa de PF/UST:\n".
             "{$urlUpload}\n\nAtenciosamente,\nDETEC / SEDUC-PA",
             function ($m) use ($email) {
                 $m->to($email)->subject('Nova Demanda - Envio de Documento Técnico');
@@ -101,10 +100,10 @@ class FluxoOrdemServicoController extends Controller
         $path = $file->store("demandas/{$demanda->id}/documento_tecnico", 'public');
 
         $doc = DocumentoTecnico::create([
-            'demanda_id'        => $demanda->id,
-            'arquivo_path'      => $path,
-            'arquivo_original'  => $file->getClientOriginalName(),
-            'status_validacao'  => 'pendente',
+            'demanda_id' => $demanda->id,
+            'arquivo_path' => $path,
+            'arquivo_original' => $file->getClientOriginalName(),
+            'status_validacao' => 'pendente',
         ]);
 
         // Atualiza status
@@ -124,7 +123,7 @@ class FluxoOrdemServicoController extends Controller
     {
         $doc = $demanda->documentosTecnicos()->latest()->first();
 
-        if (!$doc) {
+        if (! $doc) {
             return back()->with('error', 'Nenhum documento técnico recebido para esta demanda.');
         }
 

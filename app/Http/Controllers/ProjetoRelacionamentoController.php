@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Projeto;
-use Illuminate\Http\Request;
 
 class ProjetoRelacionamentoController extends Controller
 {

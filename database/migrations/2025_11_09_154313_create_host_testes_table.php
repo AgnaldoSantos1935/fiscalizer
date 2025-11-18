@@ -5,7 +5,8 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::create('host_testes', function (Blueprint $table) {
@@ -14,7 +15,7 @@ return new class extends Migration {
             $table->dateTime('data_teste')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->string('ip_origem', 45)->nullable();
             $table->string('ip_destino', 45)->nullable();
-            $table->enum('status_conexao', ['ativo','inativo','timeout','falha','indisponível'])->default('ativo');
+            $table->enum('status_conexao', ['ativo', 'inativo', 'timeout', 'falha', 'indisponível'])->default('ativo');
             $table->decimal('latencia_ms', 8, 2)->nullable();
             $table->decimal('perda_pacotes', 5, 2)->nullable();
             $table->integer('ttl')->nullable();
@@ -24,15 +25,14 @@ return new class extends Migration {
             $table->text('traceroute')->nullable();
             $table->string('resolved_hostname')->nullable();
             $table->json('resultado_json')->nullable();
-            $table->enum('modo_execucao', ['agendado','manual'])->default('agendado');
+            $table->enum('modo_execucao', ['agendado', 'manual'])->default('agendado');
             $table->string('executado_por')->nullable();
             $table->timestamps();
         });
     }
-    
+
     public function down(): void
     {
         Schema::dropIfExists('host_testes');
     }
 };
-

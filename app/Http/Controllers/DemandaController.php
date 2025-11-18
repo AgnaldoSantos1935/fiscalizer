@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Demanda;
-use App\Models\Requisito;
 use App\Models\RequisitoSistema;
 use Illuminate\Http\Request;
 
@@ -26,14 +25,14 @@ class DemandaController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'projeto_id'      => 'nullable|integer',
-            'sistema_id'      => 'nullable|integer',
-            'modulo_id'       => 'nullable|integer',
+            'projeto_id' => 'nullable|integer',
+            'sistema_id' => 'nullable|integer',
+            'modulo_id' => 'nullable|integer',
             'tipo_manutencao' => 'required|string',
-            'titulo'          => 'required|string|max:255',
-            'descricao'       => 'nullable|string',
-            'data_abertura'   => 'nullable|date',
-            'prioridade'      => 'required|string',
+            'titulo' => 'required|string|max:255',
+            'descricao' => 'nullable|string',
+            'data_abertura' => 'nullable|date',
+            'prioridade' => 'required|string',
         ]);
 
         $data['status'] = 'aberta';
@@ -61,12 +60,12 @@ class DemandaController extends Controller
     {
         $data = $request->validate([
             'tipo_manutencao' => 'required|string',
-            'titulo'          => 'required|string|max:255',
-            'descricao'       => 'nullable|string',
-            'data_abertura'   => 'nullable|date',
+            'titulo' => 'required|string|max:255',
+            'descricao' => 'nullable|string',
+            'data_abertura' => 'nullable|date',
             'data_fechamento' => 'nullable|date',
-            'prioridade'      => 'required|string',
-            'status'          => 'required|string',
+            'prioridade' => 'required|string',
+            'status' => 'required|string',
         ]);
 
         $demanda->update($data);
@@ -93,11 +92,11 @@ class DemandaController extends Controller
     {
         $data = $request->validate([
             'codigo_interno' => 'nullable|string|max:50',
-            'titulo'         => 'required|string|max:255',
-            'descricao'      => 'nullable|string',
-            'etapa'          => 'nullable|string|max:50',
-            'tipo'           => 'nullable|string|max:50',
-            'complexidade'   => 'nullable|string|max:50',
+            'titulo' => 'required|string|max:255',
+            'descricao' => 'nullable|string',
+            'etapa' => 'nullable|string|max:50',
+            'tipo' => 'nullable|string|max:50',
+            'complexidade' => 'nullable|string|max:50',
         ]);
 
         $data['demanda_id'] = $demanda->id;

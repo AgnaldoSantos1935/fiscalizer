@@ -3,11 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Demanda;
-use App\Models\DocumentoTecnico;
 use App\Models\OrdemServico;
-use Illuminate\Support\Facades\Storage;
 use App\Services\OrdemServicoPdfService;
-use Illuminate\Support\Str;
 
 class OrdemServicoController extends Controller
 {
@@ -28,7 +25,7 @@ class OrdemServicoController extends Controller
             'numero' => $os->numero_os,
             'pf' => $os->pf_total,
             'ust' => $os->ust_total,
-            'data' => $os->data_emissao
+            'data' => $os->data_emissao,
         ]));
 
         $os->assinatura_hash = $hash;

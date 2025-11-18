@@ -3,9 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Relatorio;
-use App\Models\Contrato;
-use App\Models\Empresa;
-use App\Models\Medicao;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use PDF;
@@ -58,6 +55,7 @@ class RelatorioController extends Controller
     public function exportExcel()
     {
         $relatorios = Relatorio::all();
+
         return Excel::download(new \App\Exports\RelatoriosExport($relatorios), 'relatorios.xlsx');
     }
 
@@ -65,6 +63,7 @@ class RelatorioController extends Controller
     {
         $relatorios = Relatorio::all();
         $pdf = PDF::loadView('relatorios.pdf', compact('relatorios'))->setPaper('a4', 'landscape');
+
         return $pdf->download('relatorios.pdf');
     }
 }

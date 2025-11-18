@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class MedicaoNotaFiscal extends Model
 {
-        protected $table = "medicao_notas_fiscais";
+    protected $table = 'medicao_notas_fiscais';
+
     protected $fillable = [
         'medicao_id', 'chave', 'numero', 'cnpj_prestador',
-        'cnpj_tomador', 'valor', 'tipo', 'status', 'mensagem', 'retorno_api'
+        'cnpj_tomador', 'valor', 'tipo', 'status', 'mensagem', 'retorno_api',
     ];
 
     protected $casts = [

@@ -13,7 +13,7 @@ class CronogramaProjeto extends Model
 
     protected $fillable = [
         'projeto_id', 'etapa', 'data_inicio', 'data_fim',
-        'responsavel_id', 'status', 'observacao'
+        'responsavel_id', 'status', 'observacao',
     ];
 
     protected $casts = [
@@ -21,6 +21,13 @@ class CronogramaProjeto extends Model
         'data_fim' => 'date',
     ];
 
-    public function projeto() { return $this->belongsTo(Projeto::class); }
-    public function responsavel() { return $this->belongsTo(Pessoa::class, 'responsavel_id'); }
+    public function projeto()
+    {
+        return $this->belongsTo(Projeto::class);
+    }
+
+    public function responsavel()
+    {
+        return $this->belongsTo(Pessoa::class, 'responsavel_id');
+    }
 }

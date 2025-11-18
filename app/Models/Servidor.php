@@ -2,16 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Servidor extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'pessoa_id','matricula','cargo','funcao','lotacao',
-        'data_admissao','vinculo','situacao','salario'
+        'pessoa_id', 'matricula', 'cargo', 'funcao', 'lotacao',
+        'data_admissao', 'vinculo', 'situacao', 'salario',
     ];
 
     protected $casts = [
@@ -19,7 +19,8 @@ class Servidor extends Model
         'salario' => 'decimal:2',
     ];
 
-    public function pessoa() {
+    public function pessoa()
+    {
         return $this->belongsTo(Pessoa::class);
     }
 }

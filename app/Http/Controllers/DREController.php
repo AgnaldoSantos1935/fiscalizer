@@ -13,6 +13,7 @@ class DreController extends Controller
     public function index()
     {
         $dres = Dre::all();
+
         return view('dres.index', compact('dres'));
     }
 
@@ -30,15 +31,35 @@ class DreController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'codigodre'       => 'required|string|max:10|unique:dres,codigodre',
-            'nome_dre'        => 'required|string|max:150',
-            'municipio_sede'  => 'required|string|max:100',
-            'email'           => 'nullable|email|max:150',
-            'telefone'        => 'nullable|string|max:50',
-            'endereco'        => 'nullable|string|max:255',
+            'codigodre' => 'required|string|max:10|unique:dres,codigodre',
+            'nome_dre' => 'required|string|max:150',
+            'municipio_sede' => 'required|string|max:100',
+            'email' => 'nullable|email|max:150',
+            'telefone' => 'nullable|string|max:50',
+            'endereco' => 'nullable|string|max:255',
         ]);
-
-        Dre::create($request->all());
+        $logradouro = trim($request->input('logradouro', ''));
+        $numero = trim($request->input('numero', ''));
+        $complemento = trim($request->input('complemento', ''));
+        $bairro = trim($request->input('bairro', ''));
+        $endereco = $request->input('endereco');
+        if ($logradouro) {
+            $parts = [];
+            $parts[] = $logradouro;
+            if ($numero) {
+                $parts[] = $numero;
+            }
+            if ($complemento) {
+                $parts[] = $complemento;
+            }
+            if ($bairro) {
+                $parts[] = $bairro;
+            }
+            $endereco = implode(', ', $parts);
+        }
+        $data = $request->all();
+        $data['endereco'] = $endereco;
+        Dre::create($data);
 
         return redirect()
             ->route('dres.index')
@@ -52,7 +73,7 @@ class DreController extends Controller
     {
         $dre = Dre::find($id);
 
-        if (!$dre) {
+        if (! $dre) {
             return response()->json(['error' => 'DRE não encontrada.'], 404);
         }
 
@@ -65,6 +86,7 @@ class DreController extends Controller
     public function edit($id)
     {
         $dre = Dre::findOrFail($id);
+
         return view('dres.edit', compact('dre'));
     }
 
@@ -76,15 +98,35 @@ class DreController extends Controller
         $dre = Dre::findOrFail($id);
 
         $request->validate([
-            'codigodre'       => 'required|string|max:10|unique:dres,codigodre,' . $dre->id,
-            'nome_dre'        => 'required|string|max:150',
-            'municipio_sede'  => 'required|string|max:100',
-            'email'           => 'nullable|email|max:150',
-            'telefone'        => 'nullable|string|max:50',
-            'endereco'        => 'nullable|string|max:255',
+            'codigodre' => 'required|string|max:10|unique:dres,codigodre,'.$dre->id,
+            'nome_dre' => 'required|string|max:150',
+            'municipio_sede' => 'required|string|max:100',
+            'email' => 'nullable|email|max:150',
+            'telefone' => 'nullable|string|max:50',
+            'endereco' => 'nullable|string|max:255',
         ]);
-
-        $dre->update($request->all());
+        $logradouro = trim($request->input('logradouro', ''));
+        $numero = trim($request->input('numero', ''));
+        $complemento = trim($request->input('complemento', ''));
+        $bairro = trim($request->input('bairro', ''));
+        $endereco = $request->input('endereco');
+        if ($logradouro) {
+            $parts = [];
+            $parts[] = $logradouro;
+            if ($numero) {
+                $parts[] = $numero;
+            }
+            if ($complemento) {
+                $parts[] = $complemento;
+            }
+            if ($bairro) {
+                $parts[] = $bairro;
+            }
+            $endereco = implode(', ', $parts);
+        }
+        $data = $request->all();
+        $data['endereco'] = $endereco;
+        $dre->update($data);
 
         return redirect()
             ->route('dres.index')
@@ -94,16 +136,16 @@ class DreController extends Controller
     /**
      * Remove uma DRE.
      */
-public function destroy($id)
-{
-    $dre = \App\Models\Dre::find($id);
+    public function destroy($id)
+    {
+        $dre = \App\Models\Dre::find($id);
 
-    if (!$dre) {
-        return response()->json(['error' => 'DRE não encontrada.'], 404);
+        if (! $dre) {
+            return response()->json(['error' => 'DRE não encontrada.'], 404);
+        }
+
+        $dre->delete();
+
+        return response()->json(['success' => true]);
     }
-
-    $dre->delete();
-    return response()->json(['success' => true]);
-}
-
 }

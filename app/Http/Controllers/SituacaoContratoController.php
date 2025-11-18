@@ -14,18 +14,18 @@ class SituacaoContratoController extends Controller
     public function index()
     {
         $situacoes = SituacaoContrato::orderBy('id', 'asc')->get();
+
         return view('situacoes.index', compact('situacoes'));
     }
-public function listar()
-{
-    $situacoes = SituacaoContrato::select('id', 'nome', 'descricao','slug', 'cor','motivo')
-        ->orderBy('nome')
-        ->get();
 
-    return response()->json($situacoes);
-}
+    public function listar()
+    {
+        $situacoes = SituacaoContrato::select('id', 'nome', 'descricao', 'slug', 'cor', 'motivo')
+            ->orderBy('nome')
+            ->get();
 
-
+        return response()->json($situacoes);
+    }
 
     /**
      * 🔹 Exibe o formulário de criação
@@ -60,6 +60,7 @@ public function listar()
     public function show($id)
     {
         $situacao = Situacao::findOrFail($id);
+
         return view('situacoes.show', compact('situacao'));
     }
 
@@ -69,6 +70,7 @@ public function listar()
     public function edit($id)
     {
         $situacao = Situacao::findOrFail($id);
+
         return view('situacoes.edit', compact('situacao'));
     }
 
@@ -80,7 +82,7 @@ public function listar()
         $situacao = Situacao::findOrFail($id);
 
         $validated = $request->validate([
-            'nome' => 'required|string|max:100|unique:situacoes,nome,' . $situacao->id,
+            'nome' => 'required|string|max:100|unique:situacoes,nome,'.$situacao->id,
             'descricao' => 'nullable|string|max:255',
             'cor' => 'nullable|string|max:20',
             'ativo' => 'nullable|boolean',

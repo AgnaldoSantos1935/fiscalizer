@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Escola;
 use App\Models\DRE;
+use App\Models\Escola;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -20,54 +20,53 @@ class EscolaController extends Controller
     /**
      * Endpoint para DataTables (JSON)
      */
-   /* public function getData(Request $request)
-    {
-        if ($request->ajax()) {
-            $escolas = Escola::select([
-                'id as id_escola',
-                'codigo_inep',
-                'escola',
-                'municipio',
-                'uf',
-                'dre',
-                'telefone'
-            ]);
+    /* public function getData(Request $request)
+     {
+         if ($request->ajax()) {
+             $escolas = Escola::select([
+                 'id as id_escola',
+                 'codigo_inep',
+                 'escola',
+                 'municipio',
+                 'uf',
+                 'dre',
+                 'telefone'
+             ]);
 
-            return DataTables::of($escolas)
-                ->addColumn('dre_nome', fn($row) => $row->dre ?? '-')
-                ->make(true);
+             return DataTables::of($escolas)
+                 ->addColumn('dre_nome', fn($row) => $row->dre ?? '-')
+                 ->make(true);
+         }
+
+         abort(404);
+     }*/
+
+    public function getData(Request $request)
+    {
+        $query = Escola::query();
+
+        // 🔍 Filtros opcionais
+        if ($request->filled('id_escola')) {
+            $query->where('id_escola', 'like', '%'.$request->codigo.'%');
+        }
+        if ($request->filled('nome')) {
+            $query->where('escola', 'like', '%'.$request->nome.'%');
+        }
+        if ($request->filled('municipio')) {
+            $query->where('municipio', 'like', '%'.$request->municipio.'%');
+        }
+        if ($request->filled('uf')) {
+            $query->where('uf', strtoupper($request->uf));
         }
 
-        abort(404);
-    }*/
+        // 🔗 Relaciona DRE (caso exista relação definida)
+        $escolas = $query
+            ->select('id_escola', 'codigo_inep', 'escola', 'municipio', 'uf', 'dre')
+            ->limit(300)
+            ->get();
 
-public function getData(Request $request)
-{
-    $query = Escola::query();
-
-    // 🔍 Filtros opcionais
-    if ($request->filled('id_escola')) {
-        $query->where('id_escola', 'like', '%' . $request->codigo . '%');
+        return response()->json(['data' => $escolas]);
     }
-    if ($request->filled('nome')) {
-        $query->where('escola', 'like', '%' . $request->nome . '%');
-    }
-    if ($request->filled('municipio')) {
-        $query->where('municipio', 'like', '%' . $request->municipio . '%');
-    }
-    if ($request->filled('uf')) {
-        $query->where('uf', strtoupper($request->uf));
-    }
-
-    // 🔗 Relaciona DRE (caso exista relação definida)
-    $escolas = $query
-        ->select('id_escola', 'codigo_inep', 'escola', 'municipio', 'uf', 'dre')
-        ->limit(300)
-        ->get();
-
-    return response()->json(['data' => $escolas]);
-}
-
 
     /**
      * Retorna JSON para o modal de detalhes (usado pelo fetch).
@@ -75,6 +74,7 @@ public function getData(Request $request)
     public function show($id_escola)
     {
         $escola = Escola::findOrFail($id_escola);
+
         return response()->json(['escola' => $escola]);
     }
 
@@ -84,6 +84,7 @@ public function getData(Request $request)
     public function create()
     {
         $dres = DRE::all();
+
         return view('escolas.create', compact('dres'));
     }
 
@@ -96,8 +97,31 @@ public function getData(Request $request)
             'codigo_inep' => 'required|string|max:20|unique:escolas,codigo_inep',
             'escola' => 'required|string|max:255',
         ]);
+        $logradouro = trim($request->input('logradouro', ''));
+        $numero = trim($request->input('numero', ''));
+        $complemento = trim($request->input('complemento', ''));
+        $bairro = trim($request->input('bairro', ''));
+        $endereco = $request->input('endereco');
+        if ($logradouro) {
+            $parts = [];
+            $parts[] = $logradouro;
+            if ($numero) {
+                $parts[] = $numero;
+            }
+            if ($complemento) {
+                $parts[] = $complemento;
+            }
+            if ($bairro) {
+                $parts[] = $bairro;
+            }
+            $endereco = implode(', ', $parts);
+        }
+        $data = $validated + $request->except('_token');
+        if ($endereco) {
+            $data['endereco'] = $endereco;
+        }
+        Escola::create($data);
 
-        Escola::create($validated + $request->except('_token'));
         return redirect()->route('escolas.index')->with('success', 'Escola cadastrada com sucesso!');
     }
 
@@ -116,11 +140,34 @@ public function getData(Request $request)
     public function update(Request $request, Escola $escola)
     {
         $validated = $request->validate([
-            'codigo_inep' => 'required|string|max:20|unique:escolas,codigo_inep,' . $escola->id,
+            'codigo_inep' => 'required|string|max:20|unique:escolas,codigo_inep,'.$escola->id,
             'escola' => 'required|string|max:255',
         ]);
+        $logradouro = trim($request->input('logradouro', ''));
+        $numero = trim($request->input('numero', ''));
+        $complemento = trim($request->input('complemento', ''));
+        $bairro = trim($request->input('bairro', ''));
+        $endereco = $request->input('endereco');
+        if ($logradouro) {
+            $parts = [];
+            $parts[] = $logradouro;
+            if ($numero) {
+                $parts[] = $numero;
+            }
+            if ($complemento) {
+                $parts[] = $complemento;
+            }
+            if ($bairro) {
+                $parts[] = $bairro;
+            }
+            $endereco = implode(', ', $parts);
+        }
+        $data = $validated + $request->except(['_token', '_method']);
+        if ($endereco) {
+            $data['endereco'] = $endereco;
+        }
+        $escola->update($data);
 
-        $escola->update($validated + $request->except(['_token', '_method']));
         return redirect()->route('escolas.index')->with('success', 'Escola atualizada com sucesso!');
     }
 
@@ -130,6 +177,7 @@ public function getData(Request $request)
     public function destroy(Escola $escola)
     {
         $escola->delete();
+
         return response()->json(['success' => true]);
     }
 }

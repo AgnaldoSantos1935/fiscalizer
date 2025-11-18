@@ -346,7 +346,6 @@ return [
                     'can' => 'view-index-host_testes', // Gate permission
                 ],
 
-
             ],
         ],
         [
@@ -384,6 +383,23 @@ return [
                     'route' => 'empenhos.create',
                     'icon' => 'fas fa-fw fa-plus',
                     'can' => 'view-create-empenhos', // Gate permission
+                ],
+            ],
+        ],
+        [
+            'text' => 'Atas de Registro',
+            'route' => '',
+            'icon' => 'fas fa-fw fa-file-contract',
+            'submenu' => [
+                [
+                    'text' => 'Exibir todas',
+                    'route' => 'atas.index',
+                    'icon' => 'fas fa-fw fa-list',
+                ],
+                [
+                    'text' => 'Cadastrar Ata',
+                    'route' => 'atas.create',
+                    'icon' => 'fas fa-fw fa-plus',
                 ],
             ],
         ],

@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Http;
 use App\Models\Monitoramento;
 use App\Models\MonitoramentoLog;
+use Illuminate\Support\Facades\Http;
 
 class MonitoramentoService
 {
@@ -78,30 +78,27 @@ class MonitoramentoService
                 'ultima_verificacao' => now(),
             ]);
         }
-// Após atualizar o monitoramento:
-MonitoramentoLog::create([
-    'monitoramento_id' => $item->id,
-    'online' => $item->online,
-    'status_code' => $item->status_code,
-    'latencia' => $item->latencia,
-    'erro' => $item->erro,
-    'verificado_em' => now(),
-]);
+        // Após atualizar o monitoramento:
+        MonitoramentoLog::create([
+            'monitoramento_id' => $item->id,
+            'online' => $item->online,
+            'status_code' => $item->status_code,
+            'latencia' => $item->latencia,
+            'erro' => $item->erro,
+            'verificado_em' => now(),
+        ]);
 
-$falhasConsecutivas = $item->logs()
-    ->orderByDesc('id')
-    ->take(3)
-    ->where('online', false)
-    ->count();
+        $falhasConsecutivas = $item->logs()
+            ->orderByDesc('id')
+            ->take(3)
+            ->where('online', false)
+            ->count();
 
-if ($falhasConsecutivas >= 3) {
-    // Dispara alerta
-    \Illuminate\Support\Facades\Notification::route('mail', 'fiscal@seduc.pa.gov.br')
-        ->notify(new \App\Notifications\FalhaConsecutivaNotification($item, $falhasConsecutivas));
-}
-
+        if ($falhasConsecutivas >= 3) {
+            // Dispara alerta
+            \Illuminate\Support\Facades\Notification::route('mail', 'fiscal@seduc.pa.gov.br')
+                ->notify(new \App\Notifications\FalhaConsecutivaNotification($item, $falhasConsecutivas));
+        }
 
     }
-
-
 }

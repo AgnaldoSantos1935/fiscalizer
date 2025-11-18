@@ -23,7 +23,8 @@ class FuncaoSistemaController extends Controller
         ]);
 
         FuncaoSistema::create($validated);
+
         return redirect()->route('medicoes.show', $validated['medicao_id'])
-                         ->with('success', 'Função cadastrada com sucesso!');
+            ->with('success', 'Função cadastrada com sucesso!');
     }
 }

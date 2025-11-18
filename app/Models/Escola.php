@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-
 class Escola extends Model
 {
     use HasFactory;
@@ -56,10 +55,11 @@ class Escola extends Model
     {
         return $this->belongsTo(DRE::class, 'dre', 'codigodre');
     }
-public function hosts()
-{
-    return $this->hasMany(Host::class, 'local', 'id_escola');
-}
+
+    public function hosts()
+    {
+        return $this->hasMany(Host::class, 'local', 'id_escola');
+    }
 
     /**
      * Helper para formatar nome completo (exemplo).

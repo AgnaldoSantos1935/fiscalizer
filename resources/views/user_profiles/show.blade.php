@@ -53,7 +53,18 @@
     </div>
     <div class="card-body">
         <div class="row">
-            <div class="col-md-6 mb-2"><strong>Endereço:</strong> {{ $profile->endereco ?? '—' }}, {{ $profile->numero ?? '' }}</div>
+            <div class="col-md-6 mb-2"><strong>Endereço:</strong>
+                @php
+                    $parts = array_filter([
+                        $profile->logradouro ?? null,
+                        $profile->numero ?? null,
+                        $profile->complemento ?? null,
+                        $profile->bairro ?? null,
+                    ]);
+                    $texto = $parts ? implode(', ', $parts) : ($profile->endereco ? ($profile->endereco . ($profile->numero ? ', '.$profile->numero : '')) : '—');
+                @endphp
+                {{ $texto }}
+            </div>
             <div class="col-md-6 mb-2"><strong>Bairro:</strong> {{ $profile->bairro ?? '—' }}</div>
             <div class="col-md-4 mb-2"><strong>CEP:</strong> {{ $profile->cep ?? '—' }}</div>
             <div class="col-md-4 mb-2"><strong>Cidade:</strong> {{ $profile->cidade ?? '—' }}</div>

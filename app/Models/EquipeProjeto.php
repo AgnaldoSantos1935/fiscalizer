@@ -12,7 +12,7 @@ class EquipeProjeto extends Model
     protected $table = 'equipes_projeto';
 
     protected $fillable = [
-        'projeto_id', 'pessoa_id', 'papel', 'horas_previstas', 'horas_realizadas'
+        'projeto_id', 'pessoa_id', 'papel', 'horas_previstas', 'horas_realizadas',
     ];
 
     protected $casts = [
@@ -20,6 +20,13 @@ class EquipeProjeto extends Model
         'horas_realizadas' => 'float',
     ];
 
-    public function projeto() { return $this->belongsTo(Projeto::class); }
-    public function pessoa() { return $this->belongsTo(Pessoa::class); }
+    public function projeto()
+    {
+        return $this->belongsTo(Projeto::class);
+    }
+
+    public function pessoa()
+    {
+        return $this->belongsTo(Pessoa::class);
+    }
 }

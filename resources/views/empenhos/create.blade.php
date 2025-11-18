@@ -3,6 +3,25 @@
 
 @section('content')
 <div class="container-fluid">
+  @section('breadcrumb')
+    <nav aria-label="breadcrumb" class="mb-3">
+      <ol class="breadcrumb bg-white px-3 py-2 rounded-3 shadow-sm">
+        <li class="breadcrumb-item">
+          <a href="{{ route('contratos.index') }}" class="text-decoration-none text-primary fw-semibold">
+            <i class="fas fa-file-contract me-1"></i> Contratos
+          </a>
+        </li>
+        @if(isset($preContrato) && $preContrato)
+          <li class="breadcrumb-item">
+            <a href="{{ route('contratos.show', $preContrato->id) }}" class="text-decoration-none text-primary fw-semibold">
+              Contrato {{ $preContrato->numero }}
+            </a>
+          </li>
+        @endif
+        <li class="breadcrumb-item active text-secondary fw-semibold">Novo Empenho</li>
+      </ol>
+    </nav>
+  @endsection
   <div class="card rounded-4 shadow-sm">
     <div class="card-header bg-white"><h4 class="mb-0">Cadastrar Nota de Empenho</h4></div>
     <div class="card-body">
@@ -19,7 +38,7 @@
             <select name="empresa_id" class="form-select" required>
               <option value="">Selecione...</option>
               @foreach($empresas as $empresa)
-                <option value="{{ $empresa->id }}">{{ $empresa->razao_social }}</option>
+                <option value="{{ $empresa->id }}" {{ (string)$empresa->id === (string)($preEmpresaId ?? '') ? 'selected' : '' }}>{{ $empresa->razao_social }}</option>
               @endforeach
             </select>
           </div>
@@ -28,7 +47,7 @@
             <select name="contrato_id" class="form-select" required>
               <option value="">Selecione...</option>
               @foreach($contratos as $contrato)
-                <option value="{{ $contrato->id }}">{{ $contrato->numero }}</option>
+                <option value="{{ $contrato->id }}" {{ (string)$contrato->id === (string)($preContratoId ?? '') ? 'selected' : '' }}>{{ $contrato->numero }}</option>
               @endforeach
             </select>
           </div>
@@ -59,8 +78,11 @@
             <button type="button" class="btn btn-outline-primary btn-sm" id="addItem"><i class="fas fa-plus"></i> Adicionar Item</button>
           </div>
 
-          <div class="col-12 text-end mt-4">
+          <div class="col-12 mt-4 d-flex justify-content-end gap-2">
             <button type="submit" class="btn btn-success px-4"><i class="fas fa-save me-1"></i>Salvar</button>
+            <a href="{{ isset($preContratoId) && $preContratoId ? route('contratos.show', $preContratoId) : url()->previous() }}" class="btn btn-outline-secondary">
+              <i class="fas fa-times me-1"></i> Cancelar
+            </a>
           </div>
         </div>
       </form>
@@ -78,7 +100,7 @@ $('#addItem').on('click', function() {
     <tr>
       <td><input type="text" name="itens[${linha}][descricao]" class="form-control form-control-sm" required></td>
       <td><input type="number" name="itens[${linha}][quantidade]" step="0.01" class="form-control form-control-sm" required></td>
-      <td><input type="number" name="itens[${linha}][valor_unitario]" step="0.01" class="form-control form-control-sm" required></td>
+      <td><input type="text" name="itens[${linha}][valor_unitario]" class="form-control form-control-sm money-br-input" required></td>
       <td><button type="button" class="btn btn-sm btn-outline-danger delItem"><i class="fas fa-trash"></i></button></td>
     </tr>
   `);

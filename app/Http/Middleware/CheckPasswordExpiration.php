@@ -14,7 +14,7 @@ class CheckPasswordExpiration
         // 🔹 Se for senha provisória, redireciona para tela de troca
         if ($user && $user->must_change_password) {
             return redirect()->route('password.force-change')
-                ->with('warning','Sua senha é provisória. Altere para continuar.');
+                ->with('warning', 'Sua senha é provisória. Altere para continuar.');
         }
 
         // 🔹 Senha expirada já é tratada no LoginController (antes de logar)

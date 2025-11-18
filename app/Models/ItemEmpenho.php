@@ -7,13 +7,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ItemEmpenho extends Model
 {
-     use SoftDeletes;
+    use SoftDeletes;
 
     protected $table = 'notas_empenho_itens';
 
     protected $fillable = [
         'nota_empenho_id', 'item_numero', 'descricao',
-        'unidade', 'quantidade', 'valor_unitario', 'valor_total'
+        'unidade', 'quantidade', 'valor_unitario', 'valor_total',
     ];
 
     protected $casts = [

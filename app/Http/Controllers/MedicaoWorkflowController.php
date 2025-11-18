@@ -15,7 +15,7 @@ class MedicaoWorkflowController extends Controller
 
     public function show($medicaoId)
     {
-        $medicao   = Medicao::findOrFail($medicaoId);
+        $medicao = Medicao::findOrFail($medicaoId);
         $instancia = $medicao->processoInstancia;
 
         return view('medicoes.workflow.show', compact('medicao', 'instancia'));
@@ -33,7 +33,7 @@ class MedicaoWorkflowController extends Controller
 
     public function avancar(Request $request, $medicaoId)
     {
-        $medicao   = Medicao::findOrFail($medicaoId);
+        $medicao = Medicao::findOrFail($medicaoId);
         $instancia = $medicao->processoInstancia;
 
         $this->workflow->avancar($instancia, $request->observacoes);

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Host;
-use Illuminate\Http\Request;
 
 class HostMonitorController extends Controller
 {
@@ -38,5 +37,4 @@ class HostMonitorController extends Controller
             )
             ->get();
     }
-
 }

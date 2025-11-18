@@ -29,16 +29,16 @@ class ResetPasswordController extends Controller
      * @var string
      */
     protected $redirectTo = '/home';
+
     protected function resetPassword($user, $password)
-{
-    $user->forceFill([
-        'password' => Hash::make($password),
-        'must_change_password' => false,
-        'password_expires_at' => now()->addDays(90), // nova validade, ex: 3 meses
-    ])->save();
+    {
+        $user->forceFill([
+            'password' => Hash::make($password),
+            'must_change_password' => false,
+            'password_expires_at' => now()->addDays(90), // nova validade, ex: 3 meses
+        ])->save();
 
-    event(new PasswordReset($user));
-    Auth::login($user);
-}
-
+        event(new PasswordReset($user));
+        Auth::login($user);
+    }
 }

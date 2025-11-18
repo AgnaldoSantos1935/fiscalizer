@@ -45,9 +45,25 @@
                     <input type="text" name="telefone" value="{{ old('telefone', $escola->Telefone) }}" class="form-control form-control-sm">
                 </div>
 
-                <div class="col-md-8">
-                    <label class="form-label fw-semibold small text-secondary">Endereço</label>
-                    <input type="text" name="endereco" value="{{ old('endereco', $escola->Endereco) }}" class="form-control form-control-sm">
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold small text-secondary">CEP</label>
+                    <input type="text" name="cep" value="{{ old('cep', $escola->Cep ?? '') }}" class="form-control form-control-sm cep-input">
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label fw-semibold small text-secondary">Logradouro</label>
+                    <input type="text" name="logradouro" value="{{ old('logradouro') }}" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold small text-secondary">Número</label>
+                    <input type="text" name="numero" value="{{ old('numero') }}" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold small text-secondary">Complemento</label>
+                    <input type="text" name="complemento" value="{{ old('complemento') }}" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label fw-semibold small text-secondary">Bairro</label>
+                    <input type="text" name="bairro" value="{{ old('bairro') }}" class="form-control form-control-sm">
                 </div>
 
                 <div class="col-md-4">

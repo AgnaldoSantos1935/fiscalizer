@@ -2,10 +2,11 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::table('documentos', function (Blueprint $table) {
@@ -21,7 +22,7 @@ return new class extends Migration {
             $slug = $doc->tipo;
             $tipoId = $map[$slug] ?? null;
             // Heurística: se 'termo_aditivo', assume 'termo_aditivo_prazo' para permitir nova_data_fim
-            if (!$tipoId && $slug === 'termo_aditivo') {
+            if (! $tipoId && $slug === 'termo_aditivo') {
                 $tipoId = $map['termo_aditivo_prazo'] ?? null;
             }
             if ($tipoId) {

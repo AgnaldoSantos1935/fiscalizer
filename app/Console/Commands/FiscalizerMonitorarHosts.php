@@ -25,7 +25,7 @@ class FiscalizerMonitorarHosts extends Command
      */
     public function handle()
     {
-         dispatch(new \App\Jobs\MonitorarHostsJob());
-    $this->info('✅ Monitoramento de hosts disparado!');
+        dispatch(new \App\Jobs\MonitorarHostsJob);
+        $this->info('✅ Monitoramento de hosts disparado!');
     }
 }

@@ -46,7 +46,18 @@
                     </tr>
                     <tr>
                         <th class="text-secondary small">Endereço:</th>
-                        <td>{{ $empresa->endereco ?? '-' }}</td>
+                        <td>
+                            @php
+                                $parts = array_filter([
+                                    $empresa->logradouro ?? null,
+                                    $empresa->numero ?? null,
+                                    $empresa->complemento ?? null,
+                                    $empresa->bairro ?? null,
+                                ]);
+                                $texto = $parts ? implode(', ', $parts) : ($empresa->endereco ?? '-');
+                            @endphp
+                            {{ $texto }}
+                        </td>
                     </tr>
                     <tr>
                         <th class="text-secondary small">Cidade:</th>

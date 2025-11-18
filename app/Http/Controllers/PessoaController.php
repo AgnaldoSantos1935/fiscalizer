@@ -19,12 +19,12 @@ class PessoaController extends Controller
             $query = Pessoa::with('user');
 
             return DataTables::of($query)
-                ->addColumn('usuario', fn($p) => $p->user ? $p->user->name : '—')
+                ->addColumn('usuario', fn ($p) => $p->user ? $p->user->name : '—')
                 ->addColumn('acoes', function ($p) {
                     return '
-                        <a href="' . route('pessoas.edit', $p->id) . '" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></a>
-                        <form method="POST" action="' . route('pessoas.destroy', $p->id) . '" style="display:inline;">
-                            ' . csrf_field() . method_field('DELETE') . '
+                        <a href="'.route('pessoas.edit', $p->id).'" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></a>
+                        <form method="POST" action="'.route('pessoas.destroy', $p->id).'" style="display:inline;">
+                            '.csrf_field().method_field('DELETE').'
                             <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm(\'Excluir esta pessoa?\')">
                                 <i class="fas fa-trash"></i>
                             </button>
@@ -67,7 +67,7 @@ class PessoaController extends Controller
         $pessoa = Pessoa::create($validated);
 
         // Se informado email, cria automaticamente um usuário vinculado
-        if (!empty($validated['email'])) {
+        if (! empty($validated['email'])) {
             $user = User::create([
                 'name' => $validated['nome_completo'],
                 'email' => $validated['email'],
@@ -95,8 +95,8 @@ class PessoaController extends Controller
     {
         $validated = $request->validate([
             'nome_completo' => 'required|string|max:255',
-            'cpf' => 'required|string|max:14|unique:pessoas,cpf,' . $pessoa->id,
-            'email' => 'nullable|email|max:255|unique:users,email,' . ($pessoa->user_id ?? 'NULL'),
+            'cpf' => 'required|string|max:14|unique:pessoas,cpf,'.$pessoa->id,
+            'email' => 'nullable|email|max:255|unique:users,email,'.($pessoa->user_id ?? 'NULL'),
             'telefone' => 'nullable|string|max:20',
             'cep' => 'nullable|string|max:10',
             'logradouro' => 'nullable|string|max:255',

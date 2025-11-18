@@ -4,10 +4,13 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
-        if (Schema::hasTable('documentos_tecnicos')) { return; }
+        if (Schema::hasTable('documentos_tecnicos')) {
+            return;
+        }
 
         Schema::create('documentos_tecnicos', function (Blueprint $table) {
             $table->id();

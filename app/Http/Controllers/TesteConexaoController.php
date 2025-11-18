@@ -2,52 +2,51 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
 use App\Models\TesteConexao;
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class TesteConexaoController extends Controller
 {
-  /**
+    /**
      * Exibe a página de testes de IP/Domínio
      */
-   public function index()
-{
-    $teste = TesteConexao::orderBy('nome')->get();
-    return view('monitoramentos.teste', compact('teste'));
-}
+    public function index()
+    {
+        $teste = TesteConexao::orderBy('nome')->get();
 
-public function testar(Request $request)
-{
-    $request->validate([
-        'alvo' => 'required|string|max:255',
-    ]);
+        return view('monitoramentos.teste', compact('teste'));
+    }
 
-    $entrada = trim($request->input('alvo'));
-    $alvo = preg_replace(['#^https?://#', '#/$#'], '', $entrada);
+    public function testar(Request $request)
+    {
+        $request->validate([
+            'alvo' => 'required|string|max:255',
+        ]);
 
-    $dados = [
-        'alvo' => $alvo,
-        'tipo' => filter_var($alvo, FILTER_VALIDATE_IP) ? 'IP' : 'Domínio',
-        'dns' => null,
-        'ping' => '—',
-        'http_status' => null,
-        'http_ok' => false,
-        'tempo_resposta' => null,
-        'http_erro' => null,
-    ];
+        $entrada = trim($request->input('alvo'));
+        $alvo = preg_replace(['#^https?://#', '#/$#'], '', $entrada);
 
-    // DNS, ping e HTTP (mesmo código anterior)
-    // ...
+        $dados = [
+            'alvo' => $alvo,
+            'tipo' => filter_var($alvo, FILTER_VALIDATE_IP) ? 'IP' : 'Domínio',
+            'dns' => null,
+            'ping' => '—',
+            'http_status' => null,
+            'http_ok' => false,
+            'tempo_resposta' => null,
+            'http_erro' => null,
+        ];
 
-    $monitoramentos = Monitoramento::orderBy('nome')->get();
+        // DNS, ping e HTTP (mesmo código anterior)
+        // ...
 
-    return view('monitoramentos.teste', compact('dados', 'monitoramentos'));
-}
+        $monitoramentos = Monitoramento::orderBy('nome')->get();
 
-   public function create()
+        return view('monitoramentos.teste', compact('dados', 'monitoramentos'));
+    }
+
+    public function create()
     {
         return view('monitoramentos.create');
     }
@@ -75,13 +74,13 @@ public function testar(Request $request)
      * Testa e atualiza o status de um monitoramento específico.
      */
 
-
     /**
      * Atualiza manualmente um monitoramento (editar)
      */
     public function edit($id)
     {
         $monitoramento = Monitoramento::findOrFail($id);
+
         return view('monitoramentos.edit', compact('monitoramento'));
     }
 
@@ -106,32 +105,33 @@ public function testar(Request $request)
     public function destroy($id)
     {
         Monitoramento::findOrFail($id)->delete();
+
         return redirect()->route('monitoramentos.index')
             ->with('success', 'Monitoramento removido!');
     }
+
     public function historico($id)
-{
-    $monitoramento = \App\Models\Monitoramento::findOrFail($id);
+    {
+        $monitoramento = \App\Models\Monitoramento::findOrFail($id);
 
-    $logs = \App\Models\MonitoramentoLog::where('monitoramento_id', $id)
-        ->orderByDesc('data_teste')
-        ->take(50)
-        ->get();
+        $logs = \App\Models\MonitoramentoLog::where('monitoramento_id', $id)
+            ->orderByDesc('data_teste')
+            ->take(50)
+            ->get();
 
-    // Cálculos simples
-    $total = $logs->count();
-    $online = $logs->where('online', true)->count();
-    $uptime = $total ? round(($online / $total) * 100, 2) : 0;
-    $mediaLatencia = $logs->whereNotNull('latencia')->avg('latencia');
+        // Cálculos simples
+        $total = $logs->count();
+        $online = $logs->where('online', true)->count();
+        $uptime = $total ? round(($online / $total) * 100, 2) : 0;
+        $mediaLatencia = $logs->whereNotNull('latencia')->avg('latencia');
 
-    return view('monitoramentos.historico', compact('monitoramento', 'logs', 'uptime', 'mediaLatencia'));
-}
-public function show($id)
-{
-    $monitoramentos = \App\Models\Monitoramento::findOrFail($id);
+        return view('monitoramentos.historico', compact('monitoramento', 'logs', 'uptime', 'mediaLatencia'));
+    }
 
-    return view('monitoramentos.show', compact('monitoramentos'));
-}
+    public function show($id)
+    {
+        $monitoramentos = \App\Models\Monitoramento::findOrFail($id);
 
-
+        return view('monitoramentos.show', compact('monitoramentos'));
+    }
 }

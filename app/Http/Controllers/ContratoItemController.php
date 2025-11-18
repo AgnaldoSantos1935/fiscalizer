@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Contrato;
-use App\Models\ContratoItem;
 use App\Models\Empresa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,9 +15,9 @@ class ContratoController extends Controller
     public function index(Request $request)
     {
         $query = Contrato::with('empresa')
-            ->when($request->numero, fn($q) => $q->where('numero', 'like', "%{$request->numero}%"))
-            ->when($request->objeto, fn($q) => $q->where('objeto', 'like', "%{$request->objeto}%"))
-            ->when($request->situacao, fn($q) => $q->where('situacao', $request->situacao))
+            ->when($request->numero, fn ($q) => $q->where('numero', 'like', "%{$request->numero}%"))
+            ->when($request->objeto, fn ($q) => $q->where('objeto', 'like', "%{$request->objeto}%"))
+            ->when($request->situacao, fn ($q) => $q->where('situacao', $request->situacao))
             ->orderBy('data_inicio', 'desc');
 
         $contratos = $query->get();
@@ -32,6 +31,7 @@ class ContratoController extends Controller
     public function create()
     {
         $empresas = Empresa::orderBy('razao_social')->get();
+
         return view('contratos.create', compact('empresas'));
     }
 
@@ -54,7 +54,7 @@ class ContratoController extends Controller
         DB::transaction(function () use ($request) {
             $contrato = Contrato::create($request->only([
                 'numero', 'objeto', 'contratada_id', 'fiscal_tecnico_id', 'fiscal_administrativo_id',
-                'gestor_id', 'valor_global', 'data_inicio', 'data_fim', 'situacao', 'tipo'
+                'gestor_id', 'valor_global', 'data_inicio', 'data_fim', 'situacao', 'tipo',
             ]));
 
             if ($request->has('itens')) {
@@ -79,6 +79,7 @@ class ContratoController extends Controller
     public function show(Contrato $contrato)
     {
         $contrato->load(['empresa', 'itens']);
+
         return view('contratos.show', compact('contrato'));
     }
 
@@ -89,6 +90,7 @@ class ContratoController extends Controller
     {
         $contrato->load('itens');
         $empresas = Empresa::orderBy('razao_social')->get();
+
         return view('contratos.edit', compact('contrato', 'empresas'));
     }
 
@@ -98,7 +100,7 @@ class ContratoController extends Controller
     public function update(Request $request, Contrato $contrato)
     {
         $request->validate([
-            'numero' => 'required|string|max:50|unique:contratos,numero,' . $contrato->id,
+            'numero' => 'required|string|max:50|unique:contratos,numero,'.$contrato->id,
             'objeto' => 'required|string',
             'contratada_id' => 'required|exists:empresas,id',
             'valor_global' => 'nullable|numeric',
@@ -109,7 +111,7 @@ class ContratoController extends Controller
         DB::transaction(function () use ($contrato, $request) {
             $contrato->update($request->only([
                 'numero', 'objeto', 'contratada_id', 'fiscal_tecnico_id', 'fiscal_administrativo_id',
-                'gestor_id', 'valor_global', 'data_inicio', 'data_fim', 'situacao', 'tipo'
+                'gestor_id', 'valor_global', 'data_inicio', 'data_fim', 'situacao', 'tipo',
             ]));
 
             // Remove itens antigos e recria (padrão simples)
@@ -137,6 +139,7 @@ class ContratoController extends Controller
     public function destroy(Contrato $contrato)
     {
         $contrato->delete();
+
         return redirect()->route('contratos.index')->with('success', 'Contrato excluído com sucesso!');
     }
 
@@ -146,6 +149,7 @@ class ContratoController extends Controller
     public function detalhes($id)
     {
         $contrato = Contrato::with(['empresa', 'itens'])->findOrFail($id);
+
         return response()->json(['contrato' => $contrato]);
     }
 }

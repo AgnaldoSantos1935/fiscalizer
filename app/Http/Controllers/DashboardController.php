@@ -2,14 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Contrato;
-use App\Models\Host;
-use App\Models\Projeto;
 use App\Models\BoletimMedicao;
-use App\Models\Medicao;
-use App\Models\User;
+use App\Models\Contrato;
 use App\Models\Documento;
+use App\Models\Medicao;
 use App\Models\ProcessoLog;
+use App\Models\Projeto;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -61,6 +59,7 @@ class DashboardController extends Controller
             'boletinsRecentes'
         ));
     }
+
     public function desempenhoFiscalAdm()
     {
         $user = auth()->user->id;

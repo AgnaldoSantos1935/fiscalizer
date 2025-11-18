@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,9 +18,10 @@ class Dre extends Model
         'municipio_sede',
         'email',
         'telefone',
-        'endereco'
+        'endereco',
     ];
-       public function escolas()
+
+    public function escolas()
     {
         return $this->hasMany(Escola::class, 'dre');
     }

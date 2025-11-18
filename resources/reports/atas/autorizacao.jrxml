@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="autorizacao_adesao" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="a1e5f5b6-7e02-4b32-8b82-111111111111">
+    <parameter name="adesaoId" class="java.lang.Integer"/>
+    <parameter name="gestorNome" class="java.lang.String"/>
+    <parameter name="qrUrl" class="java.lang.String"/>
+    <queryString language="SQL">
+        <![CDATA[
+        SELECT
+          a.numero AS ataNumero,
+          a.objeto AS ataObjeto,
+          eg.razao_social AS orgaoGerenciador,
+          ef.razao_social AS fornecedor,
+          eo.razao_social AS orgaoAdquirente,
+          ad.justificativa AS justificativa,
+          DATE_FORMAT(a.vigencia_inicio, '%d/%m/%Y') AS vigenciaInicio,
+          DATE_FORMAT(a.vigencia_fim, '%d/%m/%Y') AS vigenciaFim,
+          ad.valor_estimado AS valorEstimado,
+          DATE_FORMAT(ad.data_solicitacao, '%d/%m/%Y') AS dataSolicitacao,
+          a.saldo_global AS saldoGlobal,
+          (
+            SELECT COALESCE(SUM(x.valor_estimado),0)
+            FROM ata_adesoes x
+            WHERE x.ata_id = a.id AND x.status = 'autorizada'
+          ) AS saldoConsumido,
+          (a.saldo_global - (
+            SELECT COALESCE(SUM(x.valor_estimado),0)
+            FROM ata_adesoes x
+            WHERE x.ata_id = a.id AND x.status = 'autorizada'
+          )) AS saldoDisponivel
+        FROM ata_adesoes ad
+        JOIN atas_registro_precos a ON a.id = ad.ata_id
+        LEFT JOIN empresas eg ON eg.id = a.orgao_gerenciador_id
+        LEFT JOIN empresas ef ON ef.id = a.fornecedor_id
+        LEFT JOIN empresas eo ON eo.id = ad.orgao_adquirente_id
+        WHERE ad.id = $P{adesaoId}
+        ]]>
+    </queryString>
+    <field name="ataNumero" class="java.lang.String"/>
+    <field name="ataObjeto" class="java.lang.String"/>
+    <field name="orgaoGerenciador" class="java.lang.String"/>
+    <field name="fornecedor" class="java.lang.String"/>
+    <field name="orgaoAdquirente" class="java.lang.String"/>
+    <field name="justificativa" class="java.lang.String"/>
+    <field name="vigenciaInicio" class="java.lang.String"/>
+    <field name="vigenciaFim" class="java.lang.String"/>
+    <field name="valorEstimado" class="java.math.BigDecimal"/>
+    <field name="dataSolicitacao" class="java.lang.String"/>
+    <field name="saldoGlobal" class="java.math.BigDecimal"/>
+    <field name="saldoConsumido" class="java.math.BigDecimal"/>
+    <field name="saldoDisponivel" class="java.math.BigDecimal"/>
+    <title>
+        <band height="60">
+            <staticText>
+                <reportElement x="0" y="0" width="555" height="20"/>
+                <text><![CDATA[Autorização de Adesão à Ata de Registro de Preços]]></text>
+            </staticText>
+        </band>
+    </title>
+    <detail>
+        <band height="260">
+            <textField><reportElement x="0" y="0" width="555" height="18"/><textFieldExpression><![CDATA["Ata: " + $F{ataNumero} + " — Objeto: " + $F{ataObjeto}]]></textFieldExpression></textField>
+            <textField><reportElement x="0" y="22" width="555" height="16"/><textFieldExpression><![CDATA["Órgão Gerenciador: " + $F{orgaoGerenciador}]]></textFieldExpression></textField>
+            <textField><reportElement x="0" y="42" width="555" height="16"/><textFieldExpression><![CDATA["Fornecedor: " + $F{fornecedor}]]></textFieldExpression></textField>
+            <textField><reportElement x="0" y="62" width="555" height="16"/><textFieldExpression><![CDATA["Órgão Adquirente: " + $F{orgaoAdquirente}]]></textFieldExpression></textField>
+            <textField isStretchWithOverflow="true"><reportElement x="0" y="82" width="555" height="34"/><textFieldExpression><![CDATA["Justificativa: " + $F{justificativa}]]></textFieldExpression></textField>
+            <textField><reportElement x="0" y="120" width="555" height="16"/><textFieldExpression><![CDATA["Vigência da Ata: " + $F{vigenciaInicio} + " a " + $F{vigenciaFim}]]></textFieldExpression></textField>
+            <textField><reportElement x="0" y="140" width="555" height="16"/><textFieldExpression><![CDATA["Valor Estimado: R$ " + java.text.NumberFormat.getInstance(new java.util.Locale("pt","BR")).format($F{valorEstimado})]]></textFieldExpression></textField>
+            <textField><reportElement x="0" y="160" width="555" height="16"/><textFieldExpression><![CDATA["Data Solicitação: " + $F{dataSolicitacao}]]></textFieldExpression></textField>
+            <textField><reportElement x="0" y="180" width="555" height="16"/><textFieldExpression><![CDATA["Saldo Global da Ata: R$ " + java.text.NumberFormat.getInstance(new java.util.Locale("pt","BR")).format($F{saldoGlobal})]]></textFieldExpression></textField>
+            <textField><reportElement x="0" y="200" width="555" height="16"/><textFieldExpression><![CDATA["Saldo Consumido por Adesões Autorizadas: R$ " + java.text.NumberFormat.getInstance(new java.util.Locale("pt","BR")).format($F{saldoConsumido})]]></textFieldExpression></textField>
+            <textField><reportElement x="0" y="220" width="555" height="16"/><textFieldExpression><![CDATA["Saldo Disponível: R$ " + java.text.NumberFormat.getInstance(new java.util.Locale("pt","BR")).format($F{saldoDisponivel})]]></textFieldExpression></textField>
+            <staticText><reportElement x="0" y="240" width="300" height="16"/><text><![CDATA[Base Legal: Lei nº 14.133/2021]]></text></staticText>
+            <textField>
+                <reportElement x="0" y="260" width="400" height="18"/>
+                <textFieldExpression><![CDATA["Aprovação por: " + $P{gestorNome}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="0" y="280" width="400" height="18"/>
+                <textFieldExpression><![CDATA["Verificação/QR: " + $P{qrUrl}]]></textFieldExpression>
+            </textField>
+            <jr:barcode>
+                <reportElement x="420" y="240" width="120" height="120"/>
+                <jr:codeExpression><![CDATA[$P{qrUrl}]]></jr:codeExpression>
+                <jr:barcodeProperties>
+                    <jr:barcodeProperty name="type" value="QRCode"/>
+                </jr:barcodeProperties>
+            </jr:barcode>
+        </band>
+    </detail>
+    <pageFooter>
+        <band height="20">
+            <staticText><reportElement x="0" y="0" width="555" height="16"/><text><![CDATA[Documento gerado por Fiscalizer]]></text></staticText>
+        </band>
+    </pageFooter>
+</jasperReport>

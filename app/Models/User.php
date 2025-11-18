@@ -7,22 +7,19 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use NotificationChannels\WebPush\HasPushSubscriptions;
-use App\Models\Documento;
-use App\Models\Medicao;
-use App\Models\LogSistema;
-
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasPushSubscriptions;
+    use HasFactory, HasPushSubscriptions, Notifiable;
 
     /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
      */
-     protected $table = 'users';
+    protected $table = 'users';
+
     protected $fillable = [
         'name',
         'email',
@@ -50,51 +47,53 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
 
-        'name' => 'string',
-        'email' => 'string',
-        'role_id' => 'integer',
+            'name' => 'string',
+            'email' => 'string',
+            'role_id' => 'integer',
         ];
     }
 
-public function role()
-{
-    return $this->belongsTo(Role::class);
-}
-
-/**
- * Verifica se o usuário possui o papel indicado
- * @param string|array $nomeRole Nome do papel ou array de nomes de papéis
- * @return bool
- */
-public function hasRole($nomeRole)
-{
-    if (!$this->role) {
-        return false;
+    public function role()
+    {
+        return $this->belongsTo(Role::class);
     }
 
-    if (is_array($nomeRole)) {
-        return in_array($this->role->nome, $nomeRole);
+    /**
+     * Verifica se o usuário possui o papel indicado
+     *
+     * @param  string|array  $nomeRole  Nome do papel ou array de nomes de papéis
+     * @return bool
+     */
+    public function hasRole($nomeRole)
+    {
+        if (! $this->role) {
+            return false;
+        }
+
+        if (is_array($nomeRole)) {
+            return in_array($this->role->nome, $nomeRole);
+        }
+
+        return $this->role->nome === $nomeRole;
     }
 
-    return $this->role->nome === $nomeRole;
-}
-public function pessoa()
-{
-    return $this->hasOne(\App\Models\Pessoa::class);
-}
-public function documentos()
-{
-    return $this->hasMany(Documento::class, 'user_id');
-}
+    public function pessoa()
+    {
+        return $this->hasOne(\App\Models\Pessoa::class);
+    }
 
-public function medicoes()
-{
-    return $this->hasMany(Medicao::class, 'user_id');
-}
+    public function documentos()
+    {
+        return $this->hasMany(Documento::class, 'user_id');
+    }
 
-public function logs()
-{
-    return $this->hasMany(LogSistema::class, 'user_id');
-}
+    public function medicoes()
+    {
+        return $this->hasMany(Medicao::class, 'user_id');
+    }
 
+    public function logs()
+    {
+        return $this->hasMany(LogSistema::class, 'user_id');
+    }
 }

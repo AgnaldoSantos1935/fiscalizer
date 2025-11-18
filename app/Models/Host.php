@@ -29,10 +29,10 @@ class Host extends Model
     ];
 
     protected $casts = [
-        'porta'          => 'integer',
-        'local'          => 'integer',
+        'porta' => 'integer',
+        'local' => 'integer',
         'itemcontratado' => 'integer',
-        'config_extra'   => 'array',   // <-- importante!
+        'config_extra' => 'array',   // <-- importante!
     ];
 
     protected $dates = ['created_at', 'updated_at'];
@@ -75,9 +75,9 @@ class Host extends Model
             'contrato_id'   // FK em contrato_itens
         );
     }
-    public function indisponibilidades()
-{
-    return $this->hasMany(Indisponibilidade::class, 'host_id');
-}
 
+    public function indisponibilidades()
+    {
+        return $this->hasMany(Indisponibilidade::class, 'host_id');
+    }
 }

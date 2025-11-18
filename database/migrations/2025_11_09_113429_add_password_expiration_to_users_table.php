@@ -17,12 +17,12 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             // 🔹 Data de expiração da senha (nullable → não afeta usuários antigos)
-            if (!Schema::hasColumn('users', 'password_expires_at')) {
+            if (! Schema::hasColumn('users', 'password_expires_at')) {
                 $table->timestamp('password_expires_at')->nullable()->after('password');
             }
 
             // 🔹 Indica se o usuário precisa trocar a senha no próximo login
-            if (!Schema::hasColumn('users', 'must_change_password')) {
+            if (! Schema::hasColumn('users', 'must_change_password')) {
                 $table->boolean('must_change_password')->default(false)->after('password_expires_at');
             }
         });

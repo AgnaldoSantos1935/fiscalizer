@@ -21,7 +21,8 @@ class ContratoDashboardController extends Controller
         $comRisco = Contrato::whereNotNull('riscos_detectados')->get();
         $altoRisco = $comRisco->filter(function ($c) {
             $riscos = json_decode($c->riscos_detectados, true) ?? [];
-            return collect($riscos)->contains(fn($r) => ($r['impacto'] ?? '') === 'alto');
+
+            return collect($riscos)->contains(fn ($r) => ($r['impacto'] ?? '') === 'alto');
         })->count();
 
         return view('dashboard.contratos', compact(

@@ -7,12 +7,13 @@ use Illuminate\Support\Facades\Http;
 class SimilarityAiService
 {
     protected string $endpoint;
+
     protected string $apiKey;
 
     public function __construct()
     {
         $this->endpoint = config('services.ai_similarity.endpoint');
-        $this->apiKey   = config('services.ai_similarity.key');
+        $this->apiKey = config('services.ai_similarity.key');
     }
 
     /**
@@ -27,7 +28,7 @@ class SimilarityAiService
                 'text_b' => $textoB,
             ]);
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             return 0.0;
         }
 

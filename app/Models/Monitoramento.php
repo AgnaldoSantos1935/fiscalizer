@@ -31,9 +31,9 @@ class Monitoramento extends Model
     ];
 
     protected $casts = [
-        'dados_extra'        => 'array',
+        'dados_extra' => 'array',
         'ultima_verificacao' => 'datetime',
-        'online'             => 'boolean',
+        'online' => 'boolean',
     ];
 
     public function host()

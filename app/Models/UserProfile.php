@@ -8,7 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class UserProfile extends Model
 {
     use HasFactory;
-    protected $table="user_profiles";
+
+    protected $table = 'user_profiles';
+
     protected $fillable = [
         'user_id',
         'nome_completo',
@@ -48,44 +50,3 @@ class UserProfile extends Model
         return $this->belongsTo(User::class);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

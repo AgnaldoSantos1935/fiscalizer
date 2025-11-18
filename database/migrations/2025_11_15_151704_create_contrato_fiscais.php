@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-      Schema::create('contrato_fiscais', function (Blueprint $table) {
-    $table->id();
-    $table->foreignId('contrato_id')->constrained('contratos')->onDelete('cascade');
-    $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-    $table->enum('tipo', ['fiscal_tecnico', 'fiscal_administrativo', 'gestor']);
-    $table->timestamps();
-});
+        Schema::create('contrato_fiscais', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('contrato_id')->constrained('contratos')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->enum('tipo', ['fiscal_tecnico', 'fiscal_administrativo', 'gestor']);
+            $table->timestamps();
+        });
     }
 
     /**

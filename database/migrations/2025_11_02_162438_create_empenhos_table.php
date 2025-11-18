@@ -11,13 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('empenhos')) {
+            return;
+        }
         Schema::create('empenhos', function (Blueprint $table) {
             $table->id();
 
             // 🔹 Chave estrangeira para contrato
             $table->foreignId('contrato_id')
-                  ->constrained('contratos')
-                  ->onDelete('cascade'); // Exclui empenhos se o contrato for apagado
+                ->constrained('contratos')
+                ->onDelete('cascade'); // Exclui empenhos se o contrato for apagado
 
             // 🔹 Campos principais
             $table->string('numero', 50)->unique(); // Ex: 2025.160101NE005472

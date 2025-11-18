@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Role;
+use Illuminate\Database\Seeder;
 
 class RoleSeeder extends Seeder
 {
@@ -16,7 +16,7 @@ class RoleSeeder extends Seeder
             ['nome' => 'admin', 'descricao' => 'Cadastra, cria usuários e parametriza o sistema.'],
             ['nome' => 'fiscal_administrativo', 'descricao' => 'Responsável por inserir e validar a documentação, vigência, reajustes e etc.'],
             ['nome' => 'fiscal_tecnico', 'descricao' => 'Valida os aspectos técnicos, quantitativos e qualitativos dos serviços.'],
-            ['nome' => 'gestor','descricao' => 'Aprovação da documentação e avaliações dos árâmetros técnicos.'],
+            ['nome' => 'gestor', 'descricao' => 'Aprovação da documentação e avaliações dos árâmetros técnicos.'],
         ]);
     }
 }

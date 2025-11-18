@@ -3,6 +3,12 @@
 
 @section('content')
 <div>
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
 
     <!-- 🔹 Breadcrumb -->
     <nav aria-label="breadcrumb" class="mb-3">
@@ -15,6 +21,14 @@
             <li class="breadcrumb-item active text-secondary fw-semibold" id="breadcrumbContrato">
                 Carregando...
             </li>
+            @if(request()->get('from') === 'empenhos.create')
+                <li class="breadcrumb-item">
+                    <span class="text-secondary">Empenhos</span>
+                </li>
+                <li class="breadcrumb-item active text-secondary fw-semibold">
+                    Novo Empenho
+                </li>
+            @endif
         </ol>
     </nav>
     <!-- 🔹 Alerta de erro de carregamento -->
@@ -184,7 +198,7 @@
                   <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
                     <i class="fas fa-minus"></i>
                   </button>
-                     <a id="btnNovoEmpenho" href="#" class="btn btn-light btn-sm d-none">
+                     <a id="btnNovoEmpenho" href="{{ route('empenhos.create') }}?contrato_id={{ $id }}" class="btn btn-light btn-sm">
                 <i class="fas fa-plus-circle me-1"></i> Cadastrar Empenho
             </a>
                 </div>
@@ -242,7 +256,7 @@
                   </div>
                   <div class="mb-3">
                       <label class="form-label">Valor do Pagamento (R$)</label>
-                      <input type="number" step="0.01" class="form-control" id="valorPagamento" required>
+                      <input type="text" class="form-control money-br-input" id="valorPagamento" required>
                   </div>
                   <div class="mb-3">
                       <label class="form-label">Data do Pagamento</label>
@@ -601,7 +615,7 @@ function inicializarTooltips() {
                     <td>${i+1}</td>
                     <td class="text-truncate" style="max-width:250px">${item.descricao_item ?? '—'}</td>
                     <td>${item.quantidade ?? '—'}</td>
-                    <td>R$ ${parseFloat(item.valor_total).toLocaleString('pt-BR', {minimumFractionDigits:2})}</td>
+                    <td data-format="currency" data-value="${item.valor_total}"></td>
                     <td>
                         <button class="btn btn-outline-primary btn-sm ver-item"
                                 data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}'>
@@ -629,7 +643,8 @@ function inicializarTooltips() {
     function preencherEmpenhos(data){
         const emp=data.empenhos??[];
         if(!emp.length){
-            document.getElementById('tabelaEmpenhos').innerHTML=`<p class="text-muted">Nenhum empenho vinculado a este contrato.</p>`;
+            document.getElementById('tabelaEmpenhos').innerHTML=`
+                <p class="text-muted">Nenhum empenho vinculado a este contrato.</p>`;
             return;
         }
         let linhas='';
@@ -640,7 +655,7 @@ function inicializarTooltips() {
                     <td>${i+1}</td>
                     <td>${e.numero??'—'}</td>
                     <td>${dataEmp}</td>
-                    <td>R$ ${parseFloat(e.valor).toLocaleString('pt-BR',{minimumFractionDigits:2})}</td>
+                    <td data-format="currency" data-value="${e.valor}"></td>
                     <td>
                         <button class="btn btn-outline-primary btn-sm ver-empenho" data-empenho='${JSON.stringify(e).replace(/'/g,"&apos;")}'>
                             <i class="fas fa-search"></i>

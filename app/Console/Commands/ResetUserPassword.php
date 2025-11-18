@@ -1,14 +1,16 @@
 <?php
+
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\User;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 class ResetUserPassword extends Command
 {
     protected $signature = 'user:reset-password {email}';
+
     protected $description = 'Gera uma nova senha provisória para um usuário';
 
     public function handle()
@@ -16,8 +18,9 @@ class ResetUserPassword extends Command
         $email = $this->argument('email');
         $user = User::where('email', $email)->first();
 
-        if (!$user) {
-            $this->error("Usuário não encontrado.");
+        if (! $user) {
+            $this->error('Usuário não encontrado.');
+
             return;
         }
 

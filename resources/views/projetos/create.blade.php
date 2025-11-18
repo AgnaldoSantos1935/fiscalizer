@@ -2,6 +2,14 @@
 @section('title', 'Cadastrar Projeto')
 
 @section('content')
+@section('breadcrumb')
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb bg-white px-3 py-2 rounded-3 shadow-sm">
+      <li class="breadcrumb-item"><a href="{{ route('projetos.index') }}" class="text-decoration-none text-primary fw-semibold"><i class="fas fa-project-diagram me-1"></i> Projetos</a></li>
+      <li class="breadcrumb-item active text-secondary fw-semibold">Novo Projeto</li>
+    </ol>
+  </nav>
+@endsection
 <div class="container-fluid">
 
     <div class="card card-default mt-3">
@@ -170,10 +178,9 @@
                 </div>
 
                 <!-- Botão -->
-                <div class="col-12 text-end">
-                    <button type="submit" class="btn btn-success px-4">
-                        <i class="fas fa-save me-1"></i>Salvar Projeto
-                    </button>
+                <div class="col-12 d-flex justify-content-end gap-2">
+                    <a href="{{ route('projetos.index') }}" class="btn btn-outline-secondary"><i class="fas fa-times me-1"></i> Cancelar</a>
+                    <button type="submit" class="btn btn-success px-4"><i class="fas fa-save me-1"></i>Salvar Projeto</button>
                 </div>
             </div>
 

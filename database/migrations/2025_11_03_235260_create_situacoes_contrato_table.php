@@ -9,9 +9,9 @@ return new class extends Migration
     /**
      * Criação da tabela 'situacoes'
      * Utilizada como catálogo de status administrativos e contratuais.
-   */
-   public function up(): void
-   {
+     */
+    public function up(): void
+    {
         // Evita erro quando a tabela já existe em ambientes com base pré-carregada
         if (Schema::hasTable('situacoes_contratos')) {
             return;
@@ -26,8 +26,9 @@ return new class extends Migration
             $table->timestamps();
         });
     }
-public function down(): void
-{
-    Schema::dropIfExists('situacoes_contratos');
-}
+
+    public function down(): void
+    {
+        Schema::dropIfExists('situacoes_contratos');
+    }
 };

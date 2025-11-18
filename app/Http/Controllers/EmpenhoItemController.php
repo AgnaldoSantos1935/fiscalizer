@@ -1,7 +1,7 @@
 <?php
+
 namespace App\Http\Controllers;
 
-use App\Models\NotaEmpenhoItem;
 use App\Models\Empenho;
 use Illuminate\Http\Request;
 
@@ -10,6 +10,7 @@ class EmpenhoItemController extends Controller
     public function index(Empenho $notaEmpenho)
     {
         $itens = $notaEmpenho->itens()->latest()->paginate(20);
+
         return view('empenhos.itens.index', compact('notaEmpenho', 'itens'));
     }
 
@@ -32,6 +33,7 @@ class EmpenhoItemController extends Controller
     public function destroy(EmpenhoItem $item)
     {
         $item->delete();
+
         return back()->with('success', 'Item removido.');
     }
 }

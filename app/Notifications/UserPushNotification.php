@@ -13,11 +13,13 @@ class UserPushNotification extends Notification
         public ?string $link = null
     ) {}
 
-    public function via($notifiable) {
+    public function via($notifiable)
+    {
         return ['webpush'];
     }
 
-    public function toWebPush($notifiable, $notification = null) {
+    public function toWebPush($notifiable, $notification = null)
+    {
         return (new WebPushMessage)
             ->title($this->titulo)
             ->body($this->mensagem)

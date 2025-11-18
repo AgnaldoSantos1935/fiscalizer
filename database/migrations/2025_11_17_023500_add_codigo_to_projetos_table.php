@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         // Adiciona a coluna 'codigo' se ela não existir
-        if (!Schema::hasColumn('projetos', 'codigo')) {
+        if (! Schema::hasColumn('projetos', 'codigo')) {
             Schema::table('projetos', function (Blueprint $table) {
                 $table->string('codigo')->unique()->nullable()->after('id');
             });

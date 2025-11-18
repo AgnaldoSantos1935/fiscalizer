@@ -196,6 +196,8 @@ $(document).ready(function() {
             .then(resp => resp.json())
             .then(data => {
                 const e = data.empresa;
+                const enderecoParts = [e.logradouro, e.numero, e.complemento, e.bairro].filter(v => !!v);
+                const enderecoTxt = enderecoParts.length ? enderecoParts.join(', ') : (e.endereco ?? '-');
                 $('#detalhesEmpresa').html(`
                     <tr><th>Razão Social</th><td>${e.razao_social}</td></tr>
                     <tr><th>CNPJ</th><td>${e.cnpj}</td></tr>
@@ -203,7 +205,7 @@ $(document).ready(function() {
                     <tr><th>Telefone</th><td>${e.telefone ?? '-'}</td></tr>
                     <tr><th>Cidade</th><td>${e.cidade ?? '-'}</td></tr>
                     <tr><th>UF</th><td>${e.uf ?? '-'}</td></tr>
-                    <tr><th>Endereço</th><td>${e.endereco ?? '-'}</td></tr>
+                    <tr><th>Endereço</th><td>${enderecoTxt}</td></tr>
                 `);
                 new bootstrap.Modal(document.getElementById('modalDetalhesEmpresa')).show();
             })

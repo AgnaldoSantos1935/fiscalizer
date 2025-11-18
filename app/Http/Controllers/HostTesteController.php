@@ -17,18 +17,18 @@ class HostTesteController extends Controller
 
             return DataTables::of($query)
                 ->addIndexColumn()
-                ->addColumn('host', fn($row) => $row->host->nome_conexao ?? '—')
+                ->addColumn('host', fn ($row) => $row->host->nome_conexao ?? '—')
                 ->addColumn('status', function ($row) {
-                    $badge = match($row->status_conexao) {
+                    $badge = match ($row->status_conexao) {
                         'ativo' => 'success',
                         'falha' => 'danger',
                         default => 'secondary'
                     };
+
                     return "<span class='badge bg-$badge text-uppercase px-2 py-1'>{$row->status_conexao}</span>";
                 })
-                ->addColumn('modo', fn($row) => ucfirst($row->modo_execucao))
-                ->addColumn('acoes', fn($row) =>
-                    '<a href="'.route('host_testes.show', $row->id).'" class="btn btn-sm btn-info">
+                ->addColumn('modo', fn ($row) => ucfirst($row->modo_execucao))
+                ->addColumn('acoes', fn ($row) => '<a href="'.route('host_testes.show', $row->id).'" class="btn btn-sm btn-info">
                         <i class="fas fa-eye"></i>
                     </a>'
                 )
@@ -42,6 +42,7 @@ class HostTesteController extends Controller
     public function show($id)
     {
         $teste = HostTeste::with('host')->findOrFail($id);
+
         return view('host_testes.show', compact('teste'));
     }
 
@@ -76,15 +77,15 @@ class HostTesteController extends Controller
             }
 
             $teste = HostTeste::create([
-                'host_id'        => $host->id,
-                'ip_destino'     => $ip,
+                'host_id' => $host->id,
+                'ip_destino' => $ip,
                 'status_conexao' => $process->isSuccessful() ? 'ativo' : 'falha',
-                'latencia_ms'    => $latencia[1] ?? null,
-                'perda_pacotes'  => ($perda[1] ?? $perda[2] ?? null),
+                'latencia_ms' => $latencia[1] ?? null,
+                'perda_pacotes' => ($perda[1] ?? $perda[2] ?? null),
                 'tempo_resposta' => $duracao,
-                'ip_origem'      => getHostByName(getHostName()),
-                'modo_execucao'  => 'manual',
-                'executado_por'  => auth()->user()->name ?? 'sistema',
+                'ip_origem' => gethostbyname(gethostname()),
+                'modo_execucao' => 'manual',
+                'executado_por' => auth()->user()->name ?? 'sistema',
                 'resultado_json' => [
                     'saida_completa' => $saida,
                     'sistema' => PHP_OS,
@@ -93,13 +94,13 @@ class HostTesteController extends Controller
             ]);
 
             return response()->json([
-                'success'  => true,
+                'success' => true,
                 'mensagem' => 'Teste executado com sucesso!',
-                'dados'    => $teste,
+                'dados' => $teste,
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'success'  => false,
+                'success' => false,
                 'mensagem' => 'Erro ao executar teste: '.$e->getMessage(),
             ], 500);
         }
@@ -110,10 +111,13 @@ class HostTesteController extends Controller
      */
     private function sanitizeOutput(?string $output): ?string
     {
-        if ($output === null) return null;
+        if ($output === null) {
+            return null;
+        }
         try {
             $normalized = mb_convert_encoding($output, 'UTF-8', 'UTF-8, ISO-8859-1, Windows-1252');
             $clean = @iconv('UTF-8', 'UTF-8//IGNORE', $normalized);
+
             return $clean !== false ? substr($clean, 0, 5000) : substr($output, 0, 5000);
         } catch (\Throwable $e) {
             return substr($output, 0, 5000);

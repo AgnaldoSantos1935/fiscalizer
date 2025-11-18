@@ -11,30 +11,32 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (Schema::hasTable('medicoes')) { return; }
+        if (Schema::hasTable('medicoes')) {
+            return;
+        }
 
         Schema::create('medicoes', function (Blueprint $table) {
-    $table->id();
+            $table->id();
 
-    $table->foreignId('contrato_id')->constrained('contratos')->onDelete('cascade');
-    $table->string('competencia', 7); // MM/AAAA
-    $table->enum('tipo', ['software', 'telco', 'fixo_mensal']);
+            $table->foreignId('contrato_id')->constrained('contratos')->onDelete('cascade');
+            $table->string('competencia', 7); // MM/AAAA
+            $table->enum('tipo', ['software', 'telco', 'fixo_mensal']);
 
-    $table->decimal('valor_bruto', 18, 2)->nullable();
-    $table->decimal('valor_desconto', 18, 2)->nullable();
-    $table->decimal('valor_liquido', 18, 2)->nullable();
+            $table->decimal('valor_bruto', 18, 2)->nullable();
+            $table->decimal('valor_desconto', 18, 2)->nullable();
+            $table->decimal('valor_liquido', 18, 2)->nullable();
 
-    $table->decimal('sla_alcancado', 5, 2)->nullable(); // telco
-    $table->decimal('sla_contratado', 5, 2)->nullable(); // telco
+            $table->decimal('sla_alcancado', 5, 2)->nullable(); // telco
+            $table->decimal('sla_contratado', 5, 2)->nullable(); // telco
 
-    $table->string('status')->default('rascunho');
-    // rascunho, enviado_fiscal_tecnico, aprovado, reprovado, enviado_pagamento
+            $table->string('status')->default('rascunho');
+            // rascunho, enviado_fiscal_tecnico, aprovado, reprovado, enviado_pagamento
 
-    $table->json('resumo_json')->nullable(); // qualquer agregado/calculo
-    $table->json('inconsistencias_json')->nullable();
+            $table->json('resumo_json')->nullable(); // qualquer agregado/calculo
+            $table->json('inconsistencias_json')->nullable();
 
-    $table->timestamps();
-});
+            $table->timestamps();
+        });
     }
 
     /**

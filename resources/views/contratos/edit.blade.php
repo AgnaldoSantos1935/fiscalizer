@@ -92,7 +92,7 @@
 
             {{-- Fiscais --}}
             <div class="tab-pane fade" id="fiscais">
-                @include('contratos.partials.tab_fiscais', ['users' => $users])
+                @include('contratos.partials.tab_fiscais', ['pessoas' => $pessoas])
             </div>
 
         </div>

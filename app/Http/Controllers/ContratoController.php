@@ -1,38 +1,33 @@
 <?php
 
-
 namespace App\Http\Controllers;
 
-
-use Illuminate\Support\Str;
-use App\Models\User;
 use App\Models\Contrato;
-use App\Models\SituacaoContrato;
 use App\Models\Documento;
 use App\Models\Empresa;
 use App\Models\Pessoa;
-use App\Models\Situacao;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use yajra\laravel\datatables\oracle;
-use function PHPUnit\Framework\assertDoesNotMatchRegularExpression;
 use App\Services\ContratoRiscoService;
 use App\Services\IAContratoService;
-use Illuminate\Support\Facades\Storage;
 use App\Services\LeitorDocumentoService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ContratoController extends Controller
 {
-
     public function getJsonContratos()
     {
         // 🔹 Carrega contratos com todas as relações importantes
         $contratos = Contrato::with([
             'contratada:id,razao_social,cnpj',
             'fiscalTecnico:id,nome_completo',
+            'suplenteFiscalTecnico:id,nome_completo',
             'fiscalAdministrativo:id,nome_completo',
+            'suplenteFiscalAdministrativo:id,nome_completo',
             'gestor:id,nome_completo',
-            'situacaoContrato:id,nome,cor,slug'
+            'situacaoContrato:id,nome,cor,slug',
         ])
             ->orderBy('id', 'desc')
             ->get();
@@ -65,10 +60,12 @@ class ContratoController extends Controller
                     ]
                     : null,
 
-                // 🔸 Fiscais e gestor
-                'fiscal_tecnico' => $c->fiscalTecnico->nome ?? null,
-                'fiscal_administrativo' => $c->fiscalAdministrativo->nome ?? null,
-                'gestor' => $c->gestor->nome ?? null,
+                // 🔸 Fiscais, suplentes e gestor
+                'fiscal_tecnico' => $c->fiscalTecnico->nome_completo ?? null,
+                'suplente_fiscal_tecnico' => $c->suplenteFiscalTecnico->nome_completo ?? null,
+                'fiscal_administrativo' => $c->fiscalAdministrativo->nome_completo ?? null,
+                'suplente_fiscal_administrativo' => $c->suplenteFiscalAdministrativo->nome_completo ?? null,
+                'gestor' => $c->gestor->nome_completo ?? null,
             ];
         });
 
@@ -76,44 +73,40 @@ class ContratoController extends Controller
         return response()->json(['data' => $dados]);
     }
 
-public function getContratoJson($id)
-{
-    // Se id for zero, string "0", null ou vazio → retorna todos
-    if ((int) $id === 0) {
-        return response()->json(
-            Contrato::orderBy('numero')
-                ->get(['id', 'numero', 'objeto'])
-        );
+    public function getContratoJson($id)
+    {
+        // Se id for zero, string "0", null ou vazio → retorna todos
+        if ((int) $id === 0) {
+            return response()->json(
+                Contrato::orderBy('numero')
+                    ->get(['id', 'numero', 'objeto'])
+            );
+        }
+
+        // Se não for zero → retorna o contrato + itens
+        $contrato = Contrato::with('itens', 'empresa')->findOrFail($id);
+
+        return response()->json([
+            'id' => $contrato->id,
+            'numero' => $contrato->numero,
+            'objeto' => $contrato->objeto,
+            'valor_global' => $contrato->valor_global,
+            'situacao' => $contrato->situacao,
+            'data_inicio' => $contrato->data_inicio,
+            'data_fim' => $contrato->data_fim,
+            'empresa' => $contrato->empresa?->only(['id', 'razao_social', 'cnpj']),
+            'itens' => $contrato->itens?->map(fn ($i) => [
+                'id' => $i->id,
+                'descricao' => $i->descricao,
+            ]) ?? [],
+        ]);
     }
-
-    // Se não for zero → retorna o contrato + itens
-    $contrato = Contrato::with('itens', 'empresa')->findOrFail($id);
-
-    return response()->json([
-        'id' => $contrato->id,
-        'numero' => $contrato->numero,
-        'objeto' => $contrato->objeto,
-        'valor_global' => $contrato->valor_global,
-        'situacao' => $contrato->situacao,
-        'data_inicio' => $contrato->data_inicio,
-        'data_fim' => $contrato->data_fim,
-        'empresa' => $contrato->empresa?->only(['id','razao_social','cnpj']),
-        'itens' => $contrato->itens?->map(fn($i) => [
-            'id' => $i->id,
-            'descricao' => $i->descricao
-        ]) ?? []
-    ]);
-}
-
-
-
 
     public function index(Request $request)
     {
 
         return view('contratos.index');
     }
-
 
     public function show($id)
     {
@@ -125,11 +118,18 @@ public function getContratoJson($id)
         $contrato = Contrato::with([
             'contratada:id,razao_social,cnpj',
             'situacaoContrato:id,nome,cor,slug',
+            'fiscalTecnico:id,nome_completo',
+            'suplenteFiscalTecnico:id,nome_completo',
+            'fiscalAdministrativo:id,nome_completo',
+            'suplenteFiscalAdministrativo:id,nome_completo',
+            'gestor:id,nome_completo',
             'itens:id,contrato_id,descricao_item,unidade_medida,quantidade,valor_unitario,valor_total,tipo_item',
             'empenhos.pagamentos:id,empenho_id,valor_pagamento,data_pagamento,documento,observacao',
             'documentos:id,contrato_id,documento_tipo_id,tipo,titulo,descricao,caminho_arquivo,data_upload,nova_data_fim',
-            'documentos.documentoTipo:id,nome,slug,permite_nova_data_fim'
+            'documentos.documentoTipo:id,nome,slug,permite_nova_data_fim',
         ])->findOrFail($id);
+
+        Gate::authorize('manage-contrato', $contrato);
 
         return response()->json([
             'id' => $contrato->id,
@@ -139,6 +139,11 @@ public function getContratoJson($id)
             'data_inicio' => $contrato->data_inicio,
             'data_fim' => $contrato->data_fim,
             'contratada' => $contrato->contratada,
+            'fiscal_tecnico' => optional($contrato->fiscalTecnico)->nome_completo,
+            'suplente_fiscal_tecnico' => optional($contrato->suplenteFiscalTecnico)->nome_completo,
+            'fiscal_administrativo' => optional($contrato->fiscalAdministrativo)->nome_completo,
+            'suplente_fiscal_administrativo' => optional($contrato->suplenteFiscalAdministrativo)->nome_completo,
+            'gestor' => optional($contrato->gestor)->nome_completo,
             'data_final' => $contrato->data_final,
             'vigencia_meses' => $contrato->vigencia_meses,
             'modalidade' => $contrato->modalidade,
@@ -151,7 +156,7 @@ public function getContratoJson($id)
                 'valor_empenhado' => $contrato->valor_empenhado,
                 'valor_pago' => $contrato->valor_pago,
                 'saldo' => $contrato->saldo_contrato,
-            ]
+            ],
 
         ]);
 
@@ -178,7 +183,9 @@ public function getContratoJson($id)
             'objeto' => 'required|string',
             'contratada_id' => 'required|exists:empresas,id',
             'fiscal_tecnico_id' => 'nullable|exists:pessoas,id',
+            'suplente_fiscal_tecnico_id' => 'nullable|exists:pessoas,id',
             'fiscal_administrativo_id' => 'nullable|exists:pessoas,id',
+            'suplente_fiscal_administrativo_id' => 'nullable|exists:pessoas,id',
             'gestor_id' => 'nullable|exists:pessoas,id',
             'valor_global' => 'required|numeric|min:0',
             'data_inicio' => 'nullable|date',
@@ -186,7 +193,6 @@ public function getContratoJson($id)
             'situacao' => 'nullable|string|in:vigente,encerrado,rescindido,suspenso',
             'tipo' => 'nullable|string|in:TI,Serviço,Obra,Material',
             'situacao_id' => 'nullable|exists:situacoes,id',
-            // vínculo opcional do PDF enviado na extração
             'documento_pdf_id' => 'nullable|exists:documentos,id',
         ]);
 
@@ -195,7 +201,7 @@ public function getContratoJson($id)
         $contrato = Contrato::create($validated);
 
         // Vincula documento PDF (se veio do fluxo de extração)
-        if (!empty($validated['documento_pdf_id'])) {
+        if (! empty($validated['documento_pdf_id'])) {
             $doc = Documento::find($validated['documento_pdf_id']);
             if ($doc) {
                 $doc->contrato_id = $contrato->id;
@@ -216,11 +222,9 @@ public function getContratoJson($id)
     {
         $contrato = Contrato::findOrFail($id);
         $empresas = Empresa::orderBy('razao_social')->get();
-        $pessoas = Pessoa::orderBy('nome')->get();
-        $users = User::orderBy('name')->get(); // para escolher fiscais/gestor
+        $pessoas = Pessoa::orderBy('nome_completo')->get();
 
-
-        return view('contratos.edit', compact('contrato', 'empresas', 'users', 'situacoes'));
+        return view('contratos.edit', compact('contrato', 'empresas', 'pessoas'));
     }
 
     /**
@@ -233,7 +237,7 @@ public function getContratoJson($id)
             ->orderByDesc('id')
             ->first();
 
-        if (!$doc) {
+        if (! $doc) {
             return redirect()->back()->with('error', 'Nenhum PDF de contrato encontrado.');
         }
 
@@ -250,7 +254,7 @@ public function getContratoJson($id)
     {
         $tipos = \App\Models\DocumentoTipo::where('ativo', true)
             ->orderBy('nome')
-            ->get(['id','nome','slug','permite_nova_data_fim']);
+            ->get(['id', 'nome', 'slug', 'permite_nova_data_fim']);
 
         return view('contratos.documentos.create', [
             'contrato' => $contrato,
@@ -263,14 +267,16 @@ public function getContratoJson($id)
      */
     public function update(Request $request, Contrato $contrato)
     {
+        Gate::authorize('manage-contrato', $contrato);
+
         $data = $request->validate([
             'numero' => 'required',
             'processo_origem' => 'nullable',
             'modalidade' => 'nullable',
             'objeto' => 'required',
             'objeto_resumido' => 'nullable',
-            'valor_global' => 'nullable|numeric',
-            'valor_mensal' => 'nullable|numeric',
+            'valor_global' => 'nullable',
+            'valor_mensal' => 'nullable',
             'quantidade_meses' => 'nullable|integer',
             'data_assinatura' => 'nullable|date',
             'data_inicio_vigencia' => 'nullable|date',
@@ -287,14 +293,113 @@ public function getContratoJson($id)
             'clausulas' => 'nullable',
             'riscos_detectados' => 'nullable',
             'anexos_detectados' => 'nullable',
+            'fiscal_tecnico_id' => 'nullable|exists:pessoas,id',
+            'suplente_fiscal_tecnico_id' => 'nullable|exists:pessoas,id',
+            'suplente_fiscal_tecnico_ativo' => 'nullable|boolean',
+            'fiscal_administrativo_id' => 'nullable|exists:pessoas,id',
+            'suplente_fiscal_administrativo_id' => 'nullable|exists:pessoas,id',
+            'suplente_fiscal_administrativo_ativo' => 'nullable|boolean',
+            'gestor_id' => 'nullable|exists:pessoas,id',
         ]);
 
-        // campos JSON vêm como textarea (string) -> transforma em array se quiser
+        foreach (['valor_global', 'valor_mensal'] as $k) {
+            if (array_key_exists($k, $data)) {
+                $data[$k] = $this->brToDecimal($data[$k]);
+            }
+        }
+
         foreach (['obrigacoes_contratada', 'obrigacoes_contratante', 'itens_fornecimento', 'clausulas', 'riscos_detectados', 'anexos_detectados'] as $campo) {
             if (isset($data[$campo]) && is_string($data[$campo])) {
                 $data[$campo] = json_decode($data[$campo], true);
             }
         }
+
+        $pessoaId = Pessoa::where('user_id', Auth::id())->value('id');
+        if ($pessoaId !== $contrato->gestor_id) {
+            unset(
+                $data['suplente_fiscal_tecnico_ativo'],
+                $data['suplente_fiscal_administrativo_ativo'],
+                $data['suplente_fiscal_tecnico_id'],
+                $data['suplente_fiscal_administrativo_id'],
+                $data['fiscal_tecnico_id'],
+                $data['fiscal_administrativo_id']
+            );
+        }
+        if (! (Auth::user()?->role_id === 1)) {
+            unset($data['gestor_id']);
+        }
+        if (! (Auth::user()?->role_id === 1)) {
+            unset($data['gestor_id']);
+        }
+        if (! (Auth::user()?->role_id === 1)) {
+            unset($data['gestor_id']);
+        }
+        if (! (Auth::user()?->role_id === 1)) {
+            unset($data['gestor_id']);
+        }
+        if (! (Auth::user()?->role_id === 1)) {
+            unset($data['gestor_id']);
+        }
+        if (! (Auth::user()?->role_id === 1)) {
+            unset($data['gestor_id']);
+        }
+        if (! (Auth::user()?->role_id === 1)) {
+            unset($data['gestor_id']);
+        }
+        if (! (Auth::user()?->role_id === 1)) {
+            unset($data['gestor_id']);
+        }
+        if (! (Auth::user()?->role_id === 1)) {
+            unset($data['gestor_id']);
+        }
+        if (! (Auth::user()?->role_id === 1)) {
+            unset($data['gestor_id']);
+        }
+        if (! (Auth::user()?->role_id === 1)) {
+            unset($data['gestor_id']);
+        }
+        if (! (Auth::user()?->role_id === 1)) {
+            unset($data['gestor_id']);
+        }
+        if (! (Auth::user()?->role_id === 1)) {
+            unset($data['gestor_id']);
+        }
+        if (! (Auth::user()?->role_id === 1)) {
+            unset($data['gestor_id']);
+        }
+        if (! (Auth::user()?->role_id === 1)) {
+            unset($data['gestor_id']);
+        }
+        if (! (Auth::user()?->role_id === 1)) {
+            unset($data['gestor_id']);
+        }
+        if (! (Auth::user()?->role_id === 1)) {
+            unset($data['gestor_id']);
+        }
+        if (! (Auth::user()?->role_id === 1)) {
+            unset($data['gestor_id']);
+        }
+
+        $contrato->update($data);
+
+        return redirect()
+            ->route('contratos.edit', $contrato->id)
+            ->with('success', 'Contrato atualizado com sucesso!');
+    }
+
+    private function brToDecimal(?string $val): ?float
+    {
+        if ($val === null) {
+            return null;
+        }
+        $clean = preg_replace('/[^\d,\.]/', '', $val);
+        if ($clean === '' || $clean === null) {
+            return null;
+        }
+        $clean = str_replace('.', '', $clean);
+        $clean = str_replace(',', '.', $clean);
+
+        return is_numeric($clean) ? (float) $clean : null;
     }
 
     /**
@@ -326,25 +431,26 @@ public function getContratoJson($id)
 
         $contrato->fiscais()->sync($map);
     }
-public function salvar(Request $request, ContratoRiscoService $riscoService)
-{
-    $data = $request->all();
 
-    $contrato = new Contrato();
-    $contrato->fill($data);
+    public function salvar(Request $request, ContratoRiscoService $riscoService)
+    {
+        $data = $request->all();
 
-    // calcula risco antes de salvar
-    $inconsistenciasIa = json_decode($data['inconsistencias_json'] ?? '[]', true);
-    $resultadoRisco = $riscoService->calcular($contrato, $inconsistenciasIa);
+        $contrato = new Contrato;
+        $contrato->fill($data);
 
-    $contrato->risco_score = $resultadoRisco['score'];
-    $contrato->risco_nivel = $resultadoRisco['nivel'];
-    $contrato->risco_detalhes_json = json_encode($resultadoRisco['detalhes']);
+        // calcula risco antes de salvar
+        $inconsistenciasIa = json_decode($data['inconsistencias_json'] ?? '[]', true);
+        $resultadoRisco = $riscoService->calcular($contrato, $inconsistenciasIa);
 
-    $contrato->save();
+        $contrato->risco_score = $resultadoRisco['score'];
+        $contrato->risco_nivel = $resultadoRisco['nivel'];
+        $contrato->risco_detalhes_json = json_encode($resultadoRisco['detalhes']);
 
-    // ...
-}
+        $contrato->save();
+
+        // ...
+    }
 
     /**
      * Extração automática de dados a partir de um PDF enviado.
@@ -371,7 +477,7 @@ public function salvar(Request $request, ContratoRiscoService $riscoService)
         $resultado = null;
         // Tenta IA somente se houver chave configurada
         $apiKey = config('services.openai.key');
-        if (!empty($apiKey)) {
+        if (! empty($apiKey)) {
             try {
                 $resultado = $ia->processarContrato($path, $file->getClientOriginalName());
             } catch (\Throwable $e) {
@@ -396,14 +502,14 @@ public function salvar(Request $request, ContratoRiscoService $riscoService)
         // Tenta localizar empresa pela informação extraída (CNPJ ou razão social)
         $contratadaId = null;
         $empresaInfo = $dados['empresa'] ?? $dados['contratada'] ?? [];
-        if (!empty($empresaInfo)) {
+        if (! empty($empresaInfo)) {
             $cnpj = $empresaInfo['cnpj'] ?? null;
             $razao = $empresaInfo['razao_social'] ?? ($empresaInfo['nome'] ?? null);
             if ($cnpj) {
                 $empresa = Empresa::where('cnpj', $cnpj)->first();
                 $contratadaId = $empresa?->id;
             }
-            if (!$contratadaId && $razao) {
+            if (! $contratadaId && $razao) {
                 $empresa = Empresa::where('razao_social', 'like', $razao)->first();
                 $contratadaId = $empresa?->id;
             }
@@ -411,7 +517,9 @@ public function salvar(Request $request, ContratoRiscoService $riscoService)
 
         // Normaliza datas para YYYY-MM-DD quando possível
         $normalizaData = function ($data) {
-            if (!$data) return null;
+            if (! $data) {
+                return null;
+            }
             try {
                 return (new \Carbon\Carbon($data))->format('Y-m-d');
             } catch (\Throwable $e) {
@@ -420,19 +528,19 @@ public function salvar(Request $request, ContratoRiscoService $riscoService)
         };
 
         // Fallback local: tenta extrair pelo texto do PDF
-        if (!$numero || !$valorGlobal || !$objeto || (!$dataInicio && !$dataFim)) {
+        if (! $numero || ! $valorGlobal || ! $objeto || (! $dataInicio && ! $dataFim)) {
             try {
-                $texto = (new LeitorDocumentoService())->extrairPdf($fullPath);
+                $texto = (new LeitorDocumentoService)->extrairPdf($fullPath);
 
                 // Número do contrato
-                if (!$numero) {
+                if (! $numero) {
                     if (preg_match('/(?:Contrato\s*(?:N[ºo]|No|N°)?\s*|Número\s*:?)\s*([\w\-\.\/]+)/i', $texto, $m)) {
                         $numero = $m[1] ?? $numero;
                     }
                 }
 
                 // Valor global
-                if (!$valorGlobal) {
+                if (! $valorGlobal) {
                     if (preg_match('/(?:Valor\s+(?:Global|Total)|Valor\s+do\s+Contrato)[^\d]*(R\$\s*[\d\.\,]+)/i', $texto, $m)) {
                         $valorStr = $m[1];
                         $valorStr = preg_replace('/[^\d\,\.]/', '', $valorStr);
@@ -442,23 +550,23 @@ public function salvar(Request $request, ContratoRiscoService $riscoService)
                 }
 
                 // Datas (pega duas primeiras datas no texto)
-                if (!$dataInicio || !$dataFim) {
+                if (! $dataInicio || ! $dataFim) {
                     preg_match_all('/\b(\d{2}\/\d{2}\/\d{4})\b/', $texto, $datas);
-                    if (!empty($datas[1])) {
+                    if (! empty($datas[1])) {
                         $dataInicio = $dataInicio ?: $datas[1][0] ?? null;
-                        $dataFim    = $dataFim ?: ($datas[1][1] ?? null);
+                        $dataFim = $dataFim ?: ($datas[1][1] ?? null);
                     }
                 }
 
                 // Objeto (pega trecho após "Objeto")
-                if (!$objeto) {
+                if (! $objeto) {
                     if (preg_match('/Objeto\s*:\s*(.+)/i', $texto, $m)) {
                         $objeto = trim($m[1]);
                     }
                 }
 
                 // Empresa por CNPJ
-                if (!$contratadaId) {
+                if (! $contratadaId) {
                     if (preg_match('/\b\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}\b/', $texto, $m)) {
                         $cnpjClean = preg_replace('/\D/', '', $m[0]);
                         $empresa = Empresa::where('cnpj', $cnpjClean)->first();
@@ -472,14 +580,14 @@ public function salvar(Request $request, ContratoRiscoService $riscoService)
 
         // Registra o documento na tabela 'documentos' (sem contrato ainda)
         $documento = Documento::create([
-            'contrato_id'   => null,
-            'tipo'          => 'contrato_pdf',
-            'titulo'        => $file->getClientOriginalName(),
-            'descricao'     => 'Cópia do contrato em PDF enviada na criação',
-            'caminho_arquivo'=> $savedPath,
-            'versao'        => null,
-            'data_upload'   => now(),
-            'created_by'    => Auth::id(),
+            'contrato_id' => null,
+            'tipo' => 'contrato_pdf',
+            'titulo' => $file->getClientOriginalName(),
+            'descricao' => 'Cópia do contrato em PDF enviada na criação',
+            'caminho_arquivo' => $savedPath,
+            'versao' => null,
+            'data_upload' => now(),
+            'created_by' => Auth::id(),
         ]);
 
         $payload = [
@@ -493,7 +601,7 @@ public function salvar(Request $request, ContratoRiscoService $riscoService)
                 'contratada_id' => $contratadaId,
             ],
             'empresa_extraida' => $empresaInfo,
-            'ia_status' => !empty($resultado) ? 'ok' : 'fallback',
+            'ia_status' => ! empty($resultado) ? 'ok' : 'fallback',
             'ia_error' => $iaErro ?? null,
             // retorno do documento armazenado
             'documento_id' => $documento->id ?? null,
@@ -528,22 +636,20 @@ public function salvar(Request $request, ContratoRiscoService $riscoService)
         $novaDataFim = $tipoEntidade->permite_nova_data_fim ? ($data['nova_data_fim'] ?? null) : null;
 
         Documento::create([
-            'contrato_id'    => $contrato->id,
-            'tipo'           => $tipoEntidade->slug,
+            'contrato_id' => $contrato->id,
+            'tipo' => $tipoEntidade->slug,
             'documento_tipo_id' => $tipoEntidade->id,
-            'titulo'         => $request->input('titulo') ?: $file->getClientOriginalName(),
-            'descricao'      => $request->input('descricao') ?: 'Documento anexado na tela de detalhes do contrato',
-            'caminho_arquivo'=> $savedPath,
-            'versao'         => null,
-            'data_upload'    => now(),
-            'nova_data_fim'  => $novaDataFim,
-            'created_by'     => \Illuminate\Support\Facades\Auth::id(),
+            'titulo' => $request->input('titulo') ?: $file->getClientOriginalName(),
+            'descricao' => $request->input('descricao') ?: 'Documento anexado na tela de detalhes do contrato',
+            'caminho_arquivo' => $savedPath,
+            'versao' => null,
+            'data_upload' => now(),
+            'nova_data_fim' => $novaDataFim,
+            'created_by' => \Illuminate\Support\Facades\Auth::id(),
         ]);
 
         return redirect()
             ->back()
             ->with('success', 'Documento do contrato anexado com sucesso.');
     }
-
-
 }

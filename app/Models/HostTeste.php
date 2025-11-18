@@ -12,7 +12,7 @@ class HostTeste extends Model
         'host_id', 'ip_origem', 'ip_destino', 'status_conexao',
         'latencia_ms', 'perda_pacotes', 'ttl', 'protocolo',
         'porta', 'tempo_resposta', 'traceroute', 'resolved_hostname',
-        'resultado_json', 'modo_execucao', 'executado_por'
+        'resultado_json', 'modo_execucao', 'executado_por',
     ];
 
     protected $casts = [
@@ -27,4 +27,3 @@ class HostTeste extends Model
         return $this->belongsTo(Host::class, 'host_id');
     }
 }
-

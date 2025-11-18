@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Contrato;
 use App\Models\Medicao;
 use App\Models\MedicaoItemTelco;
-use App\Models\Contrato;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
@@ -19,18 +19,18 @@ class MedicaoTelcoController extends Controller
     {
         $dados = $request->validate([
             'competencia' => 'required',
-            'valor_mensal_contratado' => 'required|numeric'
+            'valor_mensal_contratado' => 'required|numeric',
         ]);
 
         // 1) chama backend Python pra buscar SLA
         $backendUrl = config('services.monitor_backend.url'); // ex: http://monitor:8002
 
         $response = Http::post($backendUrl.'/telco/sla', [
-            'agent_id'   => $contrato->agent_id_telco,
+            'agent_id' => $contrato->agent_id_telco,
             'host_label' => null, // ou um host específico
         ]);
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             return back()->with('error', 'Não foi possível obter SLA do backend de monitoramento.');
         }
 
@@ -52,31 +52,31 @@ class MedicaoTelcoController extends Controller
 
         // 3) cria medição
         $medicao = Medicao::create([
-            'contrato_id'    => $contrato->id,
-            'competencia'    => $dados['competencia'],
-            'tipo'           => 'telco',
-            'valor_bruto'    => $dados['valor_mensal_contratado'],
+            'contrato_id' => $contrato->id,
+            'competencia' => $dados['competencia'],
+            'tipo' => 'telco',
+            'valor_bruto' => $dados['valor_mensal_contratado'],
             'valor_desconto' => $desconto,
-            'valor_liquido'  => $valorFinal,
+            'valor_liquido' => $valorFinal,
             'sla_contratado' => $slaContratado,
-            'sla_alcancado'  => $uptime,
-            'status'         => 'rascunho',
-            'resumo_json'    => json_encode($slaData),
+            'sla_alcancado' => $uptime,
+            'status' => 'rascunho',
+            'resumo_json' => json_encode($slaData),
         ]);
 
         // 4) item resumido (por contrato, ou você pode abrir por escola/link)
         MedicaoItemTelco::create([
-            'medicao_id'              => $medicao->id,
-            'escola_id'               => null, // se tiver
-            'localidade'              => $contrato->empresa_razao_social ?? null,
-            'link_id'                 => null,
-            'uptime_percent'          => $uptime,
-            'downtime_minutos'        => 0, // poderia vir do backend futuramente
-            'qtd_quedas'              => 0, // idem
+            'medicao_id' => $medicao->id,
+            'escola_id' => null, // se tiver
+            'localidade' => $contrato->empresa_razao_social ?? null,
+            'link_id' => null,
+            'uptime_percent' => $uptime,
+            'downtime_minutos' => 0, // poderia vir do backend futuramente
+            'qtd_quedas' => 0, // idem
             'valor_mensal_contratado' => $dados['valor_mensal_contratado'],
-            'valor_desconto'          => $desconto,
-            'valor_final'             => $valorFinal,
-            'eventos_json'            => null,
+            'valor_desconto' => $desconto,
+            'valor_final' => $valorFinal,
+            'eventos_json' => null,
         ]);
 
         return redirect()->route('medicoes.show', $medicao->id)

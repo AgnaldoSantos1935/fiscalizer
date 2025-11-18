@@ -4,8 +4,10 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
-    public function up(): void {
+return new class extends Migration
+{
+    public function up(): void
+    {
         Schema::create('servidores', function (Blueprint $table) {
             $table->id();
 
@@ -18,15 +20,16 @@ return new class extends Migration {
             $table->string('funcao')->nullable();
             $table->string('lotacao')->nullable();
             $table->date('data_admissao')->nullable();
-            $table->enum('vinculo', ['efetivo','comissionado','temporario','terceirizado'])->nullable();
-            $table->enum('situacao', ['ativo','inativo','afastado','aposentado'])->default('ativo');
+            $table->enum('vinculo', ['efetivo', 'comissionado', 'temporario', 'terceirizado'])->nullable();
+            $table->enum('situacao', ['ativo', 'inativo', 'afastado', 'aposentado'])->default('ativo');
             $table->decimal('salario', 12, 2)->nullable();
 
             $table->timestamps();
         });
     }
 
-    public function down(): void {
+    public function down(): void
+    {
         Schema::dropIfExists('servidores');
     }
 };

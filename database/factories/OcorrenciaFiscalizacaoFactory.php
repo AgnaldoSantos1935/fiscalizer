@@ -16,4 +16,3 @@ class OcorrenciaFiscalizacaoFactory extends Factory
         ];
     }
 }
-

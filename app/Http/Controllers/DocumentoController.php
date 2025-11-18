@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Documento;
 use App\Models\Contrato;
+use App\Models\Documento;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -12,12 +12,14 @@ class DocumentoController extends Controller
     public function index()
     {
         $documentos = Documento::with('contrato')->get();
+
         return view('documentos.index', compact('documentos'));
     }
 
     public function create()
     {
         $contratos = Contrato::all();
+
         return view('documentos.create', compact('contratos'));
     }
 
@@ -31,6 +33,7 @@ class DocumentoController extends Controller
         ]);
 
         Documento::create($validated);
+
         return redirect()->route('documentos.index')->with('success', 'Documento cadastrado!');
     }
 
@@ -40,11 +43,12 @@ class DocumentoController extends Controller
     public function visualizar(Documento $documento, Request $request)
     {
         $return_to = $request->input('return_to');
-        if (!$return_to) {
+        if (! $return_to) {
             // Fallback para página anterior ou índice de documentos
             $prev = url()->previous();
             $return_to = $prev ?: route('documentos.index');
         }
+
         return view('documentos.visualizar', compact('documento', 'return_to'));
     }
 
@@ -55,13 +59,14 @@ class DocumentoController extends Controller
     {
         $disk = Storage::disk('public');
         $path = $documento->caminho_arquivo;
-        if (!$path || !$disk->exists($path)) {
+        if (! $path || ! $disk->exists($path)) {
             abort(404, 'Arquivo não encontrado.');
         }
         $full = $disk->path($path);
+
         return response()->file($full, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="'.basename($full).'"'
+            'Content-Disposition' => 'inline; filename="'.basename($full).'"',
         ]);
     }
 
@@ -72,10 +77,11 @@ class DocumentoController extends Controller
     {
         $disk = Storage::disk('public');
         $path = $documento->caminho_arquivo;
-        if (!$path || !$disk->exists($path)) {
+        if (! $path || ! $disk->exists($path)) {
             abort(404, 'Arquivo não encontrado.');
         }
         $full = $disk->path($path);
+
         return response()->download($full, basename($full), [
             'Content-Type' => 'application/pdf',
         ]);
@@ -88,9 +94,10 @@ class DocumentoController extends Controller
     {
         $disk = Storage::disk('public');
         $path = $documento->caminho_arquivo;
-        if (!$path || !$disk->exists($path)) {
+        if (! $path || ! $disk->exists($path)) {
             abort(404, 'Arquivo não encontrado.');
         }
+
         // Renderiza uma página simples com iframe que aciona a impressão
         return view('documentos.print', compact('documento'));
     }

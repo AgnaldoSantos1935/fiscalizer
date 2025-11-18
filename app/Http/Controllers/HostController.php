@@ -10,42 +10,44 @@ class HostController extends Controller
     public function index()
     {
 
-        return view("hosts.index");
+        return view('hosts.index');
     }
+
     public function create()
     {
         return view('hosts.create');
     }
-public function getHostsJson()
-{
-    $hosts = Host::orderBy('nome_conexao')->get([
-        'id',
-        'nome_conexao',
-        'ip_atingivel',
-        'porta',
-        'provedor',
-        'descricao',
-        'tecnologia',
-        'tipo_monitoramento',
-        'status'
-    ]);
 
-    return response()->json([
-        'data' => $hosts   // <-- DataTables SÓ FUNCIONA com "data"
-    ]);
-}
+    public function getHostsJson()
+    {
+        $hosts = Host::orderBy('nome_conexao')->get([
+            'id',
+            'nome_conexao',
+            'ip_atingivel',
+            'porta',
+            'provedor',
+            'descricao',
+            'tecnologia',
+            'tipo_monitoramento',
+            'status',
+        ]);
+
+        return response()->json([
+            'data' => $hosts,   // <-- DataTables SÓ FUNCIONA com "data"
+        ]);
+    }
 
     public function store(Request $r)
     {
         $r->validate([
-            'nome_conexao'      => 'required|string|max:255',
-            'host_alvo'         => 'required',
-            'tipo_monitoramento'=> 'required|in:ping,porta,http,snmp,mikrotik,speedtest',
-            'porta'             => 'nullable|integer',
-            'snmp_community'    => 'nullable|string',
-            'mikrotik_user'     => 'nullable|string',
-            'mikrotik_pass'     => 'nullable|string',
-            'config_extra'      => 'nullable|json',
+            'nome_conexao' => 'required|string|max:255',
+            'host_alvo' => 'required',
+            'tipo_monitoramento' => 'required|in:ping,porta,http,snmp,mikrotik,speedtest',
+            'porta' => 'nullable|integer',
+            'snmp_community' => 'nullable|string',
+            'mikrotik_user' => 'nullable|string',
+            'mikrotik_pass' => 'nullable|string',
+            'config_extra' => 'nullable|json',
         ]);
 
         Host::create($r->all());
@@ -62,10 +64,10 @@ public function getHostsJson()
     public function update(Request $r, Host $host)
     {
         $r->validate([
-            'nome_conexao'      => 'required',
-            'host_alvo'         => 'required',
-            'tipo_monitoramento'=> 'required',
-            'config_extra'      => 'nullable|json',
+            'nome_conexao' => 'required',
+            'host_alvo' => 'required',
+            'tipo_monitoramento' => 'required',
+            'config_extra' => 'nullable|json',
         ]);
 
         $host->update($r->all());
@@ -73,24 +75,25 @@ public function getHostsJson()
         return redirect()->route('hosts.index')
             ->with('success', 'Host atualizado com sucesso!');
     }
+
     public function show(Host $host)
-{
-    return view('hosts.show', compact('host'));
-}
-public function status()
-{
-    $status = Host::with(['monitoramentos' => function($q){
-        $q->latest()->limit(1);
-    }])
-    ->get()
-    ->map(function($h){
-        return [
-            'id' => $h->id,
-            'status' => optional($h->monitoramentos->first())->online ? 1 : 0
-        ];
-    });
+    {
+        return view('hosts.show', compact('host'));
+    }
 
-    return response()->json($status);
-}
+    public function status()
+    {
+        $status = Host::with(['monitoramentos' => function ($q) {
+            $q->latest()->limit(1);
+        }])
+            ->get()
+            ->map(function ($h) {
+                return [
+                    'id' => $h->id,
+                    'status' => optional($h->monitoramentos->first())->online ? 1 : 0,
+                ];
+            });
 
+        return response()->json($status);
+    }
 }

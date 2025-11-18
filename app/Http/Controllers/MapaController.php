@@ -3,14 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Escola;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 class MapaController extends Controller
 {
-public function index()
+    public function index()
     {
         // Lista de DREs disponíveis para filtro
         $dres = DB::table('dres')
@@ -24,9 +23,9 @@ public function index()
     public function escolasGeoJson(Request $request)
     {
         $dreId = $request->input('dre_id');
-    // Detecta colunas disponíveis na tabela 'escolas' (case-insensitive)
+        // Detecta colunas disponíveis na tabela 'escolas' (case-insensitive)
         $cols = Schema::getColumnListing('escolas');
-    Log::info('MapaController: colunas detectadas em escolas', ['cols' => $cols]);
+        Log::info('MapaController: colunas detectadas em escolas', ['cols' => $cols]);
         $lcMap = [];
         foreach ($cols as $c) {
             $lcMap[strtolower($c)] = $c;
@@ -35,8 +34,11 @@ public function index()
         $find = function (array $cands) use ($lcMap) {
             foreach ($cands as $cand) {
                 $k = strtolower($cand);
-                if (isset($lcMap[$k])) return $lcMap[$k];
+                if (isset($lcMap[$k])) {
+                    return $lcMap[$k];
+                }
             }
+
             return null;
         };
 
@@ -50,28 +52,38 @@ public function index()
         $dreCol = $find(['dre']);
 
         // Se não há colunas de coordenadas, retorna vazio
-        if (!$latCol || !$lonCol) {
+        if (! $latCol || ! $lonCol) {
             return response()->json(['type' => 'FeatureCollection', 'features' => []]);
         }
 
         // Monta seleção com aliases consistentes
         $selects = [];
-    // prefixar colunas provenientes da tabela 'escolas' para evitar ambiguidade em joins
-    if ($idCol) $selects[] = "escolas.$idCol as id";
-    if ($nomeCol) $selects[] = "escolas.$nomeCol as nome";
-    if ($municipioCol) $selects[] = "escolas.$municipioCol as municipio";
-    if ($dependenciaCol) $selects[] = "escolas.$dependenciaCol as dependencia";
-    if ($codigoInepCol) $selects[] = "escolas.$codigoInepCol as codigo_inep";
-    $selects[] = "escolas.$latCol as latitude";
-    $selects[] = "escolas.$lonCol as longitude";
+        // prefixar colunas provenientes da tabela 'escolas' para evitar ambiguidade em joins
+        if ($idCol) {
+            $selects[] = "escolas.$idCol as id";
+        }
+        if ($nomeCol) {
+            $selects[] = "escolas.$nomeCol as nome";
+        }
+        if ($municipioCol) {
+            $selects[] = "escolas.$municipioCol as municipio";
+        }
+        if ($dependenciaCol) {
+            $selects[] = "escolas.$dependenciaCol as dependencia";
+        }
+        if ($codigoInepCol) {
+            $selects[] = "escolas.$codigoInepCol as codigo_inep";
+        }
+        $selects[] = "escolas.$latCol as latitude";
+        $selects[] = "escolas.$lonCol as longitude";
 
         $query = DB::table('escolas')->selectRaw(implode(', ', $selects))
-            ->whereNotNull('escolas.' . $latCol)
-            ->whereNotNull('escolas.' . $lonCol);
+            ->whereNotNull('escolas.'.$latCol)
+            ->whereNotNull('escolas.'.$lonCol);
 
         // Se houver coluna de dependencia administrativa, filtre por 'estadual'
         if ($dependenciaCol) {
-            $query->whereRaw('LOWER(COALESCE(' . $dependenciaCol . ', "")) = ?', [strtolower('estadual')]);
+            $query->whereRaw('LOWER(COALESCE('.$dependenciaCol.', "")) = ?', [strtolower('estadual')]);
         }
 
         // Se houver coluna 'dre' e tabela 'dres', tente fazer join para obter nome da dre
@@ -82,9 +94,9 @@ public function index()
             $dresMap = array_map('strtolower', $dresCols);
             $joinOn = null;
             if (in_array('id', $dresMap)) {
-                $joinOn = ['escolas.' . $dreCol, '=', 'dres.id'];
+                $joinOn = ['escolas.'.$dreCol, '=', 'dres.id'];
             } elseif (in_array('codigodre', $dresMap)) {
-                $joinOn = ['escolas.' . $dreCol, '=', 'dres.codigodre'];
+                $joinOn = ['escolas.'.$dreCol, '=', 'dres.codigodre'];
             }
             if ($joinOn) {
                 $query->leftJoin('dres', $joinOn[0], $joinOn[1], $joinOn[2]);

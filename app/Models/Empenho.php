@@ -21,7 +21,7 @@ class Empenho extends Model
         'natureza_despesa',
         'data_lancamento',
         'valor_extenso',
-        'valor_total'
+        'valor_total',
     ];
 
     protected $casts = [
@@ -59,15 +59,16 @@ class Empenho extends Model
     // 💰 Formatação amigável
     public function getValorTotalFormatadoAttribute()
     {
-        return 'R$ ' . number_format($this->valor_total ?? 0, 2, ',', '.');
+        return 'R$ '.number_format($this->valor_total ?? 0, 2, ',', '.');
     }
 
     public function getDataFormatadaAttribute()
     {
         return optional($this->data_lancamento)?->format('d/m/Y') ?? '—';
     }
+
     public function pagamentos()
-{
-    return $this->hasMany(Pagamentos::class);
-}
+    {
+        return $this->hasMany(Pagamentos::class);
+    }
 }

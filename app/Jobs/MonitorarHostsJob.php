@@ -9,8 +9,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Symfony\Component\Process\Process;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\Process\Process;
 
 class MonitorarHostsJob implements ShouldQueue
 {
@@ -24,7 +24,9 @@ class MonitorarHostsJob implements ShouldQueue
 
         foreach ($hosts as $host) {
             $ip = $host->ip_atingivel;
-            if (!$ip) continue;
+            if (! $ip) {
+                continue;
+            }
 
             try {
                 $inicio = microtime(true);
@@ -52,10 +54,10 @@ class MonitorarHostsJob implements ShouldQueue
 
                 Log::info("🌐 {$host->nome_conexao} ({$ip}) → {$status} ({$tempo} ms)");
             } catch (\Exception $e) {
-                Log::error("❌ Erro ao monitorar {$host->nome_conexao}: " . $e->getMessage());
+                Log::error("❌ Erro ao monitorar {$host->nome_conexao}: ".$e->getMessage());
             }
         }
 
-        Log::info("✅ Monitoramento concluído.");
+        Log::info('✅ Monitoramento concluído.');
     }
 }

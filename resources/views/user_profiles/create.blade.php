@@ -93,15 +93,19 @@
                     <div class="row">
                         <div class="col-md-3 mb-3">
                             <label class="form-label">CEP</label>
-                            <input type="text" name="cep" class="form-control">
+                            <input type="text" name="cep" class="form-control cep-input">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Endereço</label>
-                            <input type="text" name="endereco" class="form-control">
+                            <label class="form-label">Logradouro</label>
+                            <input type="text" name="logradouro" class="form-control">
                         </div>
                         <div class="col-md-3 mb-3">
                             <label class="form-label">Número</label>
                             <input type="text" name="numero" class="form-control">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Complemento</label>
+                            <input type="text" name="complemento" class="form-control">
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Bairro</label>

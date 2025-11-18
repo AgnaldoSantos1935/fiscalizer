@@ -2,17 +2,22 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Medicao extends Model
 {
-    protected $table = "medicoes";
+    protected $table = 'medicoes';
+
     protected $fillable = [
-        'contrato_id','competencia','tipo','valor_bruto','valor_desconto',
-        'valor_liquido','sla_alcancado','sla_contratado','status',
-        'resumo_json','inconsistencias_json'
+        'contrato_id', 'competencia', 'tipo', 'valor_bruto', 'valor_desconto',
+        'valor_liquido', 'sla_alcancado', 'sla_contratado', 'status',
+        'resumo_json', 'inconsistencias_json',
+    ];
+
+    protected $casts = [
+        'valor_bruto' => 'decimal:2',
+        'valor_desconto' => 'decimal:2',
+        'valor_liquido' => 'decimal:2',
     ];
 
     public function contrato()

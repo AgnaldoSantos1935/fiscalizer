@@ -16,7 +16,7 @@ class CheckRole
         $user = $request->user();
 
         // se não houver usuário autenticado ou sem papel definido
-        if (!$user || !method_exists($user, 'role') && !isset($user->role)) {
+        if (! $user || ! method_exists($user, 'role') && ! isset($user->role)) {
             abort(403, 'Acesso negado.');
         }
 
@@ -26,7 +26,7 @@ class CheckRole
             : $user->role;
 
         // se o papel não estiver na lista permitida
-        if (!$roleName || !in_array($roleName, $roles)) {
+        if (! $roleName || ! in_array($roleName, $roles)) {
             abort(403, 'Acesso negado.');
         }
 

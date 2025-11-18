@@ -1,11 +1,11 @@
 <?php
 
 namespace App\Http\Controllers\Auth;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
@@ -40,6 +40,7 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
         $this->middleware('auth')->only('logout');
     }
+
     public function login(Request $request)
     {
         $this->validateLogin($request);
@@ -50,6 +51,7 @@ class LoginController extends Controller
             $this->hasTooManyLoginAttempts($request)
         ) {
             $this->fireLockoutEvent($request);
+
             return $this->sendLockoutResponse($request);
         }
 
@@ -60,6 +62,7 @@ class LoginController extends Controller
             // 🛑 Bloqueia usuários com senha expirada
             if ($user->password_expires_at && now()->greaterThan($user->password_expires_at)) {
                 Auth::logout();
+
                 return back()
                     ->withInput($request->only('email'))
                     ->withErrors(['email' => trans('auth.password_expired')]);
@@ -75,6 +78,7 @@ class LoginController extends Controller
         // ❌ Retorno padrão de falha
         return $this->sendFailedLoginResponse($request);
     }
+
     protected function attemptLogin(Request $request)
     {
         $credentials = $this->credentials($request);
@@ -96,12 +100,12 @@ class LoginController extends Controller
         return false;
     }
 
-
     protected function sendFailedLoginResponse(Request $request)
     {
         // 🔹 Verifica se a sessão contém flag de expiração
         if (session('login_expired')) {
             session()->forget('login_expired'); // limpa para não repetir
+
             return back()
                 ->withInput($request->only('email'))
                 ->with('expired_message', '🔒 Sua senha expirou. Entre em contato com o administrador do sistema.');
@@ -112,6 +116,4 @@ class LoginController extends Controller
             $this->username() => [trans('auth.failed')],
         ]);
     }
-
-
 }

@@ -11,7 +11,7 @@ class ContratoFactory extends Factory
 
         return [
             'numero' => $this->faker->unique()->numerify('065/20##'),
-            'objeto' => 'Prestação de serviços de tecnologia da informação - ' . $this->faker->bs(),
+            'objeto' => 'Prestação de serviços de tecnologia da informação - '.$this->faker->bs(),
             'contratada_id' => \App\Models\Empresa::inRandomOrder()->first()->id ?? 1,
             'valor_global' => $this->faker->randomFloat(2, 100000, 5000000),
             'data_inicio' => $inicio,

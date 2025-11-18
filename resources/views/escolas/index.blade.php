@@ -237,6 +237,8 @@ $('#navDetalhes').on('click', e => {
 
         .then(r => r.json())
         .then(({ escola }) => {
+            const enderecoParts = [escola.logradouro, escola.numero, escola.complemento, escola.bairro, escola.Bairro].filter(v => !!v);
+            const enderecoTxt = enderecoParts.length ? enderecoParts.join(', ') : (escola.Endereco ?? escola.endereco ?? '-');
             $('#detalhesEscola').html(`
 
                 <tr><th>Nome</th><td>${escola.Escola}</td></tr>
@@ -244,7 +246,7 @@ $('#navDetalhes').on('click', e => {
                 <tr><th>UF</th><td>${escola.UF ?? '-'}</td></tr>
                 <tr><th>INEP</th><td>${escola.codigo_inep ?? '-'}</td></tr>
                 <tr><th>Telefone</th><td>${escola.Telefone ?? '-'}</td></tr>
-                <tr><th>Endereço</th><td>${escola.Endereco ?? '-'}</td></tr>
+                <tr><th>Endereço</th><td>${enderecoTxt}</td></tr>
                 <tr><th>DRE</th><td>${escola.dre?.nome_dre ?? '-'}</td></tr>
             `);
 
@@ -279,4 +281,3 @@ $('#navDetalhes').on('click', e => {
 });
 </script>
 @endsection
-

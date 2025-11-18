@@ -3,38 +3,36 @@
 namespace App\Http\Controllers;
 
 use App\Models\Contrato;
-use App\Models\Projeto;
 use App\Models\ContratoItem;
-
-use App\Models\User;
 use App\Models\DRE;
 use App\Models\Escola;
+use App\Models\Projeto;
+use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class ProjetoController extends Controller
 {
     private array $situacoes = [
-        'analise'               => 'Análise',
-        'planejado'             => 'Planejado',
-        'em_execucao'           => 'Em execução',
-        'homologacao'           => 'Homologação',
-        'aguardando_pagamento'  => 'Aguardando pagamento',
-        'concluido'             => 'Concluído',
-        'suspenso'              => 'Suspenso',
-        'cancelado'             => 'Cancelado',
+        'analise' => 'Análise',
+        'planejado' => 'Planejado',
+        'em_execucao' => 'Em execução',
+        'homologacao' => 'Homologação',
+        'aguardando_pagamento' => 'Aguardando pagamento',
+        'concluido' => 'Concluído',
+        'suspenso' => 'Suspenso',
+        'cancelado' => 'Cancelado',
     ];
 
     private array $prioridades = [
-        'baixa'  => 'Baixa',
-        'media'  => 'Média',
-        'alta'   => 'Alta',
-        'critica'=> 'Crítica',
+        'baixa' => 'Baixa',
+        'media' => 'Média',
+        'alta' => 'Alta',
+        'critica' => 'Crítica',
     ];
 
     private array $tecnologias = [
-        'PHP','Laravel','Node.js','React','Vue.js',
-        'MySQL','PostgreSQL','MongoDB','Docker','Kubernetes','Python'
+        'PHP', 'Laravel', 'Node.js', 'React', 'Vue.js',
+        'MySQL', 'PostgreSQL', 'MongoDB', 'Docker', 'Kubernetes', 'Python',
     ];
 
     // =========================
@@ -72,7 +70,7 @@ class ProjetoController extends Controller
     // =========================
     public function getJsonProjetos(Request $request)
     {
-        $q        = trim((string) $request->get('q'));
+        $q = trim((string) $request->get('q'));
         $situacao = $request->get('situacao');
 
         $query = Projeto::query();
@@ -103,13 +101,13 @@ class ProjetoController extends Controller
     // =========================
     public function create()
     {
-        $itensContrato  = ContratoItem::orderBy('descricao_item')->get();
-        $usuarios       = User::orderBy('name')->get();
-        $dres           = DRE::orderBy('nome_dre')->get();
-        $escolas        = Escola::orderBy('escola')->get();
-        $contratos        = Contrato::orderBy('id')->get();
+        $itensContrato = ContratoItem::orderBy('descricao_item')->get();
+        $usuarios = User::orderBy('name')->get();
+        $dres = DRE::orderBy('nome_dre')->get();
+        $escolas = Escola::orderBy('escola')->get();
+        $contratos = Contrato::orderBy('id')->get();
 
-        $situacoes   = $this->situacoes;
+        $situacoes = $this->situacoes;
         $prioridades = $this->prioridades;
         $tecnologias = $this->tecnologias;
 
@@ -129,6 +127,7 @@ class ProjetoController extends Controller
     {
         $ano = date('Y');
         $seq = Projeto::whereYear('created_at', $ano)->count() + 1;
+
         return sprintf('PROJ-%s-%04d', $ano, $seq);
     }
 
@@ -154,12 +153,12 @@ class ProjetoController extends Controller
     // =========================
     public function edit(Projeto $projeto)
     {
-        $itensContrato  = ContratoItem::orderBy('descricao')->get();
-        $usuarios       = User::orderBy('name')->get();
-        $dres           = DRE::orderBy('nome')->get();
-        $escolas        = Escola::orderBy('nome')->get();
+        $itensContrato = ContratoItem::orderBy('descricao')->get();
+        $usuarios = User::orderBy('name')->get();
+        $dres = DRE::orderBy('nome')->get();
+        $escolas = Escola::orderBy('nome')->get();
 
-        $situacoes   = $this->situacoes;
+        $situacoes = $this->situacoes;
         $prioridades = $this->prioridades;
         $tecnologias = $this->tecnologias;
 
@@ -181,24 +180,24 @@ class ProjetoController extends Controller
     public function update(Request $request, Projeto $projeto)
     {
         $data = $request->validate([
-            'codigo'             => 'nullable|string|max:50|unique:projetos,codigo,'.$projeto->id,
-            'titulo'             => 'required|string|max:255',
-            'descricao'          => 'nullable|string',
-            'sistema'            => 'nullable|string|max:150',
-            'modulo'             => 'nullable|string|max:150',
-            'contrato_id'        => 'nullable|integer|exists:contratos,id',
-            'itemcontrato_id'    => 'nullable|integer|exists:contrato_itens,id',
+            'codigo' => 'nullable|string|max:50|unique:projetos,codigo,'.$projeto->id,
+            'titulo' => 'required|string|max:255',
+            'descricao' => 'nullable|string',
+            'sistema' => 'nullable|string|max:150',
+            'modulo' => 'nullable|string|max:150',
+            'contrato_id' => 'nullable|integer|exists:contratos,id',
+            'itemcontrato_id' => 'nullable|integer|exists:contrato_itens,id',
             'gerente_tecnico_id' => 'nullable|integer|exists:users,id',
-            'gerente_adm_id'     => 'nullable|integer|exists:users,id',
-            'dre_id'             => 'nullable|integer|exists:dres,id',
-            'escola_id'          => 'nullable|integer|exists:escolas,id',
-            'data_inicio'        => 'nullable|date',
-            'data_fim'           => 'nullable|date|after_or_equal:data_inicio',
-            'situacao'           => 'required|string|in:'.implode(',', array_keys($this->situacoes)),
-            'prioridade'         => 'required|string|in:'.implode(',', array_keys($this->prioridades)),
-            'pf_planejado'       => 'nullable|numeric|min:0',
-            'ust_planejada'      => 'nullable|numeric|min:0',
-            'horas_planejadas'   => 'nullable|integer|min:0',
+            'gerente_adm_id' => 'nullable|integer|exists:users,id',
+            'dre_id' => 'nullable|integer|exists:dres,id',
+            'escola_id' => 'nullable|integer|exists:escolas,id',
+            'data_inicio' => 'nullable|date',
+            'data_fim' => 'nullable|date|after_or_equal:data_inicio',
+            'situacao' => 'required|string|in:'.implode(',', array_keys($this->situacoes)),
+            'prioridade' => 'required|string|in:'.implode(',', array_keys($this->prioridades)),
+            'pf_planejado' => 'nullable|numeric|min:0',
+            'ust_planejada' => 'nullable|numeric|min:0',
+            'horas_planejadas' => 'nullable|integer|min:0',
         ]);
 
         $projeto->update($data);
@@ -220,54 +219,52 @@ class ProjetoController extends Controller
             ->with('success', 'Projeto excluído com sucesso.');
     }
 
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'titulo' => ['required', 'string'],
+            'contrato_id' => ['required', 'exists:contratos,id'],
+            'itemcontrato_id' => ['nullable', 'exists:contrato_itens,id'],
+            // ... outros campos
+        ]);
 
-public function store(Request $request)
-{
-    $data = $request->validate([
-        'titulo'          => ['required', 'string'],
-        'contrato_id'     => ['required', 'exists:contratos,id'],
-        'itemcontrato_id' => ['nullable', 'exists:contrato_itens,id'],
-        // ... outros campos
-    ]);
+        $contrato = Contrato::with('itens')->findOrFail($data['contrato_id']);
 
-    $contrato = Contrato::with('itens')->findOrFail($data['contrato_id']);
-
-    if ($contrato->situacao !== 'Vigente') {
-        return back()->withErrors(['contrato_id' => 'Contrato não está vigente.'])->withInput();
-    }
-
-    if ($contrato->itens->isEmpty()) {
-        return back()->withErrors(['contrato_id' => 'Contrato não possui itens cadastrados.'])->withInput();
-    }
-
-    $item = null;
-    if (!empty($data['itemcontrato_id'])) {
-        $item = ContratoItem::where('contrato_id', $contrato->id)
-            ->where('id', $data['itemcontrato_id'])
-            ->where('ativo', true)
-            ->first();
-
-        if (!$item) {
-            return back()->withErrors(['itemcontrato_id' => 'Item de contrato inválido ou inativo.'])->withInput();
+        if ($contrato->situacao !== 'Vigente') {
+            return back()->withErrors(['contrato_id' => 'Contrato não está vigente.'])->withInput();
         }
+
+        if ($contrato->itens->isEmpty()) {
+            return back()->withErrors(['contrato_id' => 'Contrato não possui itens cadastrados.'])->withInput();
+        }
+
+        $item = null;
+        if (! empty($data['itemcontrato_id'])) {
+            $item = ContratoItem::where('contrato_id', $contrato->id)
+                ->where('id', $data['itemcontrato_id'])
+                ->where('ativo', true)
+                ->first();
+
+            if (! $item) {
+                return back()->withErrors(['itemcontrato_id' => 'Item de contrato inválido ou inativo.'])->withInput();
+            }
+        }
+
+        // Integração com o BPM: status inicial
+        $data['status'] = 'em_analise'; // ou 'novo', ou algo do seu workflow
+
+        // Se quiser herdar PF/UST base do item
+        if ($item) {
+            $data['pf_planejado'] = $data['pf_planejado'] ?? $item->pf_base;
+            $data['ust_planejada'] = $data['ust_planejada'] ?? $item->ust_base;
+        }
+
+        $projeto = Projeto::create($data);
+
+        // Aqui você pode disparar notificação para o fluxo BPM
+        // NotificationService::enviar(...);
+
+        return redirect()->route('projetos.show', $projeto->id)
+            ->with('success', 'Projeto criado e enviado para análise.');
     }
-
-    // Integração com o BPM: status inicial
-    $data['status'] = 'em_analise'; // ou 'novo', ou algo do seu workflow
-
-    // Se quiser herdar PF/UST base do item
-    if ($item) {
-        $data['pf_planejado']  = $data['pf_planejado']  ?? $item->pf_base;
-        $data['ust_planejada'] = $data['ust_planejada'] ?? $item->ust_base;
-    }
-
-    $projeto = Projeto::create($data);
-
-    // Aqui você pode disparar notificação para o fluxo BPM
-    // NotificationService::enviar(...);
-
-    return redirect()->route('projetos.show', $projeto->id)
-        ->with('success', 'Projeto criado e enviado para análise.');
-}
-
 }

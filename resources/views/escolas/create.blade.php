@@ -2,6 +2,14 @@
 @section('title', 'Nova Escola')
 
 @section('content')
+@section('breadcrumb')
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb bg-white px-3 py-2 rounded-3 shadow-sm">
+      <li class="breadcrumb-item"><a href="{{ route('escolas.index') }}" class="text-decoration-none text-primary fw-semibold"><i class="fas fa-school me-1"></i> Escolas</a></li>
+      <li class="breadcrumb-item active text-secondary fw-semibold">Nova Escola</li>
+    </ol>
+  </nav>
+@endsection
 <div class="container-fluid">
     <div class="card shadow-sm border-0 rounded-4">
         <div class="card-header bg-white border-0 d-flex align-items-center justify-content-between">
@@ -44,9 +52,25 @@
                     <input type="text" name="telefone" class="form-control form-control-sm" placeholder="(91) 99999-9999">
                 </div>
 
-                <div class="col-md-8">
-                    <label class="form-label fw-semibold small text-secondary">Endereço</label>
-                    <input type="text" name="endereco" class="form-control form-control-sm" placeholder="Rua, nº, bairro...">
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold small text-secondary">CEP</label>
+                    <input type="text" name="cep" class="form-control form-control-sm cep-input" placeholder="00000-000">
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label fw-semibold small text-secondary">Logradouro</label>
+                    <input type="text" name="logradouro" class="form-control form-control-sm" placeholder="Rua...">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold small text-secondary">Número</label>
+                    <input type="text" name="numero" class="form-control form-control-sm" placeholder="Nº">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold small text-secondary">Complemento</label>
+                    <input type="text" name="complemento" class="form-control form-control-sm" placeholder="Apto, bloco...">
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label fw-semibold small text-secondary">Bairro</label>
+                    <input type="text" name="bairro" class="form-control form-control-sm" placeholder="Bairro">
                 </div>
 
                 <div class="col-md-4">
@@ -60,9 +84,9 @@
                 </div>
             </div>
 
-            <div class="d-flex justify-content-end mt-4">
-                <a href="{{ route('escolas.index') }}" class="btn btn-outline-secondary btn-sm me-2">
-                    <i class="fas fa-arrow-left me-1"></i> Voltar
+            <div class="d-flex justify-content-end mt-4 gap-2">
+                <a href="{{ route('escolas.index') }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-times me-1"></i> Cancelar
                 </a>
                 <button type="submit" class="btn btn-primary btn-sm px-3">
                     <i class="fas fa-save me-1"></i> Salvar

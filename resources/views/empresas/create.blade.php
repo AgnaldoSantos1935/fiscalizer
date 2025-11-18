@@ -2,17 +2,15 @@
 @section('title', 'Nova Empresa')
 
 @section('content')
+@section('breadcrumb')
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb bg-white px-3 py-2 rounded-3 shadow-sm">
+      <li class="breadcrumb-item"><a href="{{ route('empresas.index') }}" class="text-decoration-none text-primary fw-semibold"><i class="fas fa-building me-1"></i> Empresas</a></li>
+      <li class="breadcrumb-item active text-secondary fw-semibold">Nova Empresa</li>
+    </ol>
+  </nav>
+@endsection
 <div class="container-fluid">
-
-    <!-- 🔹 Cabeçalho -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="text-secondary fw-semibold mb-0">
-            <i class="fas fa-plus-circle text-primary me-2"></i>Cadastro de Nova Empresa
-        </h4>
-        <a href="{{ route('empresas.index') }}" class="btn btn-outline-secondary btn-sm">
-            <i class="fas fa-arrow-left me-1"></i> Voltar à lista
-        </a>
-    </div>
 
     <!-- 🔹 Card principal -->
     <div class="card shadow-sm border-0 rounded-4">
@@ -48,7 +46,7 @@
                             CNPJ <span class="text-danger">*</span>
                         </label>
                         <input type="text" name="cnpj" id="cnpj"
-                               class="form-control form-control-sm @error('cnpj') is-invalid @enderror"
+                               class="form-control form-control-sm cnpj-input @error('cnpj') is-invalid @enderror"
                                value="{{ old('cnpj') }}" required>
                         @error('cnpj')
                             <div class="invalid-feedback small">{{ $message }}</div>
@@ -78,11 +76,25 @@
                                value="{{ old('telefone') }}">
                     </div>
 
+                    <div class="col-md-3">
+                        <label for="cep" class="form-label fw-semibold small text-secondary">CEP</label>
+                        <input type="text" name="cep" id="cep" class="form-control form-control-sm cep-input" value="{{ old('cep') }}">
+                    </div>
                     <div class="col-md-5">
-                        <label for="endereco" class="form-label fw-semibold small text-secondary">Endereço</label>
-                        <input type="text" name="endereco" id="endereco"
-                               class="form-control form-control-sm"
-                               value="{{ old('endereco') }}">
+                        <label for="logradouro" class="form-label fw-semibold small text-secondary">Logradouro</label>
+                        <input type="text" name="logradouro" id="logradouro" class="form-control form-control-sm" value="{{ old('logradouro') }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="numero" class="form-label fw-semibold small text-secondary">Número</label>
+                        <input type="text" name="numero" id="numero" class="form-control form-control-sm" value="{{ old('numero') }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="complemento" class="form-label fw-semibold small text-secondary">Complemento</label>
+                        <input type="text" name="complemento" id="complemento" class="form-control form-control-sm" value="{{ old('complemento') }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="bairro" class="form-label fw-semibold small text-secondary">Bairro</label>
+                        <input type="text" name="bairro" id="bairro" class="form-control form-control-sm" value="{{ old('bairro') }}">
                     </div>
 
                     <div class="col-md-3">
@@ -98,23 +110,13 @@
                                class="form-control form-control-sm text-uppercase"
                                value="{{ old('uf') }}">
                     </div>
-
-                    <div class="col-md-2">
-                        <label for="cep" class="form-label fw-semibold small text-secondary">CEP</label>
-                        <input type="text" name="cep" id="cep"
-                               class="form-control form-control-sm"
-                               value="{{ old('cep') }}">
-                    </div>
                 </div>
 
                 <!-- 🔹 Rodapé -->
-                <div class="mt-4 text-end">
-                    <button type="reset" class="btn btn-outline-secondary btn-sm px-3">
-                        <i class="fas fa-undo me-1"></i> Limpar
-                    </button>
-                    <button type="submit" class="btn btn-success btn-sm px-3">
-                        <i class="fas fa-save me-1"></i> Salvar Empresa
-                    </button>
+                <div class="mt-4 d-flex justify-content-end gap-2">
+                    <button type="reset" class="btn btn-outline-secondary btn-sm px-3"><i class="fas fa-undo me-1"></i> Limpar</button>
+                    <a href="{{ route('empresas.index') }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-times me-1"></i> Cancelar</a>
+                    <button type="submit" class="btn btn-success btn-sm px-3"><i class="fas fa-save me-1"></i> Salvar Empresa</button>
                 </div>
             </form>
         </div>
@@ -135,4 +137,39 @@ form .btn {
     border: none !important;
 }
 </style>
+@endsection
+@section('js')
+<script>
+(function(){
+  function maskCEP(v){
+    var d = (v||'').replace(/\D/g,'').slice(0,8);
+    if(d.length > 5) return d.slice(0,5)+'-'+d.slice(5);
+    return d;
+  }
+  async function viaCEP(cep){
+    var d = (cep||'').replace(/\D/g,'');
+    if(d.length !== 8) return null;
+    const r = await fetch('https://viacep.com.br/ws/'+d+'/json/');
+    const j = await r.json();
+    if(j && !j.erro) return j;
+    return null;
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    var cep = document.getElementById('cep');
+    if(cep){
+      cep.addEventListener('input', function(){ cep.value = maskCEP(cep.value); });
+      cep.addEventListener('blur', async function(){
+        const data = await viaCEP(cep.value);
+        if(data){
+          var $ = s => document.getElementById(s);
+          $('logradouro').value = data.logradouro || '';
+          $('bairro').value = data.bairro || '';
+          $('cidade').value = data.localidade || '';
+          $('uf').value = (data.uf || '').toUpperCase();
+        }
+      });
+    }
+  });
+})();
+</script>
 @endsection

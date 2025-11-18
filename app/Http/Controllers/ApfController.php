@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Projeto;
-use App\Models\Apf;
-use App\Http\Requests\StoreApfRequest;
 use App\Http\Requests\UpdateApfRequest;
+use App\Models\Apf;
+use App\Models\Projeto;
 
 class ApfController extends Controller
 {
     public function index(Projeto $projeto)
     {
         $apfs = $projeto->apfs()->latest()->paginate(20);
+
         return view('projetos.apf.index', compact('projeto', 'apfs'));
     }
 

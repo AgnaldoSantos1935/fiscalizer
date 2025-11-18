@@ -42,10 +42,10 @@ class ValidacaoApfUstService
 
                     if ($score >= 0.85) {
                         $inconsistencias[] =
-                            "Possível duplicidade detectada entre medições. " .
-                            "Item atual '{$item->descricao}' (Medição #{$medicao->id}) " .
-                            "é muito similar ao item '{$old->descricao}' (Medição #{$old->medicao_id}), " .
-                            "similaridade IA = " . round($score * 100, 2) . "%.";
+                            'Possível duplicidade detectada entre medições. '.
+                            "Item atual '{$item->descricao}' (Medição #{$medicao->id}) ".
+                            "é muito similar ao item '{$old->descricao}' (Medição #{$old->medicao_id}), ".
+                            'similaridade IA = '.round($score * 100, 2).'%.';
                     }
                 }
             }
@@ -94,21 +94,21 @@ class ValidacaoApfUstService
             // --- validações por item ---
             if ($item->tipo_contagem && $item->quantidade_pf > 0 && ($item->horas_executadas ?? 0) == 0) {
                 $inconsistencias[] =
-                    "Item '{$item->descricao}' possui pontos ({$item->quantidade_pf}) " .
-                    "mas horas executadas igual a zero.";
+                    "Item '{$item->descricao}' possui pontos ({$item->quantidade_pf}) ".
+                    'mas horas executadas igual a zero.';
             }
 
             if ($item->valor_total !== null && $item->valor_total != round($item->quantidade_pf * ($item->valor_unitario ?: 0), 2)) {
                 $inconsistencias[] =
-                    "Valor total do item '{$item->descricao}' não confere com " .
-                    "quantidade ({$item->quantidade_pf}) x valor unitário (R$ " .
-                    number_format($item->valor_unitario, 2, ',', '.') . ").";
+                    "Valor total do item '{$item->descricao}' não confere com ".
+                    "quantidade ({$item->quantidade_pf}) x valor unitário (R$ ".
+                    number_format($item->valor_unitario, 2, ',', '.').').';
             }
 
             if (($item->qtd_pessoas ?? 0) === 0 && ($item->horas_executadas ?? 0) > 0) {
                 $inconsistencias[] =
-                    "Item '{$item->descricao}' possui horas executadas " .
-                    "sem quantidade de pessoas informada.";
+                    "Item '{$item->descricao}' possui horas executadas ".
+                    'sem quantidade de pessoas informada.';
             }
         }
 
@@ -125,10 +125,10 @@ class ValidacaoApfUstService
 
             if ($dif > $limite) {
                 $inconsistencias[] =
-                    "Valor total da medição (R$ " . number_format($medicao->valor_total, 2, ',', '.') .
-                    ") não confere com o valor calculado pelos pontos (R$ " .
-                    number_format($totalValorCalculado, 2, ',', '.') . "). Diferença de R$ " .
-                    number_format($dif, 2, ',', '.') . ".";
+                    'Valor total da medição (R$ '.number_format($medicao->valor_total, 2, ',', '.').
+                    ') não confere com o valor calculado pelos pontos (R$ '.
+                    number_format($totalValorCalculado, 2, ',', '.').'). Diferença de R$ '.
+                    number_format($dif, 2, ',', '.').'.';
             }
         }
 
@@ -142,22 +142,22 @@ class ValidacaoApfUstService
 
             if ($horasPorPf < $minHorasPorPf) {
                 $inconsistencias[] =
-                    "Produtividade muito alta: " . number_format($horasPorPf, 2) .
-                    " h/PF (mínimo esperado: {$minHorasPorPf} h/PF). Possível subdeclaração de horas " .
-                    "ou contagem de PF acima do real.";
+                    'Produtividade muito alta: '.number_format($horasPorPf, 2).
+                    " h/PF (mínimo esperado: {$minHorasPorPf} h/PF). Possível subdeclaração de horas ".
+                    'ou contagem de PF acima do real.';
             }
 
             if ($horasPorPf > $maxHorasPorPf) {
                 $inconsistencias[] =
-                    "Produtividade muito baixa: " . number_format($horasPorPf, 2) .
-                    " h/PF (máximo recomendado: {$maxHorasPorPf} h/PF). Possível superdimensionamento " .
-                    "de horas ou subcontagem de pontos.";
+                    'Produtividade muito baixa: '.number_format($horasPorPf, 2).
+                    " h/PF (máximo recomendado: {$maxHorasPorPf} h/PF). Possível superdimensionamento ".
+                    'de horas ou subcontagem de pontos.';
             }
 
             // compara com referência contratual
             if ($horasPorPf > $horasPorPfRef * 1.5) {
                 $inconsistencias[] =
-                    "Horas por PF (" . number_format($horasPorPf, 2) .
+                    'Horas por PF ('.number_format($horasPorPf, 2).
                     " h/PF) muito acima da referência contratual ({$horasPorPfRef} h/PF).";
             }
         }
@@ -177,9 +177,9 @@ class ValidacaoApfUstService
 
             if ($totalHoras > $capacidadeMax * $fatorTol) {
                 $inconsistencias[] =
-                    "Horas declaradas ({$totalHoras} h) excedem a capacidade teórica da equipe " .
-                    "({$totalPessoas} pessoas x {$horasMesPessoa} h/mês x " .
-                    number_format($mesesAprox, 2) . " mês(es)).";
+                    "Horas declaradas ({$totalHoras} h) excedem a capacidade teórica da equipe ".
+                    "({$totalPessoas} pessoas x {$horasMesPessoa} h/mês x ".
+                    number_format($mesesAprox, 2).' mês(es)).';
             }
         }
 
@@ -197,15 +197,15 @@ class ValidacaoApfUstService
 
             if ($pfPorPessoaMes < $pfPorPessoaMesRef * 0.3) {
                 $inconsistencias[] =
-                    "Produtividade baixa: " . number_format($pfPorPessoaMes, 2) .
+                    'Produtividade baixa: '.number_format($pfPorPessoaMes, 2).
                     " PF/pessoa-mês (referência contratual: {$pfPorPessoaMesRef} PF/pessoa-mês).";
             }
 
             if ($pfPorPessoaMes > $pfPorPessoaMesRef * 2) {
                 $inconsistencias[] =
-                    "Produtividade muito alta: " . number_format($pfPorPessoaMes, 2) .
-                    " PF/pessoa-mês (acima do dobro da referência contratual de {$pfPorPessoaMesRef}). " .
-                    "Possível contagem superestimada de PF.";
+                    'Produtividade muito alta: '.number_format($pfPorPessoaMes, 2).
+                    " PF/pessoa-mês (acima do dobro da referência contratual de {$pfPorPessoaMesRef}). ".
+                    'Possível contagem superestimada de PF.';
             }
             /*
           |--------------------------------------------------------------------------
@@ -241,7 +241,7 @@ class ValidacaoApfUstService
                 ) {
 
                     $inconsistencias[] =
-                        "Item duplicado: hash único já consta em outra medição.";
+                        'Item duplicado: hash único já consta em outra medição.';
                 }
 
                 // D) duplicidade textual
@@ -254,7 +254,6 @@ class ValidacaoApfUstService
                 }
             }
 
-
         }
         // Regras APF/UST/hora/equipe
         $apfIncs = $this->detectarInconsistenciasApf($medicao);
@@ -263,8 +262,6 @@ class ValidacaoApfUstService
         // 🔥 Regras de duplicidade com IA
         $dupIa = $this->detectarDuplicidadeComIa($medicao);
         $inconsistencias = array_merge($inconsistencias, $dupIa);
-
-
 
         return $inconsistencias;
     }

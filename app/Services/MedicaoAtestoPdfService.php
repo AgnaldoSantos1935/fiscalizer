@@ -1,11 +1,11 @@
 <?php
 
 // app/Services/ApfCalculatorService.php
+
 namespace App\Services;
 
 class MedicaoAtestoPdfService
 {
-
     public function gerar(Medicao $medicao)
     {
         $medicao->load('contrato', 'itensSoftware', 'itensTelco', 'itensFixo');
@@ -19,5 +19,4 @@ class MedicaoAtestoPdfService
 
         return $path;
     }
-
 }

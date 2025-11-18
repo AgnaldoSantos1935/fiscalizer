@@ -2,16 +2,17 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Log;
 use App\Models\Host;
 use App\Models\HostTeste;
-use Symfony\Component\Process\Process;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
 
 class TestarConectividadeHosts extends Command
 {
     protected $signature = 'hosts:testar';
+
     protected $description = 'Executa testes de conectividade em todos os hosts ativos';
 
     public function handle()
@@ -26,6 +27,7 @@ class TestarConectividadeHosts extends Command
 
         if ($hosts->isEmpty()) {
             $this->warn('⚠️ Nenhum host ativo encontrado para testar.');
+
             return Command::SUCCESS;
         }
 
@@ -42,7 +44,7 @@ class TestarConectividadeHosts extends Command
                 Log::error("Erro no teste de conectividade do host {$host->id}", [
                     'host_id' => $host->id,
                     'erro' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString()
+                    'trace' => $e->getTraceAsString(),
                 ]);
             }
         }
@@ -57,7 +59,7 @@ class TestarConectividadeHosts extends Command
     {
         $ip = filter_var($host->ip_atingivel, FILTER_VALIDATE_IP);
 
-        if (!$ip) {
+        if (! $ip) {
             throw new \InvalidArgumentException("IP inválido: {$host->ip_atingivel}");
         }
 
@@ -158,13 +160,14 @@ class TestarConectividadeHosts extends Command
 
     private function determinarStatusConexao(Process $process, ?int $perda): string
     {
-        if (!$process->isSuccessful()) {
+        if (! $process->isSuccessful()) {
             return 'falha';
         }
         // Evita valores fora do ENUM da migration
         if ($perda !== null && $perda >= 75) {
             return 'falha';
         }
+
         return 'ativo';
     }
 
@@ -179,7 +182,7 @@ class TestarConectividadeHosts extends Command
                 }
             }
         } catch (\Exception $e) {
-            Log::warning('Não foi possível obter IP de origem: ' . $e->getMessage());
+            Log::warning('Não foi possível obter IP de origem: '.$e->getMessage());
         }
 
         return null;
@@ -190,11 +193,14 @@ class TestarConectividadeHosts extends Command
      */
     private function sanitizeOutput(?string $output): ?string
     {
-        if ($output === null) return null;
+        if ($output === null) {
+            return null;
+        }
         // Normaliza para UTF-8 e remove bytes inválidos
         try {
             $normalized = mb_convert_encoding($output, 'UTF-8', 'UTF-8, ISO-8859-1, Windows-1252');
             $clean = @iconv('UTF-8', 'UTF-8//IGNORE', $normalized);
+
             // Limita tamanho para evitar campos enormes
             return $clean !== false ? substr($clean, 0, 5000) : substr($output, 0, 5000);
         } catch (\Throwable $e) {

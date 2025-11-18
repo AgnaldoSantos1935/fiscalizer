@@ -1,16 +1,17 @@
 <?php
 
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Medicao;
+
 class MedicaoItemSoftware extends Model
 {
-
     protected $table = "medicao_itens_software'";
+
     protected $fillable = [
-        'medicao_id','demanda_id','os_id','sistema','modulo','descricao',
-        'pf','ust','horas','qtd_pessoas','valor_unitario_pf','valor_unitario_ust',
-        'valor_total','hash_unico',
+        'medicao_id', 'demanda_id', 'os_id', 'sistema', 'modulo', 'descricao',
+        'pf', 'ust', 'horas', 'qtd_pessoas', 'valor_unitario_pf', 'valor_unitario_ust',
+        'valor_total', 'hash_unico',
     ];
 
     public function medicao()

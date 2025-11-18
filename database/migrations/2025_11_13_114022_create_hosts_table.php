@@ -11,38 +11,38 @@ return new class extends Migration
         Schema::table('hosts', function (Blueprint $table) {
 
             // Tipo de monitoramento: ping, porta, http, snmp, mikrotik, speedtest
-            if (!Schema::hasColumn('hosts', 'tipo_monitoramento')) {
+            if (! Schema::hasColumn('hosts', 'tipo_monitoramento')) {
                 $table->enum('tipo_monitoramento', [
                     'ping',
                     'porta',
                     'http',
                     'snmp',
                     'mikrotik',
-                    'speedtest'
+                    'speedtest',
                 ])->default('ping')->after('status');
             }
 
             // Alvo formal (IP/URL) — diferente de ip_atingivel
-            if (!Schema::hasColumn('hosts', 'host_alvo')) {
+            if (! Schema::hasColumn('hosts', 'host_alvo')) {
                 $table->string('host_alvo')->nullable()->after('tipo_monitoramento');
             }
 
             // Comunidade SNMP
-            if (!Schema::hasColumn('hosts', 'snmp_community')) {
+            if (! Schema::hasColumn('hosts', 'snmp_community')) {
                 $table->string('snmp_community')->nullable()->after('host_alvo');
             }
 
             // Credenciais Mikrotik
-            if (!Schema::hasColumn('hosts', 'mikrotik_user')) {
+            if (! Schema::hasColumn('hosts', 'mikrotik_user')) {
                 $table->string('mikrotik_user')->nullable()->after('snmp_community');
             }
 
-            if (!Schema::hasColumn('hosts', 'mikrotik_pass')) {
+            if (! Schema::hasColumn('hosts', 'mikrotik_pass')) {
                 $table->string('mikrotik_pass')->nullable()->after('mikrotik_user');
             }
 
             // JSON extra para expandir configurações futuras
-            if (!Schema::hasColumn('hosts', 'config_extra')) {
+            if (! Schema::hasColumn('hosts', 'config_extra')) {
                 $table->json('config_extra')->nullable()->after('mikrotik_pass');
             }
         });

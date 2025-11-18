@@ -21,15 +21,20 @@ class ContratoItem extends Model
         'tipo_item',
         'status',
         'created_by',
-        'updated_by'
+        'updated_by',
+    ];
+
+    protected $casts = [
+        'quantidade' => 'decimal:2',
+        'valor_unitario' => 'decimal:2',
+        'valor_total' => 'decimal:2',
     ];
 
     // 🔗 Relação com o contrato
     public function contrato()
-{
-    return $this->belongsTo(Contrato::class, 'contrato_id');
-}
-
+    {
+        return $this->belongsTo(Contrato::class, 'contrato_id');
+    }
 
     // ⚙️ Cálculo automático do valor total
     protected static function booted()

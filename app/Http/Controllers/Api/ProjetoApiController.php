@@ -4,17 +4,13 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Projeto;
-use App\Models\Apf;
-use App\Models\AtividadeTecnica;
-use App\Models\MedicaoItem;
-use App\Models\BoletimMedicao;
 
 class ProjetoApiController extends Controller
 {
     public function apf(Projeto $projeto)
     {
         $apfs = $projeto->apfs()
-            ->select('id','total_pf','observacao','created_at')
+            ->select('id', 'total_pf', 'observacao', 'created_at')
             ->orderByDesc('created_at')
             ->get();
 
@@ -24,7 +20,7 @@ class ProjetoApiController extends Controller
     public function atividades(Projeto $projeto)
     {
         $atividades = $projeto->atividades()
-            ->select('id','data','etapa','analista','horas','descricao')
+            ->select('id', 'data', 'etapa', 'analista', 'horas', 'descricao')
             ->orderByDesc('data')
             ->get();
 
@@ -34,10 +30,11 @@ class ProjetoApiController extends Controller
     public function medicao(Projeto $projeto)
     {
         $itens = $projeto->itensMedicao()
-            ->select('id','descricao','quantidade','valor_unitario')
+            ->select('id', 'descricao', 'quantidade', 'valor_unitario')
             ->get()
             ->map(function ($item) {
                 $item->total = $item->quantidade * $item->valor_unitario;
+
                 return $item;
             });
 
@@ -47,7 +44,7 @@ class ProjetoApiController extends Controller
     public function boletins(Projeto $projeto)
     {
         $boletins = $projeto->boletins()
-            ->select('id','total_pf','total_ust','valor_total','data_emissao')
+            ->select('id', 'total_pf', 'total_ust', 'valor_total', 'data_emissao')
             ->orderByDesc('data_emissao')
             ->get();
 
@@ -61,12 +58,12 @@ class ProjetoApiController extends Controller
     {
         $boletins = $projeto->boletins()
             ->orderBy('data_emissao')
-            ->get(['data_emissao','total_pf','total_ust']);
+            ->get(['data_emissao', 'total_pf', 'total_ust']);
 
         return response()->json([
-            'labels' => $boletins->pluck('data_emissao')->map(fn($d) => $d?->format('m/Y')),
-            'pf'     => $boletins->pluck('total_pf'),
-            'ust'    => $boletins->pluck('total_ust'),
+            'labels' => $boletins->pluck('data_emissao')->map(fn ($d) => $d?->format('m/Y')),
+            'pf' => $boletins->pluck('total_pf'),
+            'ust' => $boletins->pluck('total_ust'),
         ]);
     }
 
@@ -75,16 +72,16 @@ class ProjetoApiController extends Controller
     {
         $atividades = $projeto->atividades()
             ->whereNotNull('data')
-            ->get(['data','horas']);
+            ->get(['data', 'horas']);
 
-        $grouped = $atividades->groupBy(fn($a) => $a->data->format('Y-m'));
+        $grouped = $atividades->groupBy(fn ($a) => $a->data->format('Y-m'));
 
         $labels = [];
-        $horas  = [];
+        $horas = [];
 
         foreach ($grouped as $periodo => $lista) {
             $labels[] = \Carbon\Carbon::createFromFormat('Y-m', $periodo)->format('m/Y');
-            $horas[]  = $lista->sum('horas');
+            $horas[] = $lista->sum('horas');
         }
 
         return response()->json(compact('labels','horas'));

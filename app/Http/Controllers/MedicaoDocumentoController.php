@@ -5,10 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Medicao;
 use App\Models\MedicaoDocumento;
 use App\Models\MedicaoNotaFiscal;
-use App\Services\ValidadorNotaFiscalService;
 use App\Services\ValidacaoMedicaoService;
+use App\Services\ValidadorNotaFiscalService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class MedicaoDocumentoController extends Controller
 {
@@ -39,9 +38,9 @@ class MedicaoDocumentoController extends Controller
 
             $doc = MedicaoDocumento::create([
                 'medicao_id' => $medicao->id,
-                'tipo'       => $tipo,
-                'arquivo'    => $path,
-                'status'     => 'pendente',
+                'tipo' => $tipo,
+                'arquivo' => $path,
+                'status' => 'pendente',
             ]);
 
             // Se for NF, vincula/atualiza registro de NF
@@ -64,7 +63,7 @@ class MedicaoDocumentoController extends Controller
         $medicao = Medicao::with(['notaFiscal', 'contrato.empresa'])->findOrFail($medicaoId);
         $nf = $medicao->notaFiscal;
 
-        if (!$nf) {
+        if (! $nf) {
             return back()->with('error', 'Nenhuma Nota Fiscal cadastrada para esta medição.');
         }
 
@@ -120,9 +119,9 @@ class MedicaoDocumentoController extends Controller
         // Cria novo doc
         $doc = MedicaoDocumento::create([
             'medicao_id' => $medicao->id,
-            'tipo'       => $tipo,
-            'arquivo'    => $path,
-            'status'     => 'pendente',
+            'tipo' => $tipo,
+            'arquivo' => $path,
+            'status' => 'pendente',
         ]);
 
         // Atualiza/Cria NF e valida
@@ -145,7 +144,7 @@ class MedicaoDocumentoController extends Controller
         ])->findOrFail($medicaoId);
 
         $contrato = $medicao->contrato;
-        $nf       = $medicao->notaFiscal;
+        $nf = $medicao->notaFiscal;
 
         // Valor da planilha extraído previamente e salvo em campo valor_extraido (exemplo)
         $valorPlanilha = optional(
@@ -159,7 +158,7 @@ class MedicaoDocumentoController extends Controller
         );
 
         $resultadoValidacao = [
-            'status'   => count($inconsistencias) === 0 ? 'aprovado' : 'reprovado',
+            'status' => count($inconsistencias) === 0 ? 'aprovado' : 'reprovado',
             'mensagem' => count($inconsistencias) === 0
                 ? 'Todos os valores e documentos conferem.'
                 : 'Existem inconsistências que precisam ser corrigidas antes do atesto.',
@@ -206,24 +205,24 @@ class MedicaoDocumentoController extends Controller
         // Vou colocar um stub simples que você substitui pela leitura de fato.
 
         $dadosExtraidos = [
-            'chave'          => null,
-            'numero'         => null,
+            'chave' => null,
+            'numero' => null,
             'cnpj_prestador' => $medicao->contrato->empresa->cnpj,
-            'cnpj_tomador'   => null,
-            'valor'          => $medicao->valor_total,
-            'tipo'           => $doc->tipo,
+            'cnpj_tomador' => null,
+            'valor' => $medicao->valor_total,
+            'tipo' => $doc->tipo,
         ];
 
         $nf = MedicaoNotaFiscal::updateOrCreate(
             ['medicao_id' => $medicao->id],
             [
-                'chave'          => $dadosExtraidos['chave'],
-                'numero'         => $dadosExtraidos['numero'],
+                'chave' => $dadosExtraidos['chave'],
+                'numero' => $dadosExtraidos['numero'],
                 'cnpj_prestador' => $dadosExtraidos['cnpj_prestador'],
-                'cnpj_tomador'   => $dadosExtraidos['cnpj_tomador'],
-                'valor'          => $dadosExtraidos['valor'],
-                'tipo'           => $dadosExtraidos['tipo'],
-                'status'         => 'pendente',
+                'cnpj_tomador' => $dadosExtraidos['cnpj_tomador'],
+                'valor' => $dadosExtraidos['valor'],
+                'tipo' => $dadosExtraidos['tipo'],
+                'status' => 'pendente',
             ]
         );
 

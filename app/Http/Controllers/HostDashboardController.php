@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Host;
 use App\Models\HostTeste;
-use App\Models\Contrato;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class HostDashboardController extends Controller
@@ -32,7 +31,7 @@ class HostDashboardController extends Controller
 
         $query = HostTeste::whereBetween('created_at', [$inicio, $fim])
             ->when($provedor, function ($q) use ($provedor) {
-                $q->whereHas('host', fn($h) => $h->where('provedor', $provedor));
+                $q->whereHas('host', fn ($h) => $h->where('provedor', $provedor));
             });
 
         $total = $query->count();
@@ -97,51 +96,51 @@ class HostDashboardController extends Controller
 
         return response()->json($testes);
     }
+
     public function historicoAjax(Request $request)
-{
-    if ($request->ajax()) {
-        $inicio = $request->input('inicio', now()->subDays(30)->toDateString());
-        $fim = $request->input('fim', now()->toDateString());
-        $provedor = $request->input('provedor');
-        $hostId = $request->input('host_id');
+    {
+        if ($request->ajax()) {
+            $inicio = $request->input('inicio', now()->subDays(30)->toDateString());
+            $fim = $request->input('fim', now()->toDateString());
+            $provedor = $request->input('provedor');
+            $hostId = $request->input('host_id');
 
-        $query = HostTeste::with('host')
-            ->whereBetween('created_at', [$inicio, $fim])
-            ->when($provedor, fn($q) =>
-                $q->whereHas('host', fn($h) => $h->where('provedor', 'like', "%$provedor%"))
-            )
-            ->when($hostId, fn($q) => $q->where('host_id', $hostId))
-            ->orderBy('created_at', 'desc');
+            $query = HostTeste::with('host')
+                ->whereBetween('created_at', [$inicio, $fim])
+                ->when($provedor, fn ($q) => $q->whereHas('host', fn ($h) => $h->where('provedor', 'like', "%$provedor%"))
+                )
+                ->when($hostId, fn ($q) => $q->where('host_id', $hostId))
+                ->orderBy('created_at', 'desc');
 
-        return datatables()->of($query)
-            ->addIndexColumn()
-            ->addColumn('nome_conexao', fn($row) => $row->host->nome_conexao ?? '—')
-            ->addColumn('provedor', fn($row) => $row->host->provedor ?? '—')
-            ->addColumn('status_conexao', function ($row) {
-                $status = strtolower($row->status_conexao);
-                $badge = match ($status) {
-                    'ativo' => 'success',
-                    'falha' => 'danger',
-                    default => 'secondary'
-                };
-                return "<span class='badge bg-$badge text-uppercase px-3 py-2'>
+            return datatables()->of($query)
+                ->addIndexColumn()
+                ->addColumn('nome_conexao', fn ($row) => $row->host->nome_conexao ?? '—')
+                ->addColumn('provedor', fn ($row) => $row->host->provedor ?? '—')
+                ->addColumn('status_conexao', function ($row) {
+                    $status = strtolower($row->status_conexao);
+                    $badge = match ($status) {
+                        'ativo' => 'success',
+                        'falha' => 'danger',
+                        default => 'secondary'
+                    };
+
+                    return "<span class='badge bg-$badge text-uppercase px-3 py-2'>
                             <i class='fas fa-circle me-1'></i>$status
                         </span>";
-            })
-            ->addColumn('latencia_ms', fn($row) => $row->latencia_ms ? number_format($row->latencia_ms, 2, ',', '.') . ' ms' : '—')
-            ->addColumn('perda_pacotes', fn($row) => $row->perda_pacotes ? number_format($row->perda_pacotes, 1, ',', '.') . '%' : '—')
-            ->addColumn('modo_execucao', fn($row) => ucfirst($row->modo_execucao))
-            ->addColumn('executado_por', fn($row) => $row->executado_por ?? '—')
-            ->addColumn('created_at', fn($row) => $row->created_at->format('d/m/Y H:i'))
-            ->rawColumns(['status_conexao'])
-            ->make(true);
+                })
+                ->addColumn('latencia_ms', fn ($row) => $row->latencia_ms ? number_format($row->latencia_ms, 2, ',', '.').' ms' : '—')
+                ->addColumn('perda_pacotes', fn ($row) => $row->perda_pacotes ? number_format($row->perda_pacotes, 1, ',', '.').'%' : '—')
+                ->addColumn('modo_execucao', fn ($row) => ucfirst($row->modo_execucao))
+                ->addColumn('executado_por', fn ($row) => $row->executado_por ?? '—')
+                ->addColumn('created_at', fn ($row) => $row->created_at->format('d/m/Y H:i'))
+                ->rawColumns(['status_conexao'])
+                ->make(true);
+        }
+
+        // Filtros para o select
+        $hosts = Host::orderBy('nome_conexao')->get();
+        $provedores = $hosts->pluck('provedor')->unique()->filter();
+
+        return view('host_testes.historico', compact('hosts', 'provedores'));
     }
-
-    // Filtros para o select
-    $hosts = Host::orderBy('nome_conexao')->get();
-    $provedores = $hosts->pluck('provedor')->unique()->filter();
-
-    return view('host_testes.historico', compact('hosts', 'provedores'));
-}
-
 }

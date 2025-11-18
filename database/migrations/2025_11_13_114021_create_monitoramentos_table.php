@@ -9,7 +9,7 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-   public function up(): void
+    public function up(): void
     {
         // Evita erro quando a tabela já existe em ambientes com base pré-carregada
         if (Schema::hasTable('monitoramentos')) {

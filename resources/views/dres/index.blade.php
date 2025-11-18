@@ -234,13 +234,15 @@ $(document).ready(function() {
             .then(resp => resp.json())
             .then(data => {
                 const d = data.dre;
+                const enderecoParts = [d.logradouro, d.numero, d.complemento, d.bairro].filter(v => !!v);
+                const enderecoTxt = enderecoParts.length ? enderecoParts.join(', ') : (d.endereco ?? '-');
                 $('#detalhesDre').html(`
                     <tr><th>Código</th><td>${d.codigodre}</td></tr>
                     <tr><th>Nome</th><td>${d.nome_dre}</td></tr>
                     <tr><th>Município</th><td>${d.municipio_sede}</td></tr>
                     <tr><th>Email</th><td>${d.email ?? '-'}</td></tr>
                     <tr><th>Telefone</th><td>${d.telefone ?? '-'}</td></tr>
-                    <tr><th>Endereço</th><td>${d.endereco ?? '-'}</td></tr>
+                    <tr><th>Endereço</th><td>${enderecoTxt}</td></tr>
                 `);
                 const modalDetalhes = new bootstrap.Modal(document.getElementById('modalDetalhesDre'));
                 modalDetalhes.show();
