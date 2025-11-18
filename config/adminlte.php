@@ -190,15 +190,15 @@ return [
     |
     */
 
-    'classes_body' => '',
+    'classes_body' => 'footer-custom theme-fiscalizer preset-fiscalizer-dark-navy',
     'classes_brand' => '',
     'classes_brand_text' => '',
-    'classes_content_wrapper' => '',
+    'classes_content_wrapper' => 'content-custom',
     'classes_content_header' => '',
-    'classes_content' => '',
-    'classes_sidebar' => 'sidebar-dark-primary elevation-4',
+    'classes_content' => 'content-custom',
+    'classes_sidebar' => 'sidebar-dark-primary elevation-4 sidebar-custom',
     'classes_sidebar_nav' => '',
-    'classes_topnav' => 'navbar-white navbar-light',
+    'classes_topnav' => 'navbar-dark navbar-primary topnav-custom',
     'classes_topnav_nav' => 'navbar-expand',
     'classes_topnav_container' => 'container',
 
@@ -435,6 +435,26 @@ return [
             'can' => 'view-documentos', // Gate permission
         ],
 
+        // Removido: Atalhos diretos para Termos de Referência (mantido apenas menu "Contratações")
+
+        [
+            'text' => 'Contratações',
+            'route' => '',
+            'icon' => 'fas fa-fw fa-file-signature',
+            'submenu' => [
+                [
+                    'text' => 'Termos de Referência',
+                    'route' => 'contratacoes.termos-referencia.index',
+                    'icon' => 'fas fa-fw fa-list',
+                ],
+                [
+                    'text' => 'Novo Termo',
+                    'route' => 'contratacoes.termos-referencia.create',
+                    'icon' => 'fas fa-fw fa-plus',
+                ],
+            ],
+        ],
+
         [
             'text' => 'Ocorrências',
             'route' => 'ocorrencias.index',
@@ -630,6 +650,21 @@ return [
     */
 
     'plugins' => [
+        'Summernote' => [
+            'active' => true,
+            'files' => [
+                [
+                    'type' => 'js',
+                    'asset' => false,
+                    'location' => '//cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.js',
+                ],
+                [
+                    'type' => 'css',
+                    'asset' => false,
+                    'location' => '//cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.css',
+                ],
+            ],
+        ],
         'Datatables' => [
             'active' => false,
             'files' => [

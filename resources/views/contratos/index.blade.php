@@ -5,7 +5,7 @@ use Illuminate\Support\Str;
 
 @section('title', 'Contratos')
 
-@section('content')
+@section('content_body')
 <div class="container-fluid">
   <!-- 🔹 Card de Filtros -->
     <div class="card shadow-sm border-0 rounded-4 mb-4">
@@ -93,7 +93,7 @@ use Illuminate\Support\Str;
 </div>
 <!---->
             <!-- 🔹 Tabela -->
-      <table id="tabelaContratos" class="table table-striped no-inner-borders w-100"></table>
+      <table id="tabelaContratos" class="table table-striped table-hover align-middle w-100"></table>
 
 
 
@@ -153,13 +153,16 @@ use Illuminate\Support\Str;
 
 @endsection
 
-@section('css')
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-@endsection
+@push('css')
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+@endpush
 
-@section('js')
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+@push('scripts')
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
 
 <script>
 $(document).ready(function () {
@@ -224,6 +227,7 @@ fetch(`{{ route('api.situacoes') }}`)
             { data: 'contratada.razao_social', defaultContent: '—' },
             {
                 data: 'valor_global',
+                className: 'text-end',
                 render: (v) => v ? 'R$ ' + parseFloat(v).toLocaleString('pt-BR', {minimumFractionDigits: 2}) : '—'
             },
             {
@@ -361,5 +365,4 @@ function legendMapFromColor(cor) {
 
 });
 </script>
-
-@endsection
+@endpush

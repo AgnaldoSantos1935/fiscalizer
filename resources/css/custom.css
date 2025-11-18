@@ -37,6 +37,11 @@ body{
   --brand-bg: #0b3f93;
   --brand-color: #ffffff;
 
+  /* Shape tokens */
+  --radius-card: 12px;
+  --radius-link: 8px;
+  --radius-pill: 999px;
+
   /* Top navbar */
   --topnav-bg: #0ea5e9;            /* sky-500 */
   --topnav-color: #ffffff;
@@ -58,6 +63,66 @@ body{
   /* no styles by itself; used as a scope for overrides below */
 }
 
+/* ===================== Preset: Fiscalizer Brand =====================
+   Aplica sua paleta (#0B3B6B, #0B0B6B, #3B0B6B) às variáveis.
+   Use junto de `.theme-fiscalizer` no <body>:
+   <body class="theme-fiscalizer preset-fiscalizer-brand ..."> */
+.theme-fiscalizer.preset-fiscalizer-brand {
+  /* Marca e barra superior */
+  --brand-bg: #081b2f;
+  --brand-color: #aa9e9ebe;
+  --topnav-bg: #072746e1;
+  --topnav-color: #ffffff;
+  --topnav-link-color: #ffffff;
+  --topnav-link-hover-bg: rgba(241, 237, 237, 0.916);
+
+  /* Sidebar */
+  --sidebar-bg: #0B0B6B;              /* mais escuro */
+  --sidebar-color: #e2e8f0;
+  --sidebar-link-color: #cbd5e1;
+  --sidebar-link-hover-bg: #14145a;   /* hover suavemente mais claro */
+  --sidebar-link-active-bg: #3B0B6B;  /* acento */
+  --sidebar-link-active-color: #ffffff;
+  --sidebar-border-color: rgba(255,255,255,.08);
+
+  /* Conteúdo e rodapé */
+  --content-bg: #f4f6f9;
+  --content-color: #1f2937;
+  --footer-bg: #0B0B6B;
+  --footer-color: #e2e8f0;
+  --footer-link-color: #93c5fd;
+}
+
+/* ===================== Preset: Fiscalizer Dark Navy =====================
+   Paleta nova: #000000, #3d2b1f, #000080, #191970, #00008B
+   Obs: normalizamos `#000008b` para `#00008B` (hex válido).
+   Use: <body class="theme-fiscalizer preset-fiscalizer-dark-navy ..."> */
+.theme-fiscalizer.preset-fiscalizer-dark-navy {
+  /* Marca e barra superior */
+  --brand-bg: #000000;
+  --brand-color: #ffffff;
+  --topnav-bg: #000080;              /* navy */
+  --topnav-color: #ffffff;
+  --topnav-link-color: #ffffff;
+  --topnav-link-hover-bg: rgba(255,255,255,.12);
+
+  /* Sidebar */
+  --sidebar-bg: #000000;             /* preto sólido */
+  --sidebar-color: #e2e8f0;
+  --sidebar-link-color: #cbd5e1;
+  --sidebar-link-hover-bg: #0d0d0d;  /* hover sutil sobre o preto */
+  --sidebar-link-active-bg: #a8a597; /* darkblue (normalizado) */
+  --sidebar-link-active-color: #54279c;
+  --sidebar-border-color: rgba(255,255,255,.08);
+
+  /* Conteúdo e rodapé */
+  --content-bg: #f4f6f9;
+  --content-color: #ffffff;
+  --footer-bg: #121212;              /* marrom quente para rodapé */
+  --footer-color: #000000;
+  --footer-link-color: #cbd2da;
+}
+
 /* ========================= Sidebar ========================= */
 .sidebar-custom aside.main-sidebar,
 aside.main-sidebar.sidebar-custom {
@@ -75,6 +140,8 @@ aside.main-sidebar.sidebar-custom .brand-link {
 .sidebar-custom .nav-sidebar .nav-link,
 aside.main-sidebar.sidebar-custom .nav-sidebar .nav-link {
   color: var(--sidebar-link-color) !important;
+  border-radius: var(--radius-link) !important;
+  margin: 0 8px;
 }
 
 .sidebar-custom .nav-sidebar .nav-link:hover,
@@ -98,6 +165,8 @@ body.topnav-custom .main-header.navbar {
 .topnav-custom .navbar-nav .nav-link,
 body.topnav-custom .navbar-nav .nav-link {
   color: var(--topnav-link-color) !important;
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
 }
 
 .topnav-custom .navbar-nav .nav-link:hover,
@@ -110,6 +179,12 @@ body.topnav-custom .navbar-nav .nav-link:hover {
 body.content-custom .content-wrapper {
   background-color: var(--content-bg) !important;
   color: var(--content-color) !important;
+}
+
+/* Cards com cantos mais arredondados sob o conteúdo custom */
+.content-custom .card,
+body.content-custom .card {
+  border-radius: var(--radius-card) !important;
 }
 
 /* ========================= Footer ========================= */
@@ -127,7 +202,7 @@ body.footer-custom .main-footer a {
 /* Optional presets: duplicate and tweak as you like */
 .preset-dark-navy {
   --sidebar-bg: #0f172a;
-  --topnav-bg: #0ea5e9;
+  --topnav-bg: #1d475b;
   --content-bg: #0b1220;
   --content-color: #e2e8f0;
   --footer-bg: #0f172a;
@@ -300,4 +375,25 @@ div.dataTables_wrapper {
     linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(0,0,0,0.02) 100%);
   background-blend-mode: normal, normal, normal;
   background-attachment: fixed;
+}
+/* Scrollbar para áreas de conteúdo longas */
+.content-scroll {
+  max-height: 75vh;
+  overflow-y: auto;
+}
+
+/* Estilização opcional do scrollbar (WebKit) */
+.content-scroll::-webkit-scrollbar {
+  width: 10px;
+}
+.content-scroll::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 8px;
+}
+.content-scroll::-webkit-scrollbar-thumb {
+  background: #c9c9c9;
+  border-radius: 8px;
+}
+.content-scroll::-webkit-scrollbar-thumb:hover {
+  background: #aaaaaa;
 }

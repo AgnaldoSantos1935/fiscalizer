@@ -173,7 +173,7 @@ div.dataTables_wrapper {
 <script>
 $(document).ready(function() {
     const tabela = $('#tabelaEmpresas').DataTable({
-        language: { url: '/datatables/pt-BR.json' },
+        language: { url: '{{ asset("js/pt-BR.json") }}' },
         pageLength: 10,
         order: [[1, 'asc']],
         dom: 't<"bottom"p>'
@@ -192,7 +192,9 @@ $(document).ready(function() {
         e.preventDefault();
         if (!empresaSelecionada) return;
 
-        fetch('{{ url("empresas") }}/' + empresaSelecionada)
+        fetch('{{ url("empresas") }}/' + empresaSelecionada, {
+            headers: { 'Accept': 'application/json' }
+        })
             .then(resp => resp.json())
             .then(data => {
                 const e = data.empresa;

@@ -5,7 +5,7 @@
             <i class="fas fa-bell text-warning"></i>
             <span class="badge badge-warning navbar-badge">{{ $notiCount }}</span>
         @else
-            <i class="far fa-bell text-secondary"></i>
+            <i class="far fa-bell text-white"></i>
         @endif
     </a>
 

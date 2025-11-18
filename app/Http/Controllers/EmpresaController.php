@@ -58,6 +58,9 @@ public function store(Request $request)
 
 public function show(Empresa $empresa)
 {
+    if (request()->expectsJson()) {
+        return response()->json(['empresa' => $empresa]);
+    }
     return view('empresas.show', compact('empresa'));
 }
 
