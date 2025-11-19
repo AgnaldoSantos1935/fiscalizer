@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @import "bootstrap/dist/css/bootstrap.min.css";
 @import "datatables.net-bs5/css/dataTables.bootstrap5.min.css";
 @import "datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css";
@@ -5,11 +6,4 @@
 @import "@fortawesome/fontawesome-free/css/all.min.css";
 @import "sweetalert2/dist/sweetalert2.min.css";
 @import "./custom.css";
-
-/* ==============================
-   CAIXA ALTA GLOBAL (DISPLAY)
-   Aplica uppercase em elementos comuns de views, formulários e tabelas
-   ============================== */
-p, label, input[type="text"], input[type="email"], input[type="search"], input[type="tel"], input[type="date"], input[type="number"], textarea, select, th, td, small, a, h1, h2, h3, h4, h5, h6, span, button,
-.form-label, .form-control, .form-select, .table, .toast-body { text-transform: uppercase; }
 

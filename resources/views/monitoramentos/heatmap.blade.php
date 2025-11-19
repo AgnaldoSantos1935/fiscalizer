@@ -7,15 +7,16 @@
 @endsection
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="container-fluid">
     <div class="card shadow-sm border-0 rounded-4">
         <div class="card-header bg-white border-0">
-            <h4 class="mb-0 text-secondary fw-semibold">
+            <h4 class="card-title mb-0 fw-semibold">
                 <i class="fas fa-map-marked-alt me-2 text-primary"></i> Heatmap de Disponibilidade
             </h4>
         </div>
         <div class="card-body p-0">
-            <div id="map" style="height: 80vh;"></div>
+            <div id="map" class="ui-map h-80vh"></div>
         </div>
     </div>
 </div>

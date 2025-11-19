@@ -24,7 +24,7 @@ class ForgotPasswordController extends Controller
     protected function throttleKey(Request $request)
     {
         // ⚙️ Aqui definimos um throttle diferente (ex: 10 segundos)
-        return strtolower($request->input($this->username())).'|'.$request->ip();
+        return strtolower($request->input($this->username())) . '|' . $request->ip();
     }
 
     protected function sendResetLinkResponse(Request $request, $response)

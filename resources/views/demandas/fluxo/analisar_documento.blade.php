@@ -3,6 +3,7 @@
 @section('title', "Análise do Documento Técnico – Demanda #{$demanda->id}")
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="container-fluid">
 
     <div class="d-flex justify-content-between align-items-center mb-4">

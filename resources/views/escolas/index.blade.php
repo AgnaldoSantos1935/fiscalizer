@@ -3,6 +3,7 @@
 @section('title', 'Escolas')
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="container-fluid">
 
     <!-- 🔍 Filtros -->

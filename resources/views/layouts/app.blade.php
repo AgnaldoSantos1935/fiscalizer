@@ -60,10 +60,18 @@ $ultimas = \App\Models\UserNotification::where('user_id', auth()->id())
 {{-- 🔹 Conteúdo Principal --}}
 {{-- ========================================= --}}
 @section('content')
+<br>
     {{-- Área para inserir o conteúdo da página --}}
-    @yield('content_body')
+    @if(View::hasSection('breadcrumb'))
+        @yield('breadcrumb')
+    @else
+        @include('layouts.components.breadcrumbs')
+    @endif
+    <div class="app-content-scroll">
+        @yield('content_body')
+    </div>
     {{-- TOASTS Bootstrap --}}
-<div class="position-fixed bottom-0 end-0 p-4" style="z-index: 9999">
+<div class="position-fixed bottom-0 end-0 p-4 ui-toast-stack">
 
     {{-- Sucesso --}}
     <div id="toastSuccess" class="toast align-items-center text-white bg-success border-0" role="alert">
@@ -139,50 +147,8 @@ $ultimas = \App\Models\UserNotification::where('user_id', auth()->id())
 {{-- ========================================= --}}
 @push('css')
     @vite(['resources/css/app.css'])
-<style>
-    .card-header {
-        border-bottom: none !important;
-    }
-
-    .card-title {
-        font-weight: 600;
-    }
-
-    .content-wrapper {
-        background-color: #f8f9fa !important;
-    }
-
-    .alert-success {
-        border-left: 5px solid #198754;
-    }
-    .notif-pulse > a .fa-bell {
-    position: relative;
-}
-
-.notif-pulse > a .fa-bell::after {
-    content: '';
-    position: absolute;
-    top: -4px;
-    right: -4px;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: #ff4757;
-    box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7);
-    animation: pulse-notif 1.5s infinite;
-}
-
-@keyframes pulse-notif {
-    0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7); }
-    70% { transform: scale(1.3); box-shadow: 0 0 0 10px rgba(255, 71, 87, 0); }
-    100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(255, 71, 87, 0); }
-}
-
-/* Ordenação: sino antes da área do usuário no topo */
-.navbar-nav .notif-dropdown { order: 0; }
-.navbar-nav .user-menu { order: 1; }
-</style>
 @endpush
+
 
 {{-- ========================================= --}}
 {{-- 🔹 Card do Usuário (conteúdo extra) --}}

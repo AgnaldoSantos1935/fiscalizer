@@ -10,10 +10,13 @@ class TermoReferenciaItemController extends Controller
 {
     private function normalizeNumber($value)
     {
-        if ($value === null) return null;
+        if ($value === null) {
+            return null;
+        }
         $s = (string) $value;
         // remove separador de milhar e troca vírgula por ponto
         $s = str_replace(['.', ','], ['', '.'], $s);
+
         return is_numeric($s) ? $s : $value;
     }
 
@@ -28,9 +31,9 @@ class TermoReferenciaItemController extends Controller
             'valor_unitario' => $this->normalizeNumber($request->input('valor_unitario')),
         ]);
         $data = $request->validate([
-            'descricao'      => 'required|string|max:500',
-            'unidade'        => 'nullable|string|max:50',
-            'quantidade'     => 'required|numeric|min:0',
+            'descricao' => 'required|string|max:500',
+            'unidade' => 'nullable|string|max:50',
+            'quantidade' => 'required|numeric|min:0',
             'valor_unitario' => 'required|numeric|min:0',
         ]);
 
@@ -52,13 +55,14 @@ class TermoReferenciaItemController extends Controller
             'valor_unitario' => $this->normalizeNumber($request->input('valor_unitario')),
         ]);
         $data = $request->validate([
-            'descricao'      => 'required|string|max:500',
-            'unidade'        => 'nullable|string|max:50',
-            'quantidade'     => 'required|numeric|min:0',
+            'descricao' => 'required|string|max:500',
+            'unidade' => 'nullable|string|max:50',
+            'quantidade' => 'required|numeric|min:0',
             'valor_unitario' => 'required|numeric|min:0',
         ]);
 
         $item->update($data);
+
         return redirect()->route('contratacoes.termos-referencia.show', $tr)
             ->with('success', 'Item atualizado com sucesso!');
     }
@@ -71,6 +75,7 @@ class TermoReferenciaItemController extends Controller
                 ->with('error', 'Itens não podem ser alterados: TR finalizado.');
         }
         $item->delete();
+
         return redirect()->route('contratacoes.termos-referencia.show', $tr)
             ->with('success', 'Item removido.');
     }

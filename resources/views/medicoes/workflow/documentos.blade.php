@@ -3,6 +3,7 @@
 @section('title', 'Validação de Documentos da Medição')
 
 @section('content')
+@include('layouts.components.breadcrumbs')
     <div class="container-fluid">
 
         {{-- Cabeçalho --}}

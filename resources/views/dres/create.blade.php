@@ -3,13 +3,14 @@
 @section('title', 'Cadastrar DRE')
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 @section('breadcrumb')
-  <nav aria-label="breadcrumb" class="mb-3">
-    <ol class="breadcrumb bg-white px-3 py-2 rounded-3 shadow-sm">
-      <li class="breadcrumb-item"><a href="{{ route('dres.index') }}" class="text-decoration-none text-primary fw-semibold"><i class="fas fa-university me-1"></i> DREs</a></li>
-      <li class="breadcrumb-item active text-secondary fw-semibold">Nova DRE</li>
-    </ol>
-  </nav>
+  @include('layouts.components.breadcrumbs', [
+    'trail' => [
+      ['label' => 'DREs', 'icon' => 'fas fa-university', 'url' => route('dres.index')],
+      ['label' => 'Nova DRE']
+    ]
+  ])
 @endsection
 <div class="container-fluid">
     <div class="card shadow-lg border-0 rounded-4">

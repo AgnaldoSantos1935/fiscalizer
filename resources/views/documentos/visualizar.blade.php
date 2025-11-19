@@ -2,6 +2,7 @@
 @section('title', 'Visualizar Documento')
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="container-fluid">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="mb-0">Visualizar Documento</h2>
@@ -23,7 +24,7 @@
           id="pdfFrame"
           src="{{ route('documentos.stream', $documento) }}"
           title="Visualizador de PDF"
-          style="border:0; width:100%; height:100%;"
+          class="border-0 w-100 h-100"
           allow="fullscreen"
         ></iframe>
       </div>

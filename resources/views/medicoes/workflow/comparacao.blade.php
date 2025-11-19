@@ -3,6 +3,7 @@
 @section('title', 'Comparação da Medição')
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="container-fluid">
 
     {{-- Cabeçalho --}}

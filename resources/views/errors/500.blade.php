@@ -7,7 +7,8 @@
 @stop
 
 @section('content')
-<div class="d-flex align-items-center justify-content-center" style="height:70vh;">
+@include('layouts.components.breadcrumbs')
+<div class="d-flex align-items-center justify-content-center h-70vh">
     <div class="text-center">
         <div class="mb-4">
             <i class="fas fa-server fa-5x text-danger"></i>

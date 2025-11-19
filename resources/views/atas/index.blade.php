@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @section('title','Atas de Registro de Preços')
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="container-fluid">
   <div class="d-flex justify-content-between mb-3">
     <h3>Atas de Registro de Preços</h3>

@@ -3,13 +3,14 @@
 @section('title', 'Cadastrar Host')
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 @section('breadcrumb')
-  <nav aria-label="breadcrumb" class="mb-3">
-    <ol class="breadcrumb bg-white px-3 py-2 rounded-3 shadow-sm">
-      <li class="breadcrumb-item"><a href="{{ route('hosts.index') }}" class="text-decoration-none text-primary fw-semibold"><i class="fas fa-server me-1"></i> Hosts</a></li>
-      <li class="breadcrumb-item active text-secondary fw-semibold">Novo Host</li>
-    </ol>
-  </nav>
+  @include('layouts.components.breadcrumbs', [
+    'trail' => [
+      ['label' => 'Hosts', 'icon' => 'fas fa-server', 'url' => route('hosts.index')],
+      ['label' => 'Novo Host']
+    ]
+  ])
 @endsection
 <div class="container">
     <h3 class="mb-4">Cadastrar Novo Host</h3>

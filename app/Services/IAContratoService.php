@@ -26,7 +26,7 @@ class IAContratoService
                 ],
                 [
                     'role' => 'user',
-                    'content' => "Arquivo base64:\n".$base64,
+                    'content' => "Arquivo base64:\n" . $base64,
                 ],
             ],
         ]);

@@ -2,6 +2,7 @@
 @section('title', 'Cadastrar Documento do Contrato')
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="container">
   <nav aria-label="breadcrumb" class="mb-3">
     <ol class="breadcrumb bg-white px-3 py-2 rounded-3 shadow-sm">

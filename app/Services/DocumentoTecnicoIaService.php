@@ -15,7 +15,7 @@ class DocumentoTecnicoIaService
 
         // Envia para o WORKER Python
         $response = Http::timeout(120)
-            ->post(config('services.ia_worker.url').'/processar', [
+            ->post(config('services.ia_worker.url') . '/processar', [
                 'file_base64' => $base64,
                 'filename' => $doc->arquivo_original,
                 'demanda_id' => $doc->demanda_id,

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AtaAdesao;
+use App\Models\AtaAdesaoItem;
 use App\Models\AtaRegistroPreco;
 use App\Models\Empresa;
 use App\Models\Processo;
@@ -10,6 +11,7 @@ use App\Services\AtaPdfService;
 use App\Services\WorkflowService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class AtaRegistroPrecoController extends Controller
 {
@@ -120,16 +122,72 @@ class AtaRegistroPrecoController extends Controller
             'orgao_adquirente_id' => 'required|exists:empresas,id',
             'justificativa' => 'required|string',
             'valor_estimado' => 'nullable',
+            'itens' => 'nullable|array',
+            'itens.*.quantidade' => 'nullable|numeric|min:0',
+            'itens.*.valor_unitario' => 'nullable|numeric|min:0',
+            'itens.*.id' => 'nullable|integer',
         ]);
-        $valor = $this->brToDecimal($data['valor_estimado'] ?? null) ?? 0.0;
+        // Normaliza itens
+        $rawItens = $r->input('itens', []);
+        $itens = [];
+        foreach ($rawItens as $key => $item) {
+            $itemId = (int) ($item['id'] ?? $key);
+            if ($itemId <= 0) {
+                continue;
+            }
+            $qtd = $this->brToDecimal((string) ($item['quantidade'] ?? '0')) ?? 0.0;
+            $vu = $this->brToDecimal((string) ($item['valor_unitario'] ?? '0')) ?? 0.0;
+            if ($qtd > 0) {
+                $itens[] = [
+                    'ata_item_id' => $itemId,
+                    'quantidade' => $qtd,
+                    'valor_unitario' => $vu,
+                    'valor_total' => $qtd * $vu,
+                ];
+            }
+        }
+
+        // Calcula valor total da adesão pelos itens, se informados
+        $valorItens = array_sum(array_column($itens, 'valor_total'));
+        $valorManual = $this->brToDecimal($data['valor_estimado'] ?? null) ?? 0.0;
+        $valor = $valorItens > 0 ? $valorItens : $valorManual;
         if ($valor > (float) $ata->saldo_disponivel) {
             return back()->with('error', 'Valor da adesão excede o saldo disponível da ata.');
         }
+
+        // Valida saldo por item
+        if (! empty($itens)) {
+            $ids = array_column($itens, 'ata_item_id');
+            $map = $ata->itens()->whereIn('id', $ids)->get()->keyBy('id');
+            foreach ($itens as $i) {
+                $model = $map[$i['ata_item_id']] ?? null;
+                if (! $model) {
+                    return back()->with('error', 'Item inválido para esta ata.');
+                }
+                $saldo = (float) ($model->saldo_disponivel ?? 0);
+                if ($i['quantidade'] > $saldo) {
+                    return back()->with('error', 'Quantidade solicitada para item excede o saldo disponível.');
+                }
+            }
+        }
+
         $data['ata_id'] = $ata->id;
         $data['data_solicitacao'] = now()->toDateString();
         $data['created_by'] = Auth::id();
         $data['valor_estimado'] = $valor;
         $adesao = AtaAdesao::create($data);
+
+        // Persiste itens da adesão
+        foreach ($itens as $i) {
+            AtaAdesaoItem::create([
+                'adesao_id' => $adesao->id,
+                'ata_item_id' => $i['ata_item_id'],
+                'quantidade' => $i['quantidade'],
+                'valor_unitario' => $i['valor_unitario'],
+                'valor_total' => $i['valor_total'],
+                'created_by' => Auth::id(),
+            ]);
+        }
         $processo = Processo::firstOrCreate(
             ['codigo' => 'ADESAO_ATAS'],
             [
@@ -153,7 +211,7 @@ class AtaRegistroPrecoController extends Controller
         }
         $path = $svc->gerarAutorizacaoAdesao($adesao);
 
-        return redirect()->back()->with('success', 'Documento gerado: '.$path);
+        return redirect()->back()->with('success', 'Documento gerado: ' . $path);
     }
 
     public function atualizarStatusAdesao(Request $r, AtaAdesao $adesao)
@@ -165,20 +223,36 @@ class AtaRegistroPrecoController extends Controller
             'status' => 'required|in:solicitada,autorizada,negada,cancelada',
         ]);
         $novo = $data['status'];
-        $ata = $adesao->ata()->lockForUpdate()->first();
-        if ($novo === 'autorizada') {
-            $consumoAtual = (float) $ata->adesoes()->where('status', 'autorizada')->sum('valor_estimado');
-            $restante = (float) ($ata->saldo_global ?? 0) - $consumoAtual;
-            if ((float) ($adesao->valor_estimado ?? 0) > $restante) {
-                return back()->with('error', 'Saldo insuficiente para autorizar esta adesão.');
+        DB::transaction(function () use ($novo, $adesao) {
+            $ata = $adesao->ata()->lockForUpdate()->first();
+            if ($novo === 'autorizada') {
+                // Checagem global
+                $consumoAtual = (float) $ata->adesoes()->where('status', 'autorizada')->sum('valor_estimado');
+                $restante = (float) ($ata->saldo_global ?? 0) - $consumoAtual;
+                if ((float) ($adesao->valor_estimado ?? 0) > $restante) {
+                    throw new \RuntimeException('Saldo global insuficiente para autorizar esta adesão.');
+                }
+
+                // Checagem por item e consumo do saldo
+                $adesao->load('itens.item');
+                foreach ($adesao->itens as $linha) {
+                    $item = $linha->item()->lockForUpdate()->first();
+                    $saldo = (float) ($item->saldo_disponivel ?? 0);
+                    if ($linha->quantidade > $saldo) {
+                        throw new \RuntimeException('Saldo do item insuficiente para autorizar: ' . ($item->descricao ?? 'item'));
+                    }
+                    $item->saldo_disponivel = $saldo - (float) $linha->quantidade;
+                    $item->save();
+                }
             }
-        }
-        $adesao->status = $novo;
-        $adesao->data_decisao = now()->toDateString();
-        $adesao->save();
+
+            $adesao->status = $novo;
+            $adesao->data_decisao = now()->toDateString();
+            $adesao->save();
+        });
         $instancia = $adesao->processoInstancia;
         if ($instancia) {
-            app(WorkflowService::class)->avancar($instancia, 'Decisão: '.$novo);
+            app(WorkflowService::class)->avancar($instancia, 'Decisão: ' . $novo);
         }
         if ($novo === 'autorizada') {
             app(AtaPdfService::class)->gerarAutorizacaoAdesao($adesao);

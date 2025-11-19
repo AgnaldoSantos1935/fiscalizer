@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="card">
     <div class="card-body">
         <form method="GET" class="row mb-3">

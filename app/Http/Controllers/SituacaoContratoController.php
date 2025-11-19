@@ -82,7 +82,7 @@ class SituacaoContratoController extends Controller
         $situacao = Situacao::findOrFail($id);
 
         $validated = $request->validate([
-            'nome' => 'required|string|max:100|unique:situacoes,nome,'.$situacao->id,
+            'nome' => 'required|string|max:100|unique:situacoes,nome,' . $situacao->id,
             'descricao' => 'nullable|string|max:255',
             'cor' => 'nullable|string|max:20',
             'ativo' => 'nullable|boolean',

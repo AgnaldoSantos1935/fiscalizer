@@ -28,12 +28,12 @@ class FalhaConsecutivaNotification extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject('🚨 Alerta de indisponibilidade - '.$this->item->nome)
+            ->subject('🚨 Alerta de indisponibilidade - ' . $this->item->nome)
             ->greeting('Atenção, Fiscal!')
             ->line("O serviço **{$this->item->nome}** está offline há {$this->falhas} verificações consecutivas.")
-            ->line('Endereço/IP: '.$this->item->alvo)
-            ->line('Último erro: '.($this->item->erro ?? 'Nenhum'))
+            ->line('Endereço/IP: ' . $this->item->alvo)
+            ->line('Último erro: ' . ($this->item->erro ?? 'Nenhum'))
             ->line('Verifique com a contratada (PRODEPA ou Montreal) e registre no plano de fiscalização.')
-            ->action('Ver no sistema', url('/monitoramentos/'.$this->item->id));
+            ->action('Ver no sistema', url('/monitoramentos/' . $this->item->id));
     }
 }

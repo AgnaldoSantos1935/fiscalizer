@@ -3,6 +3,7 @@
 @section('title', 'Dashboard do Projeto - '.$projeto->nome)
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="container-fluid">
 
   <!-- KPIs -->

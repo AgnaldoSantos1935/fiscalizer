@@ -113,7 +113,7 @@ class TermoReferencia extends Model
     ];
 
     protected $casts = [
-        'valor_estimado' => 'float',
+        'valor_estimado' => 'decimal:2',
         'garantia_exigida' => 'boolean',
         'manutencao_incluida' => 'boolean',
         'assistencia_tecnica_incluida' => 'boolean',

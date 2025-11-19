@@ -3,6 +3,7 @@
 @section('title', 'Editar Host')
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="container">
     <h3 class="mb-4">Editar Host</h3>
 

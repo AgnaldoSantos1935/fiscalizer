@@ -4,6 +4,7 @@
 @section('title', 'Detalhes do Host')
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="container-fluid">
 
     <!-- Card principal -->

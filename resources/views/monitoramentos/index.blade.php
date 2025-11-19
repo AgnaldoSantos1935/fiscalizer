@@ -2,6 +2,7 @@
 @section('title', 'Teste de IPs e Domínios')
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="container-fluid">
   <div class="card shadow-sm border-0 rounded-4 mb-4">
     <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">

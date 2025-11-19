@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+@include('layouts.components.breadcrumbs')
     <p>Welcome to this beautiful admin panel.</p>
 @stop
 

@@ -15,7 +15,7 @@ class OrdemServicoPdfService
         // Gera número da OS (ano + sequencial)
         $ano = now()->year;
         $sequencial = (OrdemServico::where('ano_os', $ano)->max('id') ?? 0) + 1;
-        $numeroOs = str_pad($sequencial, 4, '0', STR_PAD_LEFT).'/'.$ano;
+        $numeroOs = str_pad($sequencial, 4, '0', STR_PAD_LEFT) . '/' . $ano;
 
         // Extrai dados do documento técnico
         $pfTotal = $doc->pf_estimado ?? 0;

@@ -1,7 +1,37 @@
 body{
     color: #2a2b2c;
-    font-family: 'arial';
+    font-family: 'Inter', Arial, sans-serif;
     font-weight: 400;
+}
+
+/* ==============================
+   Padronização de texto
+   - Estático (labels, títulos, cabeçalhos): lowercase com primeira letra maiúscula
+   - Dinâmico (dados de base): uppercase
+   ============================== */
+
+/* Estático: labels e cabeçalhos */
+label, .form-label, .card-title, .modal-title, .table thead th {
+  text-transform: lowercase;
+}
+label::first-letter,
+.form-label::first-letter,
+.card-title::first-letter,
+.modal-title::first-letter,
+.table thead th::first-letter {
+  text-transform: uppercase;
+}
+
+/* Dinâmico: células de tabela e utilitário */
+.table tbody td { text-transform: uppercase; }
+.text-dynamic { text-transform: uppercase !important; }
+
+/* Utilitário para estático quando necessário */
+.text-static {
+  text-transform: lowercase !important;
+}
+.text-static::first-letter {
+  text-transform: uppercase !important;
 }
 
 /* ===============================================================
@@ -36,6 +66,8 @@ body{
   --sidebar-border-color: rgba(255,255,255,.08);
   --brand-bg: #0b3f93;
   --brand-color: #ffffff;
+  /* Palette additions */
+  --white: #FFFFFF; /* normalizado de #FFFF (equiv. #FFFFFF + alpha FF) */
 
   /* Shape tokens */
   --radius-card: 12px;
@@ -397,3 +429,105 @@ div.dataTables_wrapper {
 .content-scroll::-webkit-scrollbar-thumb:hover {
   background: #aaaaaa;
 }
+.app-content-scroll {
+  overflow-y: auto;
+  max-height: calc(100vh - 160px);
+}
+
+/* Common layout and UI styles moved from layout */
+.card-header { border-bottom: none !important; }
+.card-title { font-weight: 600; }
+.content-wrapper { background-color: #f8f9fa !important; }
+.alert-success { border-left: 5px solid #198754; }
+
+.notif-pulse > a .fa-bell { position: relative; }
+.notif-pulse > a .fa-bell::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ff4757;
+  box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7);
+  animation: pulse-notif 1.5s infinite;
+}
+@keyframes pulse-notif {
+  0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7); }
+  70% { transform: scale(1.3); box-shadow: 0 0 0 10px rgba(255, 71, 87, 0); }
+  100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(255, 71, 87, 0); }
+}
+.navbar-nav .notif-dropdown { order: 0; }
+.navbar-nav .user-menu { order: 1; }
+
+:root {
+  --ui-primary: #006ce3;
+  --ui-accent: #f9ff00;
+  --ui-muted: #d5d383;
+  --ui-text: #0d1117;
+  --ui-border: #e2e8f0;
+  /* Palette additions for UI */
+  --ui-white: #FFFFFF; /* normalizado de #FFFF */
+  /* layout chrome heights (adjust as needed) */
+  --navbar-h: 56px;          /* altura da navbar superior */
+  --footer-h: 60px;          /* altura do rodapé */
+  --content-header-h: 0px;   /* título/breadcrumb dentro de section.content, se existir */
+  --card-header-h: 56px;     /* altura do .card-header na página do mapa */
+  --content-y-padding: 24px; /* padding/margem vertical somado ao conteúdo */
+  --layout-chrome: calc(var(--navbar-h) + var(--footer-h) + var(--content-header-h) + var(--card-header-h) + var(--content-y-padding));
+}
+.ui-card { border: 1px solid var(--ui-border); border-radius: 14px; box-shadow: 0 6px 18px rgba(13,17,23,0.06); background: #fff; }
+.ui-card-header { background: linear-gradient(92deg, var(--ui-primary) 0%, #0a5bc1 100%); color: #fff; border-top-left-radius: 14px; border-top-right-radius: 14px; padding: 12px 16px; }
+.ui-card-header .card-title { color: var(--ui-white) !important; }
+/* Default card headers using Bootstrap/AdminLTE background helpers */
+.card-header.bg-primary .card-title,
+.card-header.bg-dark .card-title { color: var(--ui-white) !important; }
+/* Variant: custom header background using ui primary color */
+.card-header.bg-ui-primary { background-color: var(--ui-primary) !important; }
+.card-header.bg-ui-primary .card-title { color: var(--ui-white) !important; }
+/* Fallback: inline style background matching #006ce3 */
+.card-header[style*="#006ce3"] .card-title { color: var(--ui-white) !important; }
+.ui-form-label { font-weight: 600; color: var(--ui-text); }
+.ui-select, .ui-input { border: 1px solid var(--ui-border); border-radius: 12px; padding: 8px 10px; transition: box-shadow .2s ease, border-color .2s ease; }
+.ui-btn { background: var(--ui-primary); color: #fff; border: 1px solid var(--ui-primary); border-radius: 24px; padding: 8px 16px; font-weight: 600; transition: background .2s ease, transform .08s ease, box-shadow .2s ease; }
+.ui-btn.outline { background: transparent; color: var(--ui-primary); border-color: var(--ui-primary); }
+.ui-btn:hover { background: #0a5bc1; }
+.ui-btn.outline:hover { background: rgba(0,108,227,0.08); }
+.ui-btn:active { transform: translateY(1px); }
+.ui-btn:focus-visible, .ui-select:focus-visible, .ui-input:focus-visible, a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px solid var(--ui-accent); outline-offset: 3px; box-shadow: 0 0 0 3px rgba(249,255,0,0.35); }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
+
+/* Layout flex chain to fill to footer */
+html, body { height: 100%; }
+.wrapper { min-height: 100vh; display: flex; flex-direction: column; }
+.content-wrapper { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+section.content { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+section.content > .container-fluid { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+section.content > .container-fluid > .row { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+section.content > .container-fluid > .row > [class^="col-"] { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+
+/* Map component globals */
+.ui-card .card-body { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+.ui-map { width: 100%; height: 100%; flex: 1 1 auto; min-height: calc(100vh - var(--layout-chrome)); }
+@media (max-width: 576px) { .ui-map { min-height: 60vh; } }
+.ui-map-info { position: absolute; top: 10px; right: 10px; z-index: 1000; backdrop-filter: blur(4px); background: rgba(255,255,255,0.9); padding: 8px 12px; border: 1px solid var(--ui-border); border-top: 2px solid var(--ui-accent); border-radius: 10px; font-size: 0.9rem; }
+
+/* Utility helpers (migrated from inline styles) */
+.rounded-bottom-1rem { border-bottom-left-radius: 1rem !important; border-bottom-right-radius: 1rem !important; }
+.h-45px { height: 45px !important; }
+.h-70vh { height: 70vh !important; }
+.h-75vh { height: 75vh !important; }
+.h-80vh { height: 80vh !important; }
+.canvas-h-260 { height: 260px !important; }
+.max-w-240 { max-width: 240px !important; }
+.max-w-250 { max-width: 250px !important; }
+.max-w-260 { max-width: 260px !important; }
+.cursor-pointer { cursor: pointer !important; }
+.ui-toast-stack { z-index: 9999 !important; }
+/* additional utilities */
+.overflow-visible { overflow: visible !important; }
+.min-h-500 { min-height: 500px !important; }
+
+/* Components */
+.heatbox { width: 16px; height: 16px; margin: 1px; border-radius: 3px; display: inline-block; }

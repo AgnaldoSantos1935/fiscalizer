@@ -3,25 +3,64 @@
 @section('title', 'Mapa de Escolas do Pará')
 
 @section('content')
-<div class="container-fluid">
-    <div class="card shadow-sm border-0 rounded-4">
-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+<br>
+@include('layouts.components.breadcrumbs')
+<div class="container">
+    <div class="card shadow-sm border-0 rounded-2 ui-card">
+        <div id="mapCardHeader" class="card-header ui-card-header d-flex justify-content-between align-items-center">
             <h4 class="mb-0"><i class="fas fa-map-marked-alt me-2"></i>Mapa de Escolas do Pará</h4>
 
-            <div class="d-flex align-items-center">
-                <label for="filtroDre" class="me-2 mb-0">Filtrar por DRE:</label>
-                <select id="filtroDre" class="form-select form-select-sm w-auto">
-                    <option value="">Todas</option>
-                    @foreach($dres as $dre)
-                        <option value="{{ $dre->id }}">{{ $dre->nome_dre }}</option>
-                    @endforeach
-                </select>
+            <div class="row align-items-end">
+                <div class="col-12 col-md-3 mb-2">
+                    <label for="filtroDre" class="ui-form-label mb-1">DRE</label>
+                    <select id="filtroDre" class="form-select form-select-sm w-100 ui-select">
+                        <option value="">Todas</option>
+                        @foreach($dres as $dre)
+                            <option value="{{ is_array($dre) ? $dre['id'] : $dre->id }}">{{ is_array($dre) ? $dre['label'] : $dre->nome_dre }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-4 mb-2">
+                    <label for="filtroMunicipio" class="ui-form-label mb-1">Município</label>
+                    <select id="filtroMunicipio" class="form-select form-select-sm w-100 ui-select">
+                        <option value="">Todos</option>
+                        @isset($municipios)
+                            @foreach($municipios as $m)
+                                <option value="{{ is_array($m) ? $m['key'] : $m }}">{{ is_array($m) ? $m['label'] : $m }}</option>
+                            @endforeach
+                        @endisset
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-3 mb-2">
+                    <label for="filtroJurisdicao" class="ui-form-label mb-1">Jurisdição</label>
+                    <select id="filtroJurisdicao" class="form-select form-select-sm w-100 ui-select">
+                        <option value="">Todas</option>
+                        @isset($dependencias)
+                            @foreach($dependencias as $dep)
+                                <option value="{{ is_array($dep) ? $dep['key'] : $dep }}">{{ is_array($dep) ? $dep['label'] : ucfirst($dep) }}</option>
+                            @endforeach
+                        @else
+                            <option value="estadual">Estadual</option>
+                            <option value="municipal">Municipal</option>
+                        @endisset
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-2 mb-2 d-flex align-items-end justify-content-md-end justify-content-start">
+                    <button id="btnLimparFiltros" class="btn btn-sm ui-btn">
+                        <i class="fas fa-eraser me-1"></i>Limpar filtros
+                    </button>
+                </div>
             </div>
         </div>
 
         <div class="card-body p-0 position-relative">
-            <div id="map" style="height: 80vh; border-radius: 0 0 1rem 1rem;"></div>
-            <div id="mapInfo" class="map-info" style="position:absolute; top:10px; right:10px; z-index:1000; background:rgba(255,255,255,0.9); padding:8px 12px; border-radius:6px; font-size:0.9rem;">Carregando...</div>
+            <div id="map" class="ui-map rounded-bottom-1rem"></div>
+            <div id="mapInfo" class="map-info ui-map-info position-absolute" style="top:10px; right:10px;">
+             Carregando...
+            </div>
         </div>
     </div>
 </div>
@@ -30,9 +69,8 @@
 @section('css')
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <style>
-#map { width: 100%; height: 80vh; }
+/* Regras globais cobrem o container (#map.ui-map); manter apenas específicas locais */
 .leaflet-popup-content { font-size: 0.9rem; }
-.map-info { box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
 </style>
 @endsection
 
@@ -42,6 +80,8 @@
 document.addEventListener('DOMContentLoaded', function () {
     // Cria o mapa centralizado no Pará
     const map = L.map('map').setView([-3.5, -52.0], 5.8);
+    // Ajuste de tamanho do Leaflet ao redimensionar
+    window.addEventListener('resize', () => { map.invalidateSize(); });
 
     // Camada base
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -53,9 +93,18 @@ document.addEventListener('DOMContentLoaded', function () {
     const infoDiv = document.getElementById('mapInfo');
 
     // Função para carregar escolas via GeoJSON
-    function carregarEscolas(dreId = '') {
+    function carregarEscolas() {
         infoDiv.textContent = 'Carregando...';
-        const url = '{{ route("api.escolas") }}' + (dreId ? '?dre_id=' + dreId : '');
+        const dreId = document.getElementById('filtroDre').value || '';
+        const municipio = document.getElementById('filtroMunicipio').value || '';
+        const jurisdicao = document.getElementById('filtroJurisdicao').value || '';
+
+        const params = new URLSearchParams();
+        if (dreId) params.set('dre_id', dreId);
+        if (municipio) params.set('municipio', municipio);
+        if (jurisdicao) params.set('jurisdicao', jurisdicao);
+
+        const url = '{{ route("api.escolas") }}' + (params.toString() ? ('?' + params.toString()) : '');
 
         fetch(url, { headers: { 'Accept': 'application/json' } })
             .then(async r => {
@@ -146,7 +195,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     pointToLayer: (feature, latlng) =>
                         L.circleMarker(latlng, {
                             radius: 5,
-                            fillColor: '#007bff',
+                            fillColor: '#006ce3',
                             color: '#fff',
                             weight: 1,
                             opacity: 1,
@@ -158,6 +207,9 @@ document.addEventListener('DOMContentLoaded', function () {
                             INEP: ${feature.properties.inep ?? '-'}
                         `)
                 }).addTo(map);
+
+                // garante ajuste de tamanho após renderização dos pontos
+                map.invalidateSize();
 
                 // Ajusta o mapa para os marcadores
                 try {
@@ -173,13 +225,100 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     }
 
-    // Carrega todas ao iniciar
+    // Aplica filtros iniciais da URL (persistência)
+    const qs = new URLSearchParams(location.search);
+    const iniDre = qs.get('dre_id');
+    const iniMun = qs.get('municipio');
+    const iniJur = qs.get('jurisdicao');
+    if (iniDre !== null) document.getElementById('filtroDre').value = iniDre;
+    if (iniMun !== null) document.getElementById('filtroMunicipio').value = iniMun;
+    if (iniJur !== null) document.getElementById('filtroJurisdicao').value = iniJur;
+
+    // Carrega ao iniciar
     carregarEscolas();
 
     // Filtro de DRE
-    document.getElementById('filtroDre').addEventListener('change', function () {
-        carregarEscolas(this.value);
+    function atualizarURL() {
+        const dreId = document.getElementById('filtroDre').value || '';
+        const municipio = document.getElementById('filtroMunicipio').value || '';
+        const jurisdicao = document.getElementById('filtroJurisdicao').value || '';
+        const params = new URLSearchParams();
+        if (dreId) params.set('dre_id', dreId);
+        if (municipio) params.set('municipio', municipio);
+        if (jurisdicao) params.set('jurisdicao', jurisdicao);
+        const newUrl = window.location.pathname + (params.toString() ? ('?' + params.toString()) : '');
+        history.replaceState(null, '', newUrl);
+    }
+
+    function onFiltroChange() {
+        atualizarURL();
+        carregarEscolas();
+    }
+
+    // Desativa DRE e Jurisdição quando Município estiver selecionado
+    function atualizarBloqueioPorMunicipio() {
+        const selMun = document.getElementById('filtroMunicipio');
+        const selDre = document.getElementById('filtroDre');
+        const selJur = document.getElementById('filtroJurisdicao');
+        const hasMun = (selMun.value || '').trim() !== '';
+
+        if (hasMun) {
+            // Limpa valores para evitar combinação de filtros
+            selDre.value = '';
+            selJur.value = '';
+        }
+
+        selDre.disabled = hasMun;
+        selJur.disabled = hasMun;
+    }
+
+    // Ao usar DRE, reativa os demais e limpa Município
+    function atualizarBloqueioPorDre() {
+        const selMun = document.getElementById('filtroMunicipio');
+        const selDre = document.getElementById('filtroDre');
+        const selJur = document.getElementById('filtroJurisdicao');
+        const hasDre = (selDre.value || '').trim() !== '';
+
+        if (hasDre) {
+            // Limpa Município e garante que todos estejam ativos
+            selMun.value = '';
+            selDre.disabled = false;
+            selJur.disabled = false;
+            selMun.disabled = false;
+        }
+
+        // Reavalia bloqueio por Município (caso vazio ou pré-selecionado)
+        atualizarBloqueioPorMunicipio();
+    }
+
+    document.getElementById('filtroDre').addEventListener('change', () => {
+        atualizarBloqueioPorDre();
+        onFiltroChange();
     });
+    document.getElementById('filtroMunicipio').addEventListener('change', () => {
+        atualizarBloqueioPorMunicipio();
+        onFiltroChange();
+    });
+    document.getElementById('filtroJurisdicao').addEventListener('change', onFiltroChange);
+
+    // Botão limpar filtros: reseta selects, inputs e URL
+    document.getElementById('btnLimparFiltros').addEventListener('click', (e) => {
+        e.preventDefault();
+        const selDre = document.getElementById('filtroDre');
+        const selMun = document.getElementById('filtroMunicipio');
+        const selJur = document.getElementById('filtroJurisdicao');
+        selDre.value = '';
+        selMun.value = '';
+        selJur.value = '';
+        // Reativa DRE e Jurisdição ao limpar
+        selDre.disabled = false;
+        selJur.disabled = false;
+        history.replaceState(null, '', window.location.pathname);
+        carregarEscolas();
+    });
+
+    // Aplica bloqueio inicial conforme URL (se município estiver pré-selecionado)
+    atualizarBloqueioPorMunicipio();
 });
 </script>
 @endsection

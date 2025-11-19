@@ -11,7 +11,7 @@ class EscolaFactory extends Factory
         return [
             'codigo' => $this->faker->unique()->numerify('ESC-###'),
             'restricao_atendimento' => $this->faker->randomElement(['Nenhuma', 'Parcial', 'Total']),
-            'nome' => 'Escola '.$this->faker->company(),
+            'nome' => 'Escola ' . $this->faker->company(),
             'codigo_inep' => $this->faker->numerify('########'),
             'uf' => $this->faker->stateAbbr(),
             'municipio' => $this->faker->city(),

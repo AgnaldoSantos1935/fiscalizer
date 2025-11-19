@@ -24,9 +24,9 @@ class ServidorController extends Controller
                 ->addColumn('situacao', fn ($s) => ucfirst($s->situacao))
                 ->addColumn('acoes', function ($s) {
                     return '
-                        <a href="'.route('servidores.edit', $s->id).'" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></a>
-                        <form method="POST" action="'.route('servidores.destroy', $s->id).'" style="display:inline;">
-                            '.csrf_field().method_field('DELETE').'
+                        <a href="' . route('servidores.edit', $s->id) . '" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></a>
+                        <form method="POST" action="' . route('servidores.destroy', $s->id) . '" style="display:inline;">
+                            ' . csrf_field() . method_field('DELETE') . '
                             <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm(\'Excluir este servidor?\')">
                                 <i class="fas fa-trash"></i>
                             </button>
@@ -88,7 +88,7 @@ class ServidorController extends Controller
     {
         $validated = $request->validate([
             'pessoa_id' => 'required|exists:pessoas,id',
-            'matricula' => 'required|string|max:50|unique:servidores,matricula,'.$servidor->id,
+            'matricula' => 'required|string|max:50|unique:servidores,matricula,' . $servidor->id,
             'cargo' => 'nullable|string|max:255',
             'funcao' => 'nullable|string|max:255',
             'lotacao' => 'nullable|string|max:255',

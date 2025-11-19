@@ -27,11 +27,11 @@ class HostStatusChangedNotification extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject('['.($this->online ? 'ONLINE' : 'OFFLINE').'] '.$this->host->nome_conexao)
-            ->line('Host: '.$this->host->nome_conexao)
-            ->line('Alvo: '.$this->host->host_alvo)
-            ->line('Status: '.($this->online ? 'ONLINE' : 'OFFLINE'))
-            ->when(! $this->online && $this->erro, fn ($mail) => $mail->line('Erro: '.$this->erro)
+            ->subject('[' . ($this->online ? 'ONLINE' : 'OFFLINE') . '] ' . $this->host->nome_conexao)
+            ->line('Host: ' . $this->host->nome_conexao)
+            ->line('Alvo: ' . $this->host->host_alvo)
+            ->line('Status: ' . ($this->online ? 'ONLINE' : 'OFFLINE'))
+            ->when(! $this->online && $this->erro, fn ($mail) => $mail->line('Erro: ' . $this->erro)
             )
             ->line('Fiscalizer – Monitoramento automático.');
     }

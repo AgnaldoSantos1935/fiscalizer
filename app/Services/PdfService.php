@@ -22,7 +22,7 @@ class PdfService
 
     public function gerarAtesto(Medicao $medicao, User $fiscal): string
     {
-        $hash = hash('sha256', $medicao->id.$fiscal->id.now());
+        $hash = hash('sha256', $medicao->id . $fiscal->id . now());
 
         $pdf = PDF::loadView('pdfs.atesto-servicos', [
             'medicao' => $medicao,

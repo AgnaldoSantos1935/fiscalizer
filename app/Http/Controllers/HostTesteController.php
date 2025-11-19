@@ -28,7 +28,7 @@ class HostTesteController extends Controller
                     return "<span class='badge bg-$badge text-uppercase px-2 py-1'>{$row->status_conexao}</span>";
                 })
                 ->addColumn('modo', fn ($row) => ucfirst($row->modo_execucao))
-                ->addColumn('acoes', fn ($row) => '<a href="'.route('host_testes.show', $row->id).'" class="btn btn-sm btn-info">
+                ->addColumn('acoes', fn ($row) => '<a href="' . route('host_testes.show', $row->id) . '" class="btn btn-sm btn-info">
                         <i class="fas fa-eye"></i>
                     </a>'
                 )
@@ -101,7 +101,7 @@ class HostTesteController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'mensagem' => 'Erro ao executar teste: '.$e->getMessage(),
+                'mensagem' => 'Erro ao executar teste: ' . $e->getMessage(),
             ], 500);
         }
     }

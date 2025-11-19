@@ -2,14 +2,13 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Carbon;
-use App\Models\User;
 use App\Models\TermoReferencia;
 use App\Models\TermoReferenciaItem;
 use App\Models\TermoReferenciaLog;
+use App\Models\User;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class TermoReferenciaSeeder extends Seeder
 {
@@ -21,7 +20,7 @@ class TermoReferenciaSeeder extends Seeder
         DB::transaction(function () {
             // Garantir um usuário para vincular nos logs
             $user = User::first();
-            if (!$user) {
+            if (! $user) {
                 $user = User::create([
                     'name' => 'Admin TR',
                     'email' => 'admin.tr@example.com',

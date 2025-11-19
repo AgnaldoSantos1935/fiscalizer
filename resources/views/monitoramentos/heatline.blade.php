@@ -3,18 +3,11 @@
 @section('title','Heatline – Disponibilidade')
 
 @section('css')
-<style>
-    .heatbox {
-        width: 16px;
-        height: 16px;
-        margin: 1px;
-        border-radius: 3px;
-        display: inline-block;
-    }
-</style>
+{{-- estilos movidos para resources/css/custom.css --}}
 @endsection
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="container-fluid">
 
     <div class="card shadow-sm border-0 rounded-4">

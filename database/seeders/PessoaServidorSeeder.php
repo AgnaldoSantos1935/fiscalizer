@@ -28,7 +28,7 @@ class PessoaServidorSeeder extends Seeder
             return;
         }
 
-        $this->command->info('📦 Iniciando importação de '.count($data).' pessoas...');
+        $this->command->info('📦 Iniciando importação de ' . count($data) . ' pessoas...');
 
         foreach ($data as $pessoaData) {
             // Criação ou atualização da Pessoa

@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="card shadow-sm border-0 rounded-4">
     <div class="card-body">
 
@@ -43,7 +44,7 @@
                         </div>
                         <div class="col-md-3 mb-3">
                             <label class="form-label">CPF</label>
-                            <input type="text" name="cpf" value="{{ old('cpf', $profile->cpf) }}" class="form-control">
+<input type="text" name="cpf" value="{{ old('cpf', $profile->cpf) }}" class="form-control cpf-input mask-cpf" placeholder="000.000.000-00">
                         </div>
                         <div class="col-md-3 mb-3">
                             <label class="form-label">RG</label>

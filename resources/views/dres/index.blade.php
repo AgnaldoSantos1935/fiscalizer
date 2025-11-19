@@ -3,6 +3,7 @@
 @section('title', 'Diretorias Regionais de Educação')
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="container-fluid">
 
     <!-- 🔹 Card de Filtros -->

@@ -23,7 +23,7 @@ class MedicaoItemSoftware extends Model
     {
         static::creating(function ($item) {
             $item->hash_unico = sha1(
-                $item->demanda_id.'|'.$item->os_id.'|'.$item->descricao.'|'.$item->pf.'|'.$item->ust
+                $item->demanda_id . '|' . $item->os_id . '|' . $item->descricao . '|' . $item->pf . '|' . $item->ust
             );
         });
     }

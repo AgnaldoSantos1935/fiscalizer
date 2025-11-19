@@ -41,7 +41,8 @@ class AtaAdesao extends Model
         return $this->morphOne(\App\Models\ProcessoInstancia::class, 'referencia');
     }
 
-    protected $casts = [
-        'valor_estimado' => 'decimal:2',
-    ];
+    public function itens()
+    {
+        return $this->hasMany(\App\Models\AtaAdesaoItem::class, 'adesao_id');
+    }
 }

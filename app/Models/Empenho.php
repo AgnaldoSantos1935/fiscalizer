@@ -59,7 +59,7 @@ class Empenho extends Model
     // 💰 Formatação amigável
     public function getValorTotalFormatadoAttribute()
     {
-        return 'R$ '.number_format($this->valor_total ?? 0, 2, ',', '.');
+        return 'R$ ' . number_format($this->valor_total ?? 0, 2, ',', '.');
     }
 
     public function getDataFormatadaAttribute()

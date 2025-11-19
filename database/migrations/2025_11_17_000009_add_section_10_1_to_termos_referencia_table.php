@@ -18,7 +18,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('termos_referencia', function (Blueprint $table) {
-            $table->dropColumn(['funcional_programatica','elemento_despesa','fonte_recurso']);
+            $table->dropColumn(['funcional_programatica', 'elemento_despesa', 'fonte_recurso']);
         });
     }
 };

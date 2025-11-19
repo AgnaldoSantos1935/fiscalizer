@@ -66,7 +66,7 @@ class DocumentoController extends Controller
 
         return response()->file($full, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="'.basename($full).'"',
+            'Content-Disposition' => 'inline; filename="' . basename($full) . '"',
         ]);
     }
 

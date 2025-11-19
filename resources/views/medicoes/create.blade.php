@@ -3,23 +3,16 @@
 @section('title', 'Nova Medição')
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="container-fluid">
     @section('breadcrumb')
-      <nav aria-label="breadcrumb" class="mb-3">
-          <ol class="breadcrumb bg-white px-3 py-2 rounded-3 shadow-sm">
-              <li class="breadcrumb-item">
-                  <a href="{{ route('contratos.index') }}" class="text-decoration-none text-primary fw-semibold">
-                      <i class="fas fa-file-contract me-1"></i> Contratos
-                  </a>
-              </li>
-              <li class="breadcrumb-item">
-                  <a href="{{ route('contratos.show', $contrato->id) }}" class="text-decoration-none text-primary fw-semibold">
-                      Contrato {{ $contrato->numero }}
-                  </a>
-              </li>
-              <li class="breadcrumb-item active text-secondary fw-semibold">Nova Medição</li>
-          </ol>
-      </nav>
+      @include('layouts.components.breadcrumbs', [
+        'trail' => [
+          ['label' => 'Contratos', 'icon' => 'fas fa-file-contract', 'url' => route('contratos.index')],
+          ['label' => 'Contrato ' . ($contrato->numero ?? ''), 'url' => route('contratos.show', $contrato->id)],
+          ['label' => 'Nova Medição']
+        ]
+      ])
     @endsection
     <h3 class="mb-3">Nova Medição – Contrato {{ $contrato->numero }}</h3>
 

@@ -97,8 +97,4 @@ class AtaRegistroPreco extends Model
 
         return $disp > 0 ? $disp : 0.0;
     }
-
-    protected $casts = [
-        'saldo_global' => 'decimal:2',
-    ];
 }

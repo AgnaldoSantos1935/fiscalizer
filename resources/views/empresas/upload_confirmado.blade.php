@@ -3,6 +3,7 @@
 @section('title', 'Documento Recebido – Fiscalizer')
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="container py-5 text-center">
 
     <img src="/images/brasao-pa.png" width="80" class="mb-3">

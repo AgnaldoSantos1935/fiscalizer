@@ -8,9 +8,9 @@ use Illuminate\Support\Str;
 @section('content_body')
 <div class="container-fluid">
   <!-- 🔹 Card de Filtros -->
-    <div class="card shadow-sm border-0 rounded-4 mb-4">
-        <div class="card-header bg-white border-0 d-flex align-items-center justify-content-between">
-            <h4 class="mb-0 text-secondary fw-semibold">
+    <div class="card ui-card shadow-sm border-0 rounded-4 mb-4">
+        <div class="card-header ui-card-header border-0 d-flex align-items-center justify-content-between">
+            <h4 class="card-title mb-0 fw-semibold">
                 <i class="fas fa-search me-2 text-primary"></i>Filtros de Pesquisa
             </h4>
         </div>
@@ -21,32 +21,32 @@ use Illuminate\Support\Str;
   <div class="col-md-3">
 
 
-    <label for="filtroNumero" class="form-label fw-semibold text-secondary small">Número</label>
+    <label for="filtroNumero" class="form-label ui-form-label small">Número</label>
     <input type="text" id="filtroNumero" name="numero"
            value="{{ request('numero') }}" class="form-control form-control-sm" type="text"
            placeholder="Ex: 065/2025">
   </div>
 
   <div class="col-md-4">
-    <label for="filtroEmpresa" class="form-label fw-semibold text-secondary small">Empresa</label>
+    <label for="filtroEmpresa" class="form-label ui-form-label small">Empresa</label>
     <input type="text" id="filtroEmpresa" name="empresa"
            value="{{ request('empresa') }}" class="form-control form-control-sm" type="text"
            placeholder="Digite parte do nome">
   </div>
 
   <div class="col-md-3">
-    <label for="filtroSituacao" class="form-label fw-semibold text-secondary small">Situação</label>
-    <select id="filtroSituacao" name="situacao" class="custom-select form-control-border">
+    <label for="filtroSituacao" class="form-label ui-form-label small">Situação</label>
+    <select id="filtroSituacao" name="situacao" class="ui-select">
   <option value="">Todas</option>
 </select>
   </div>
 
 <div class="col-md-2 d-flex justify-content-end align-items-end">
   <div class="d-flex w-100">
-    <button type="button" id="btnAplicarFiltros" class="btn btn-primary btn-sm btn-sep flex-grow-1">
+    <button type="button" id="btnAplicarFiltros" class="btn btn-sm ui-btn btn-sep flex-grow-1">
       <i class="fas fa-filter me-1"></i> Filtrar
     </button>
-    <button type="button" id="btnLimpar" class="btn btn-outline-secondary btn-sm btn-sep flex-grow-1">
+    <button type="button" id="btnLimpar" class="btn btn-sm ui-btn outline btn-sep flex-grow-1">
       <i class="fas fa-undo me-1"></i> Limpar
     </button>
   </div>
@@ -59,9 +59,9 @@ use Illuminate\Support\Str;
     </div>
 
     <!-- 🔹 Card Principal -->
-    <div class="card shadow-sm border-0 rounded-4">
-        <div class="card-header bg-white border-0 d-flex align-items-center justify-content-between">
-            <h4 class="mb-0 text-secondary fw-semibold">
+    <div class="card ui-card shadow-sm border-0 rounded-4">
+        <div class="card-header ui-card-header border-0 d-flex align-items-center justify-content-between">
+            <h4 class="card-title mb-0 fw-semibold">
                 <i class="fas fa-file-contract me-2 text-primary"></i>Contratos Cadastrados
             </h4>
         </div>
@@ -154,8 +154,7 @@ use Illuminate\Support\Str;
 @endsection
 
 @push('css')
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
-<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+{{-- Removido: CSS do DataTables via CDN (já importado em resources/css/app.css) --}}
 @endpush
 
 @push('scripts')

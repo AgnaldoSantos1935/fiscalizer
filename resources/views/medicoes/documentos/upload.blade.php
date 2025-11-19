@@ -3,6 +3,7 @@
 @section('title', 'Upload de Documentos da Medição')
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="container-fluid">
 
     <div class="d-flex justify-content-between mb-4">

@@ -2,13 +2,20 @@
 @section('title', 'Nova Empresa')
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 @section('breadcrumb')
-  <nav aria-label="breadcrumb" class="mb-3">
-    <ol class="breadcrumb bg-white px-3 py-2 rounded-3 shadow-sm">
-      <li class="breadcrumb-item"><a href="{{ route('empresas.index') }}" class="text-decoration-none text-primary fw-semibold"><i class="fas fa-building me-1"></i> Empresas</a></li>
-      <li class="breadcrumb-item active text-secondary fw-semibold">Nova Empresa</li>
-    </ol>
-  </nav>
+  @include('layouts.components.breadcrumbs', [
+    'trail' => (request('return') === 'contratos.create')
+      ? [
+          ['label' => 'Contratos', 'icon' => 'fas fa-file-contract', 'url' => route('contratos.index')],
+          ['label' => 'Novo Contrato', 'url' => route('contratos.create')],
+          ['label' => 'Nova Empresa']
+        ]
+      : [
+          ['label' => 'Empresas', 'icon' => 'fas fa-building', 'url' => route('empresas.index')],
+          ['label' => 'Nova Empresa']
+        ]
+  ])
 @endsection
 <div class="container-fluid">
 
@@ -18,6 +25,9 @@
 
             <form action="{{ route('empresas.store') }}" method="POST" class="p-3">
                 @csrf
+                @if(request('return'))
+                  <input type="hidden" name="return" value="{{ request('return') }}">
+                @endif
 
                 <div class="row g-3">
                     <div class="col-md-6">
@@ -47,7 +57,7 @@
                         </label>
                         <input type="text" name="cnpj" id="cnpj"
                                class="form-control form-control-sm cnpj-input @error('cnpj') is-invalid @enderror"
-                               value="{{ old('cnpj') }}" required>
+                               value="{{ old('cnpj', request('cnpj')) }}" required>
                         @error('cnpj')
                             <div class="invalid-feedback small">{{ $message }}</div>
                         @enderror
@@ -115,7 +125,11 @@
                 <!-- 🔹 Rodapé -->
                 <div class="mt-4 d-flex justify-content-end gap-2">
                     <button type="reset" class="btn btn-outline-secondary btn-sm px-3"><i class="fas fa-undo me-1"></i> Limpar</button>
-                    <a href="{{ route('empresas.index') }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-times me-1"></i> Cancelar</a>
+                    @if(request('return'))
+                      <a href="{{ route(request('return')) }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-times me-1"></i> Cancelar</a>
+                    @else
+                      <a href="{{ route('empresas.index') }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-times me-1"></i> Cancelar</a>
+                    @endif
                     <button type="submit" class="btn btn-success btn-sm px-3"><i class="fas fa-save me-1"></i> Salvar Empresa</button>
                 </div>
             </form>

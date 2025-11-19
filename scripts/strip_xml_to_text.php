@@ -1,4 +1,5 @@
 <?php
+
 // Strip Word document.xml to plain text
 // Usage: php scripts/strip_xml_to_text.php path/to/document.xml
 
@@ -13,15 +14,15 @@ if ($argc < 2) {
 }
 
 $xmlPath = $argv[1];
-if (!file_exists($xmlPath)) {
+if (! file_exists($xmlPath)) {
     fwrite(STDERR, "File not found: {$xmlPath}\n");
     exit(1);
 }
 
-$dom = new DOMDocument();
+$dom = new DOMDocument;
 $dom->preserveWhiteSpace = false;
 $dom->formatOutput = false;
-if (!@$dom->load($xmlPath)) {
+if (! @$dom->load($xmlPath)) {
     fwrite(STDERR, "Failed to load XML: {$xmlPath}\n");
     exit(1);
 }

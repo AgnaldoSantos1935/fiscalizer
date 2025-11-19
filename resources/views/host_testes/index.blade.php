@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="card shadow-sm border-0 rounded-4">
     <div class="card-body">
         <table id="tabelaTestes" class="table table-bordered table-striped table-hover w-100">

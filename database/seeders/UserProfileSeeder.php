@@ -30,7 +30,7 @@ class UserProfileSeeder extends Seeder
             return;
         }
 
-        $this->command->info('📥 Importando '.count($pessoas).' perfis fictícios...');
+        $this->command->info('📥 Importando ' . count($pessoas) . ' perfis fictícios...');
 
         $i = 1;
         foreach ($pessoas as $pessoa) {
@@ -75,7 +75,7 @@ class UserProfileSeeder extends Seeder
                     'celular' => $pessoa['celular'] ?? null,
                     'email_pessoal' => $pessoa['email'] ?? null,
                     'email_institucional' => null,
-                    'matricula' => 'M'.str_pad($i, 5, '0', STR_PAD_LEFT),
+                    'matricula' => 'M' . str_pad($i, 5, '0', STR_PAD_LEFT),
                     'cargo' => fake()->randomElement(['Analista', 'Técnico', 'Coordenador', 'Fiscal']),
                     'dre' => fake()->randomElement(['DRE 1', 'DRE 2', 'DRE 3', 'DRE 4']),
                     'lotacao' => fake()->randomElement(['SEDUC-PA', 'Escola Estadual', 'Coordenação Regional']),

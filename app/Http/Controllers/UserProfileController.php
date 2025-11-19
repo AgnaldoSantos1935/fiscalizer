@@ -23,10 +23,10 @@ class UserProfileController extends Controller
                 ->addIndexColumn()
                 ->addColumn('acoes', function ($row) {
                     $btn = '
-                        <a href="'.route('user_profiles.show', $row->id).'" class="btn btn-sm btn-info me-1">
+                        <a href="' . route('user_profiles.show', $row->id) . '" class="btn btn-sm btn-info me-1">
                             <i class="fas fa-eye"></i>
                         </a>
-                        <a href="'.route('user_profiles.edit', $row->id).'" class="btn btn-sm btn-primary me-1">
+                        <a href="' . route('user_profiles.edit', $row->id) . '" class="btn btn-sm btn-primary me-1">
                             <i class="fas fa-edit"></i>
                         </a>
                         </form>

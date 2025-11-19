@@ -3,6 +3,7 @@
 @section('title', 'Conformidade Contratual')
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="container-fluid">
 
     <h3 class="mb-4">

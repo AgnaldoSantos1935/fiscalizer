@@ -2,6 +2,7 @@
 @section('title', 'Detalhes do Contrato')
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div>
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">

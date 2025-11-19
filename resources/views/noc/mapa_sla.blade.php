@@ -6,17 +6,18 @@
 @endsection
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="container-fluid">
     <div class="card shadow-sm border-0 rounded-4">
         <div class="card-header bg-white border-0">
-            <h4 class="text-secondary fw-semibold">
+            <h4 class="card-title fw-semibold">
                 <i class="fas fa-map-marked-alt me-2 text-primary"></i>
                 Mapa de SLA dos Contratos
             </h4>
         </div>
 
         <div class="card-body p-0">
-            <div id="mapSLA" style="height: 80vh;"></div>
+            <div id="mapSLA" class="ui-map h-80vh"></div>
         </div>
     </div>
 </div>

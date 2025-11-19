@@ -47,13 +47,13 @@ class EscolaController extends Controller
 
         // 🔍 Filtros opcionais
         if ($request->filled('id_escola')) {
-            $query->where('id_escola', 'like', '%'.$request->codigo.'%');
+            $query->where('id_escola', 'like', '%' . $request->codigo . '%');
         }
         if ($request->filled('nome')) {
-            $query->where('escola', 'like', '%'.$request->nome.'%');
+            $query->where('escola', 'like', '%' . $request->nome . '%');
         }
         if ($request->filled('municipio')) {
-            $query->where('municipio', 'like', '%'.$request->municipio.'%');
+            $query->where('municipio', 'like', '%' . $request->municipio . '%');
         }
         if ($request->filled('uf')) {
             $query->where('uf', strtoupper($request->uf));
@@ -140,7 +140,7 @@ class EscolaController extends Controller
     public function update(Request $request, Escola $escola)
     {
         $validated = $request->validate([
-            'codigo_inep' => 'required|string|max:20|unique:escolas,codigo_inep,'.$escola->id,
+            'codigo_inep' => 'required|string|max:20|unique:escolas,codigo_inep,' . $escola->id,
             'escola' => 'required|string|max:255',
         ]);
         $logradouro = trim($request->input('logradouro', ''));

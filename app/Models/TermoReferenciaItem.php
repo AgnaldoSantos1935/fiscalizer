@@ -27,7 +27,7 @@ class TermoReferenciaItem extends Model
     {
         static::saving(function ($item) {
             $qtd = (float) ($item->quantidade ?? 0);
-            $vu  = (float) ($item->valor_unitario ?? 0);
+            $vu = (float) ($item->valor_unitario ?? 0);
             $item->valor_total = $qtd * $vu;
         });
     }

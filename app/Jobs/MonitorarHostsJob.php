@@ -54,7 +54,7 @@ class MonitorarHostsJob implements ShouldQueue
 
                 Log::info("🌐 {$host->nome_conexao} ({$ip}) → {$status} ({$tempo} ms)");
             } catch (\Exception $e) {
-                Log::error("❌ Erro ao monitorar {$host->nome_conexao}: ".$e->getMessage());
+                Log::error("❌ Erro ao monitorar {$host->nome_conexao}: " . $e->getMessage());
             }
         }
 

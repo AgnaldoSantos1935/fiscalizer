@@ -42,12 +42,12 @@ return new class extends Migration
     {
         Schema::table('termos_referencia', function (Blueprint $table) {
             $table->dropColumn([
-                'edital_exigira_amostra','edital_amostra_justificativa',
-                'garantia_bem','garantia_bem_itens','garantia_bem_meses',
-                'assistencia_tecnica_tipo','assistencia_tecnica_meses',
-                'forma_contratacao','criterio_julgamento_tipo',
-                'orcamento_sigiloso','orcamento_sigiloso_justificativa',
-                'itens_exclusivos_me_epp','itens_exclusivos_lista',
+                'edital_exigira_amostra', 'edital_amostra_justificativa',
+                'garantia_bem', 'garantia_bem_itens', 'garantia_bem_meses',
+                'assistencia_tecnica_tipo', 'assistencia_tecnica_meses',
+                'forma_contratacao', 'criterio_julgamento_tipo',
+                'orcamento_sigiloso', 'orcamento_sigiloso_justificativa',
+                'itens_exclusivos_me_epp', 'itens_exclusivos_lista',
             ]);
         });
     }

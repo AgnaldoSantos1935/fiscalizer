@@ -31,4 +31,9 @@ class AtaItem extends Model
     {
         return $this->belongsTo(AtaRegistroPreco::class, 'ata_id');
     }
+
+    public function adesaoItens()
+    {
+        return $this->hasMany(\App\Models\AtaAdesaoItem::class, 'ata_item_id');
+    }
 }

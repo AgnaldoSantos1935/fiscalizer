@@ -3,7 +3,110 @@
 @section('title', 'Dashboard - Fiscalizer')
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="container-fluid">
+
+  <!-- 🔹 Apresentação e Avisos -->
+  <div class="row g-3 mb-4">
+    <div class="col-lg-8">
+      <div class="card ui-card shadow-sm border-0 rounded-4">
+        <div class="card-body">
+          <div class="d-flex align-items-center mb-2">
+            <i class="fas fa-home text-primary fa-lg me-2"></i>
+            <h5 class="mb-0">Bem-vindo{{ isset($usuario) && $usuario ? ", ".$usuario->name : '' }}!</h5>
+          </div>
+          <p class="text-muted mb-3">Esta é a sua página inicial. Aqui você encontra atalhos para as funcionalidades principais e um resumo de avisos para sua conta.</p>
+
+          <div class="row g-3">
+            <div class="col-sm-6 col-md-4">
+              <a href="{{ route('contratos.index') }}" class="text-decoration-none">
+                <div class="ui-card p-3 h-100 hover-shadow">
+                  <div class="d-flex align-items-center mb-2"><i class="fas fa-file-contract text-primary me-2"></i><strong>Contratos</strong></div>
+                  <small class="text-muted">Cadastro, gestão e conformidade de contratos.</small>
+                </div>
+              </a>
+            </div>
+            <div class="col-sm-6 col-md-4">
+              <a href="{{ route('projetos.index') }}" class="text-decoration-none">
+                <div class="ui-card p-3 h-100 hover-shadow">
+                  <div class="d-flex align-items-center mb-2"><i class="fas fa-diagram-project text-success me-2"></i><strong>Projetos</strong></div>
+                  <small class="text-muted">Portfólio, produtividade e indicadores.</small>
+                </div>
+              </a>
+            </div>
+            <div class="col-sm-6 col-md-4">
+              <a href="{{ route('medicoes.index') }}" class="text-decoration-none">
+                <div class="ui-card p-3 h-100 hover-shadow">
+                  <div class="d-flex align-items-center mb-2"><i class="fas fa-calculator text-info me-2"></i><strong>Medições</strong></div>
+                  <small class="text-muted">Ciclos de medição e boletins.</small>
+                </div>
+              </a>
+            </div>
+            <div class="col-sm-6 col-md-4">
+              <a href="{{ route('mapas.escolas') }}" class="text-decoration-none">
+                <div class="ui-card p-3 h-100 hover-shadow">
+                  <div class="d-flex align-items-center mb-2"><i class="fas fa-map-marked-alt text-warning me-2"></i><strong>Mapas</strong></div>
+                  <small class="text-muted">Exploração geográfica das escolas e filtros.</small>
+                </div>
+              </a>
+            </div>
+            <div class="col-sm-6 col-md-4">
+              <a href="{{ route('monitoramentos.index') }}" class="text-decoration-none">
+                <div class="ui-card p-3 h-100 hover-shadow">
+                  <div class="d-flex align-items-center mb-2"><i class="fas fa-server text-secondary me-2"></i><strong>Monitoramentos</strong></div>
+                  <small class="text-muted">Saúde dos serviços e hosts monitorados.</small>
+                </div>
+              </a>
+            </div>
+            <div class="col-sm-6 col-md-4">
+              <a href="{{ route('notificacoes.index') }}" class="text-decoration-none">
+                <div class="ui-card p-3 h-100 hover-shadow">
+                  <div class="d-flex align-items-center mb-2">
+                    <i class="fas fa-bell text-danger me-2"></i><strong>Notificações</strong>
+                    @if(($notificacoesNaoLidas ?? 0) > 0)
+                      <span class="badge bg-danger ms-2">{{ $notificacoesNaoLidas }}</span>
+                    @endif
+                  </div>
+                  <small class="text-muted">Avisos e alertas da sua conta.</small>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card ui-card shadow-sm border-0 rounded-4 h-100">
+        <div class="card-header ui-card-header d-flex justify-content-between align-items-center">
+          <h6 class="mb-0 text-secondary fw-semibold"><i class="fas fa-bell text-danger me-1"></i>Avisos</h6>
+          <a href="{{ route('notificacoes.index') }}" class="btn btn-sm ui-btn outline">Ver todas</a>
+        </div>
+        <div class="card-body">
+          @forelse(($ultimasNotificacoes ?? collect()) as $n)
+            <div class="mb-3">
+              <div class="d-flex align-items-center">
+                @if(!$n->lida)
+                  <span class="badge bg-danger me-2">Nova</span>
+                @else
+                  <span class="badge bg-secondary me-2">Lida</span>
+                @endif
+                <strong>{{ $n->titulo }}</strong>
+              </div>
+              <div class="small text-muted">{{ $n->mensagem }}</div>
+              <div class="d-flex justify-content-between mt-1">
+                <div class="small text-muted">{{ optional($n->created_at)->format('d/m/Y H:i') }}</div>
+                @if($n->link)
+                  <a href="{{ $n->link }}" class="small">Abrir</a>
+                @endif
+              </div>
+            </div>
+          @empty
+            <div class="text-muted">Sem avisos recentes.</div>
+          @endforelse
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div class="row mb-4">
     <div class="col-md-12">

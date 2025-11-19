@@ -2,6 +2,7 @@
 @section('title', 'Nota de Empenho '.$nota->numero)
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="container-fluid">
   <div class="card shadow-sm rounded-4">
     <div class="card-header bg-white d-flex justify-content-between">

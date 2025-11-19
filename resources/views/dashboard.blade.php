@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="container mt-5">
     <h2 class="mb-4">Painel de Controle - Fiscalizer</h2>
     <div class="row">

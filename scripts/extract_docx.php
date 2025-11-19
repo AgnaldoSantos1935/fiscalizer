@@ -1,4 +1,5 @@
 <?php
+
 // Simple DOCX text extractor for console usage
 // Usage: php scripts/extract_docx.php path/to/file.docx
 
@@ -13,17 +14,17 @@ if ($argc < 2) {
 }
 
 $docxPath = $argv[1];
-if (!file_exists($docxPath)) {
+if (! file_exists($docxPath)) {
     fwrite(STDERR, "File not found: {$docxPath}\n");
     exit(1);
 }
 
-if (!class_exists('ZipArchive')) {
+if (! class_exists('ZipArchive')) {
     fwrite(STDERR, "ZipArchive extension is required.\n");
     exit(1);
 }
 
-$zip = new ZipArchive();
+$zip = new ZipArchive;
 if ($zip->open($docxPath) !== true) {
     fwrite(STDERR, "Failed to open DOCX: {$docxPath}\n");
     exit(1);
@@ -45,11 +46,11 @@ if ($xmlContent === false) {
 }
 
 // Load XML and extract text from w:p and w:t nodes
-$dom = new DOMDocument();
+$dom = new DOMDocument;
 $dom->preserveWhiteSpace = false;
 $dom->formatOutput = false;
 // Suppress errors for malformed XML; DOCX is usually valid though
-if (!@$dom->loadXML($xmlContent)) {
+if (! @$dom->loadXML($xmlContent)) {
     // Fallback: very naive strip tags
     $plain = strip_tags($xmlContent);
     echo trim($plain), "\n";

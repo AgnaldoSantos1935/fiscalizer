@@ -26,19 +26,19 @@ class ValidadorNotaFiscalService
         if ($dados['valor'] != $doc->medicao->valor_total) {
             return $this->inconsistencia(
                 $doc,
-                'Valor da Nota Fiscal (R$ '.$dados['valor'].') é diferente do valor da medição (R$ '.$doc->medicao->valor_total.').'
+                'Valor da Nota Fiscal (R$ ' . $dados['valor'] . ') é diferente do valor da medição (R$ ' . $doc->medicao->valor_total . ').'
             );
         }
         if ($somaPlanilha != $medicao->valor_total) {
             return $this->inconsistencia(
                 $doc,
-                "Somatório da planilha (R$ $somaPlanilha) não confere com o valor da medição (R$ ".$medicao->valor_total.').'
+                "Somatório da planilha (R$ $somaPlanilha) não confere com o valor da medição (R$ " . $medicao->valor_total . ').'
             );
         }
         if ($dataValidade < today()) {
             return $this->inconsistencia(
                 $doc,
-                'Certidão vencida em '.$dataValidade->format('d/m/Y').'.'
+                'Certidão vencida em ' . $dataValidade->format('d/m/Y') . '.'
             );
         }
         if (! $autenticidade) {
@@ -58,7 +58,7 @@ class ValidadorNotaFiscalService
 
     private function validarNFe(MedicaoNotaFiscal $nf): MedicaoNotaFiscal
     {
-        $url = 'https://api.sefa.pa.gov.br/nfe/consulta/'.$nf->chave;
+        $url = 'https://api.sefa.pa.gov.br/nfe/consulta/' . $nf->chave;
 
         $response = Http::get($url);
 
@@ -91,7 +91,7 @@ class ValidadorNotaFiscalService
 
     private function validarNFSe(MedicaoNotaFiscal $nf): MedicaoNotaFiscal
     {
-        $url = 'https://api.belem.pa.gov.br/nfse/validar/'.$nf->numero.'/'.$nf->cnpj_prestador;
+        $url = 'https://api.belem.pa.gov.br/nfse/validar/' . $nf->numero . '/' . $nf->cnpj_prestador;
 
         $response = Http::get($url);
 

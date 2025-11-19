@@ -3,6 +3,7 @@
 @section('title', 'Acesso Negado')
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="text-center mt-5">
     <h1 class="display-4 text-danger"><i class="fas fa-ban"></i> Acesso Negado</h1>
     <p class="lead mt-3">Você não possui permissão para acessar esta página.</p>

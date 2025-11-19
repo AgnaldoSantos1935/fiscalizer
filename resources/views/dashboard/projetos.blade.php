@@ -3,6 +3,7 @@
 @section('title', 'Painel de Projetos e Medições')
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="container-fluid">
 
   <div class="row mb-4">

@@ -8,6 +8,8 @@ use App\Models\Documento;
 use App\Models\Medicao;
 use App\Models\ProcessoLog;
 use App\Models\Projeto;
+use App\Models\UserNotification;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -47,6 +49,21 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
+        // 🔹 Usuário logado e notificações
+        $usuario = Auth::user();
+        $notificacoesNaoLidas = 0;
+        $ultimasNotificacoes = collect();
+        if ($usuario) {
+            $notificacoesNaoLidas = UserNotification::where('user_id', $usuario->id)
+                ->where('lida', false)
+                ->count();
+
+            $ultimasNotificacoes = UserNotification::where('user_id', $usuario->id)
+                ->latest()
+                ->take(5)
+                ->get();
+        }
+
         return view('dashboard.home', compact(
             'totalContratos',
             'totalProjetos',
@@ -56,7 +73,10 @@ class DashboardController extends Controller
             'totalUST',
             'valorTotal',
             'topProjetos',
-            'boletinsRecentes'
+            'boletinsRecentes',
+            'usuario',
+            'notificacoesNaoLidas',
+            'ultimasNotificacoes'
         ));
     }
 

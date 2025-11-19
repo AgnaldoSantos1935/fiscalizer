@@ -84,6 +84,6 @@ class ProjetoApiController extends Controller
             $horas[] = $lista->sum('horas');
         }
 
-        return response()->json(compact('labels','horas'));
+        return response()->json(compact('labels', 'horas'));
     }
 }

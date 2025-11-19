@@ -2,13 +2,14 @@
 @section('title', 'Nova Escola')
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 @section('breadcrumb')
-  <nav aria-label="breadcrumb" class="mb-3">
-    <ol class="breadcrumb bg-white px-3 py-2 rounded-3 shadow-sm">
-      <li class="breadcrumb-item"><a href="{{ route('escolas.index') }}" class="text-decoration-none text-primary fw-semibold"><i class="fas fa-school me-1"></i> Escolas</a></li>
-      <li class="breadcrumb-item active text-secondary fw-semibold">Nova Escola</li>
-    </ol>
-  </nav>
+  @include('layouts.components.breadcrumbs', [
+    'trail' => [
+      ['label' => 'Escolas', 'icon' => 'fas fa-school', 'url' => route('escolas.index')],
+      ['label' => 'Nova Escola']
+    ]
+  ])
 @endsection
 <div class="container-fluid">
     <div class="card shadow-sm border-0 rounded-4">

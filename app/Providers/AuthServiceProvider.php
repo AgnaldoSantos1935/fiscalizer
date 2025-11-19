@@ -23,11 +23,11 @@ class AuthServiceProvider extends ServiceProvider
         // Administradores podem tudo (ID 1)
         Gate::before(function ($user, $ability) {
             if ($user && $user->role_id === 1) { // ID do Administrador
-                \Illuminate\Support\Facades\Log::debug('Gate::before - Usuário é Administrador (ID 1), concedendo permissão para: '.$ability);
+                \Illuminate\Support\Facades\Log::debug('Gate::before - Usuário é Administrador (ID 1), concedendo permissão para: ' . $ability);
 
                 return true;
             }
-            \Illuminate\Support\Facades\Log::debug('Gate::before - Verificação falhou para: '.$ability.' - User ID: '.($user ? $user->id : 'null').' - Role ID: '.($user ? $user->role_id : 'null'));
+            \Illuminate\Support\Facades\Log::debug('Gate::before - Verificação falhou para: ' . $ability . ' - User ID: ' . ($user ? $user->id : 'null') . ' - Role ID: ' . ($user ? $user->role_id : 'null'));
 
             return null;
         });

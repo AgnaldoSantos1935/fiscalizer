@@ -11,6 +11,7 @@
 @extends('layouts.auth')
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-6 col-lg-5 col-xl-4">
@@ -29,11 +30,11 @@
                             <label for="email" class="form-label">E-mail</label>
                             <div class="input-group">
                                 <div class="input-group-prepend">
-                                    <span class="input-group-text" style="height: 45px;">
+                                    <span class="input-group-text h-45px">
                                         <i class="fas fa-envelope fa-lg"></i>
                                     </span>
                                 </div>
-                                <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ $email ?? old('email') }}" required autocomplete="email" autofocus placeholder="Digite seu e-mail" style="height: 45px;" readonly>
+                                <input id="email" type="email" class="form-control @error('email') is-invalid @enderror h-45px" name="email" value="{{ $email ?? old('email') }}" required autocomplete="email" autofocus placeholder="Digite seu e-mail" readonly>
                                 @error('email')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
@@ -46,11 +47,11 @@
                             <label for="password" class="form-label">Nova Senha</label>
                             <div class="input-group">
                                 <div class="input-group-prepend">
-                                    <span class="input-group-text" style="height: 45px;">
+                                    <span class="input-group-text h-45px">
                                         <i class="fas fa-lock fa-lg"></i>
                                     </span>
                                 </div>
-                                <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="new-password" placeholder="Digite sua nova senha" style="height: 45px;">
+                                <input id="password" type="password" class="form-control @error('password') is-invalid @enderror h-45px" name="password" required autocomplete="new-password" placeholder="Digite sua nova senha">
                                 @error('password')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
@@ -63,11 +64,11 @@
                             <label for="password-confirm" class="form-label">Confirmar Senha</label>
                             <div class="input-group">
                                 <div class="input-group-prepend">
-                                    <span class="input-group-text" style="height: 45px;">
+                                    <span class="input-group-text h-45px">
                                         <i class="fas fa-lock fa-lg"></i>
                                     </span>
                                 </div>
-                                <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required autocomplete="new-password" placeholder="Confirme sua nova senha" style="height: 45px;">
+                                <input id="password-confirm" type="password" class="form-control h-45px" name="password_confirmation" required autocomplete="new-password" placeholder="Confirme sua nova senha">
                             </div>
                         </div>
 

@@ -11,6 +11,7 @@
 @endsection
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="container-fluid">
 
   <div class="card shadow-sm border-0 rounded-4">

@@ -100,7 +100,7 @@ class ContratoController extends Controller
     public function update(Request $request, Contrato $contrato)
     {
         $request->validate([
-            'numero' => 'required|string|max:50|unique:contratos,numero,'.$contrato->id,
+            'numero' => 'required|string|max:50|unique:contratos,numero,' . $contrato->id,
             'objeto' => 'required|string',
             'contratada_id' => 'required|exists:empresas,id',
             'valor_global' => 'nullable|numeric',

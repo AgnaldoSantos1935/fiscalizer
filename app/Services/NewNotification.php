@@ -22,7 +22,7 @@ class NewNotification implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        return new PrivateChannel('users.'.$this->notification->user_id);
+        return new PrivateChannel('users.' . $this->notification->user_id);
     }
 
     public function broadcastAs()

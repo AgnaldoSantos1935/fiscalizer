@@ -11,18 +11,115 @@ class MapaController extends Controller
 {
     public function index()
     {
-        // Lista de DREs disponíveis para filtro
-        $dres = DB::table('dres')
+        // Lista de DREs disponíveis para filtro (normalização de label e ordenação acento-insensível)
+        $dresRaw = DB::table('dres')
             ->select('id', 'nome_dre')
-            ->orderBy('nome_dre')
+            ->whereNotNull('nome_dre')
             ->get();
 
-        return view('mapas.escolas', compact('dres')); // view Blade que vai renderizar o mapa
+        $dres = collect($dresRaw)
+            ->map(function ($d) {
+                $s = is_string($d->nome_dre) ? trim($d->nome_dre) : '';
+                // normaliza diferentes traços para hífen ASCII
+                $s = str_replace(["—","–","‑","−"], "-", $s);
+                // remove espaços ao redor do hífen
+                $s = preg_replace('/\s*-\s*/u', '-', $s);
+                // colapsa múltiplos espaços
+                $s = preg_replace('/\s+/u', ' ', $s);
+
+                // label em Title Case
+                $label = mb_convert_case($s, MB_CASE_TITLE, 'UTF-8');
+                // key para ordenação acento-insensível
+                $trans = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $s) ?: $s;
+                $key = strtolower(trim($trans));
+                return ['id' => $d->id, 'label' => $label, 'key' => $key];
+            })
+            ->filter(fn($it) => ! empty($it['label']))
+            ->unique('id')
+            ->sortBy('key')
+            ->values();
+
+        // Detecta colunas disponíveis na tabela 'escolas' para montar filtros dinâmicos
+        $cols = Schema::getColumnListing('escolas');
+        $lcMap = [];
+        foreach ($cols as $c) { $lcMap[strtolower($c)] = $c; }
+        $find = function (array $cands) use ($lcMap) {
+            foreach ($cands as $cand) { $k = strtolower($cand); if (isset($lcMap[$k])) return $lcMap[$k]; }
+            return null;
+        };
+
+        $municipioCol = $find(['municipio']);
+        $dependenciaCol = $find(['dependencia_administrativa', 'dependencia']);
+
+        $municipios = collect();
+        if ($municipioCol) {
+            $municipiosRaw = DB::table('escolas')
+                ->select($municipioCol)
+                ->whereNotNull($municipioCol)
+                ->distinct()
+                ->pluck($municipioCol);
+
+            // Normaliza nomes de municípios: colapsa espaços, normaliza hífens, trim; gera label e key
+            $municipios = collect($municipiosRaw)
+                ->map(function ($m) {
+                    if (! is_string($m)) return null;
+
+                    $s = trim($m);
+                    // normaliza diferentes traços para hífen ASCII
+                    $s = str_replace(["—","–","‑","−"], "-", $s);
+                    // remove espaços ao redor do hífen
+                    $s = preg_replace('/\s*-\s*/u', '-', $s);
+                    // colapsa múltiplos espaços
+                    $s = preg_replace('/\s+/u', ' ', $s);
+
+                    // label em Title Case (mantendo acentos)
+                    $label = mb_convert_case($s, MB_CASE_TITLE, 'UTF-8');
+
+                    // key: lowercase, colapsa espaços/hífens com mesmas regras (sem remover acentos)
+                    $key = strtolower($s);
+                    return ['key' => $key, 'label' => $label];
+                })
+                ->filter(fn($it) => is_array($it) && ! empty($it['label']))
+                ->unique('key')
+                ->sortBy('key')
+                ->values();
+        }
+
+        $dependencias = collect();
+        if ($dependenciaCol) {
+            $depsRaw = DB::table('escolas')
+                ->select($dependenciaCol)
+                ->whereNotNull($dependenciaCol)
+                ->distinct()
+                ->pluck($dependenciaCol);
+
+            // Normaliza valores: colapsa espaços e normaliza hífens; gera label e key
+            $dependencias = collect($depsRaw)
+                ->map(function ($d) {
+                    if (! is_string($d)) return null;
+                    $s = trim($d);
+                    $s = str_replace(["—","–","‑","−"], "-", $s);
+                    $s = preg_replace('/\s*-\s*/u', '-', $s);
+                    $s = preg_replace('/\s+/u', ' ', $s);
+
+                    $label = mb_convert_case($s, MB_CASE_TITLE, 'UTF-8');
+                    $key = strtolower($s);
+                    return ['key' => $key, 'label' => $label];
+                })
+                ->filter(fn($it) => is_array($it) && ! empty($it['label']))
+                ->unique('key')
+                ->sortBy('key')
+                ->values();
+        }
+
+        return view('mapas.escolas', compact('dres', 'municipios', 'dependencias')); // view Blade que vai renderizar o mapa
     }
 
     public function escolasGeoJson(Request $request)
     {
         $dreId = $request->input('dre_id');
+        $municipioFiltro = $request->input('municipio');
+        $jurisdicaoFiltro = $request->input('jurisdicao');
         // Detecta colunas disponíveis na tabela 'escolas' (case-insensitive)
         $cols = Schema::getColumnListing('escolas');
         Log::info('MapaController: colunas detectadas em escolas', ['cols' => $cols]);
@@ -78,12 +175,52 @@ class MapaController extends Controller
         $selects[] = "escolas.$lonCol as longitude";
 
         $query = DB::table('escolas')->selectRaw(implode(', ', $selects))
-            ->whereNotNull('escolas.'.$latCol)
-            ->whereNotNull('escolas.'.$lonCol);
+            ->whereNotNull('escolas.' . $latCol)
+            ->whereNotNull('escolas.' . $lonCol);
 
-        // Se houver coluna de dependencia administrativa, filtre por 'estadual'
-        if ($dependenciaCol) {
-            $query->whereRaw('LOWER(COALESCE('.$dependenciaCol.', "")) = ?', [strtolower('estadual')]);
+        // Aplica filtros opcionais
+        if ($municipioFiltro && $municipioCol) {
+            // Normaliza filtro recebido (mesmas regras da key gerada)
+            $f = trim($municipioFiltro);
+            $f = str_replace(["—","–","‑","−"], "-", $f);
+            $f = preg_replace('/\s*-\s*/u', '-', $f);
+            $f = preg_replace('/\s+/u', ' ', $f);
+            $f = strtolower($f);
+
+            // Expressão SQL que normaliza o valor do banco para comparação
+            $expr = 'LOWER(' .
+                'REPLACE(' .
+                    'REPLACE(' .
+                        'REPLACE(' .
+                            'REPLACE(' .
+                                'REPLACE(' .
+                                    'REPLACE(TRIM(COALESCE(escolas.' . $municipioCol . ', "")), "—", "-"), "–", "-"), "‑", "-"), "−", "-"), " - ", "-"), "  ", " ")' .
+            ')';
+
+            // Duas passagens para reduzir possíveis espaços múltiplos
+            $expr = 'LOWER(REPLACE(' . $expr . ', "  ", " "))';
+
+            $query->whereRaw($expr . ' = ?', [$f]);
+        }
+        if ($jurisdicaoFiltro && $dependenciaCol) {
+            // Normaliza filtro de jurisdição com mesmas regras de key
+            $f = trim($jurisdicaoFiltro);
+            $f = str_replace(["—","–","‑","−"], "-", $f);
+            $f = preg_replace('/\s*-\s*/u', '-', $f);
+            $f = preg_replace('/\s+/u', ' ', $f);
+            $f = strtolower($f);
+
+            $expr = 'LOWER(' .
+                'REPLACE(' .
+                    'REPLACE(' .
+                        'REPLACE(' .
+                            'REPLACE(' .
+                                'REPLACE(' .
+                                    'REPLACE(TRIM(COALESCE(escolas.' . $dependenciaCol . ', "")), "—", "-"), "–", "-"), "‑", "-"), "−", "-"), " - ", "-"), "  ", " ")' .
+            ')';
+            $expr = 'LOWER(REPLACE(' . $expr . ', "  ", " "))';
+
+            $query->whereRaw($expr . ' = ?', [$f]);
         }
 
         // Se houver coluna 'dre' e tabela 'dres', tente fazer join para obter nome da dre
@@ -94,9 +231,9 @@ class MapaController extends Controller
             $dresMap = array_map('strtolower', $dresCols);
             $joinOn = null;
             if (in_array('id', $dresMap)) {
-                $joinOn = ['escolas.'.$dreCol, '=', 'dres.id'];
+                $joinOn = ['escolas.' . $dreCol, '=', 'dres.id'];
             } elseif (in_array('codigodre', $dresMap)) {
-                $joinOn = ['escolas.'.$dreCol, '=', 'dres.codigodre'];
+                $joinOn = ['escolas.' . $dreCol, '=', 'dres.codigodre'];
             }
             if ($joinOn) {
                 $query->leftJoin('dres', $joinOn[0], $joinOn[1], $joinOn[2]);
@@ -104,7 +241,22 @@ class MapaController extends Controller
                     $query->addSelect(DB::raw('dres.nome_dre as dre_nome'));
                     $dreNomeAlias = 'dre_nome';
                 }
+
+                // Filtro por DRE quando possível
+                if ($dreId) {
+                    if ($joinOn[2] === 'dres.id') {
+                        $query->where('dres.id', $dreId);
+                    } elseif ($joinOn[2] === 'dres.codigodre') {
+                        $query->where('dres.codigodre', $dreId);
+                    } else {
+                        $query->where('escolas.' . $dreCol, $dreId);
+                    }
+                }
             }
+        }
+        // Caso não tenha tabela dres ou não foi possível fazer o join, aplica filtro direto se houver valor
+        if ($dreId && $dreCol && ! Schema::hasTable('dres')) {
+            $query->where('escolas.' . $dreCol, $dreId);
         }
 
         $escolas = $query->get();

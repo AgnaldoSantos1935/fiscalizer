@@ -182,7 +182,7 @@ class TestarConectividadeHosts extends Command
                 }
             }
         } catch (\Exception $e) {
-            Log::warning('Não foi possível obter IP de origem: '.$e->getMessage());
+            Log::warning('Não foi possível obter IP de origem: ' . $e->getMessage());
         }
 
         return null;

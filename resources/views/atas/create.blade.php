@@ -1,18 +1,15 @@
 @extends('layouts.app')
 @section('title','Nova Ata')
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="container-fluid">
   @section('breadcrumb')
-    <nav aria-label="breadcrumb" class="mb-3">
-      <ol class="breadcrumb bg-white px-3 py-2 rounded-3 shadow-sm">
-        <li class="breadcrumb-item">
-          <a href="{{ route('atas.index') }}" class="text-decoration-none text-primary fw-semibold">
-            <i class="fas fa-file-alt me-1"></i> Atas
-          </a>
-        </li>
-        <li class="breadcrumb-item active text-secondary fw-semibold">Nova Ata</li>
-      </ol>
-    </nav>
+    @include('layouts.components.breadcrumbs', [
+      'trail' => [
+        ['label' => 'Atas', 'icon' => 'fas fa-file-alt', 'url' => route('atas.index')],
+        ['label' => 'Nova Ata']
+      ]
+    ])
   @endsection
   <h3 class="mb-3">Cadastrar Ata de Registro de Preços</h3>
   <form method="POST" action="{{ route('atas.store') }}" class="card p-3">

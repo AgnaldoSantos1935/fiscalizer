@@ -2,13 +2,14 @@
 @section('title', 'Cadastrar Projeto')
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 @section('breadcrumb')
-  <nav aria-label="breadcrumb" class="mb-3">
-    <ol class="breadcrumb bg-white px-3 py-2 rounded-3 shadow-sm">
-      <li class="breadcrumb-item"><a href="{{ route('projetos.index') }}" class="text-decoration-none text-primary fw-semibold"><i class="fas fa-project-diagram me-1"></i> Projetos</a></li>
-      <li class="breadcrumb-item active text-secondary fw-semibold">Novo Projeto</li>
-    </ol>
-  </nav>
+  @include('layouts.components.breadcrumbs', [
+    'trail' => [
+      ['label' => 'Projetos', 'icon' => 'fas fa-project-diagram', 'url' => route('projetos.index')],
+      ['label' => 'Novo Projeto']
+    ]
+  ])
 @endsection
 <div class="container-fluid">
 

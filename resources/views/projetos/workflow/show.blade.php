@@ -3,6 +3,7 @@
 @section('title', 'Workflow do Projeto')
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="container-fluid">
 
     <div class="d-flex justify-content-between align-items-center mb-3">

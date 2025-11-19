@@ -2,6 +2,7 @@
 @section('title','Servidor')
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="container-fluid">
   <div class="card rounded-4 border-0 shadow-sm">
     <div class="card-header bg-white d-flex justify-content-between">

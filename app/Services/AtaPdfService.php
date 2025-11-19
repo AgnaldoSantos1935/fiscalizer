@@ -15,11 +15,11 @@ class AtaPdfService
         if ($useJasper) {
             $jasper = App::make(JasperService::class);
             $publicUrl = rtrim(config('app.url'), '\/');
-            $targetPath = 'atas/adesoes/autorizacao_'.$adesao->id.'.pdf';
+            $targetPath = 'atas/adesoes/autorizacao_' . $adesao->id . '.pdf';
             $params = [
                 'adesaoId' => $adesao->id,
                 'gestorNome' => (auth()->user()?->nome_completo ?? auth()->user()?->name ?? ''),
-                'qrUrl' => $publicUrl.'/storage/'.$targetPath,
+                'qrUrl' => $publicUrl . '/storage/' . $targetPath,
             ];
             $pdfBinary = $jasper->renderToPdf('atas/autorizacao.jrxml', $params);
             Storage::disk('public')->put($targetPath, $pdfBinary);
@@ -30,7 +30,7 @@ class AtaPdfService
         }
 
         $pdf = PDF::loadView('pdf.ata_autorizacao_adesao', ['adesao' => $adesao])->setPaper('a4');
-        $path = 'atas/adesoes/autorizacao_'.$adesao->id.'.pdf';
+        $path = 'atas/adesoes/autorizacao_' . $adesao->id . '.pdf';
         Storage::disk('public')->put($path, $pdf->output());
         $adesao->documento_pdf_path = $path;
         $adesao->save();

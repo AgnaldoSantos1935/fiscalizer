@@ -66,11 +66,11 @@ class FluxoOrdemServicoController extends Controller
         $urlUpload = route('empresa.upload_documento', $demanda->upload_token);
 
         Mail::raw(
-            "Prezados,\n\nUma nova demanda foi registrada.\n".
-            "Número da demanda: {$demanda->id}\n".
-            "Título: {$demanda->titulo}\n\n".
-            'Por favor, acessem o link a seguir para enviar o documento técnico '.
-            "de levantamento de requisitos, cronograma, protótipos e estimativa de PF/UST:\n".
+            "Prezados,\n\nUma nova demanda foi registrada.\n" .
+            "Número da demanda: {$demanda->id}\n" .
+            "Título: {$demanda->titulo}\n\n" .
+            'Por favor, acessem o link a seguir para enviar o documento técnico ' .
+            "de levantamento de requisitos, cronograma, protótipos e estimativa de PF/UST:\n" .
             "{$urlUpload}\n\nAtenciosamente,\nDETEC / SEDUC-PA",
             function ($m) use ($email) {
                 $m->to($email)->subject('Nova Demanda - Envio de Documento Técnico');

@@ -12,10 +12,13 @@ class TermoReferenciaController extends Controller
 {
     private function normalizeNumber($value)
     {
-        if ($value === null) return null;
+        if ($value === null) {
+            return null;
+        }
         $s = (string) $value;
         $s = str_replace(['.', ','], ['', '.'], $s);
-        return is_numeric($s) ? (float)$s : null;
+
+        return is_numeric($s) ? (float) $s : null;
     }
 
     public function index()
@@ -25,15 +28,16 @@ class TermoReferenciaController extends Controller
         } else {
             $trs = collect();
         }
+
         return view('termos_referencia.index', compact('trs'));
     }
 
     public function getJson()
     {
-        $data = TermoReferencia::select('id','titulo','status','valor_estimado','created_at')
+        $data = TermoReferencia::select('id', 'titulo', 'status', 'valor_estimado', 'created_at')
             ->orderByDesc('created_at')
             ->get()
-            ->map(function($tr){
+            ->map(function ($tr) {
                 return [
                     'id' => $tr->id,
                     'titulo' => $tr->titulo,
@@ -44,6 +48,7 @@ class TermoReferenciaController extends Controller
                     'pdf_url' => route('contratacoes.termos-referencia.pdf', $tr),
                 ];
             });
+
         return response()->json(['data' => $data]);
     }
 
@@ -165,20 +170,20 @@ class TermoReferenciaController extends Controller
 
         $validator = Validator::make($request->all(), $rules);
 
-        $validator->after(function($v) use ($request){
+        $validator->after(function ($v) use ($request) {
             foreach ([
-                'objeto','justificativa','escopo','requisitos','criterios_julgamento','prazos','local_execucao','forma_pagamento',
-                'modelo_execucao','modelo_gestao','criterios_medicao_pagamento','forma_criterios_selecao_fornecedor',
-                'prova_qualidade_justificativa','edital_amostra_justificativa','orcamento_sigiloso_justificativa',
-                'itens_exclusivos_lista','garantia_bem_itens',
-                'habilitacao_tecnica_qual','habilitacao_tecnica_justificativa',
-                'qt_declaracao_justificativa','qt_registro_justificativa','qt_indicacao_justificativa',
-                'qt_outro_especificar','qt_outro_justificativa',
-                'criterio_sustentabilidade_especificar','riscos_assumidos_especificar',
-                'especificacao_produto','locais_entrega_recebimento','garantia_manutencao_assistencia',
-                'recebimento_endereco','garantia_contrato_justificativa',
-                'funcional_programatica','elemento_despesa','fonte_recurso',
-                'estimativas_valor_texto','adequacao_orcamentaria'
+                'objeto', 'justificativa', 'escopo', 'requisitos', 'criterios_julgamento', 'prazos', 'local_execucao', 'forma_pagamento',
+                'modelo_execucao', 'modelo_gestao', 'criterios_medicao_pagamento', 'forma_criterios_selecao_fornecedor',
+                'prova_qualidade_justificativa', 'edital_amostra_justificativa', 'orcamento_sigiloso_justificativa',
+                'itens_exclusivos_lista', 'garantia_bem_itens',
+                'habilitacao_tecnica_qual', 'habilitacao_tecnica_justificativa',
+                'qt_declaracao_justificativa', 'qt_registro_justificativa', 'qt_indicacao_justificativa',
+                'qt_outro_especificar', 'qt_outro_justificativa',
+                'criterio_sustentabilidade_especificar', 'riscos_assumidos_especificar',
+                'especificacao_produto', 'locais_entrega_recebimento', 'garantia_manutencao_assistencia',
+                'recebimento_endereco', 'garantia_contrato_justificativa',
+                'funcional_programatica', 'elemento_despesa', 'fonte_recurso',
+                'estimativas_valor_texto', 'adequacao_orcamentaria',
             ] as $field) {
                 $content = (string) $request->input($field);
                 if ($content !== '') {
@@ -198,10 +203,10 @@ class TermoReferenciaController extends Controller
         // Cidade: prioriza Pessoa ligada ao usuário; fallback para Belém
         $user = \Illuminate\Support\Facades\Auth::user();
         $pessoa = optional($user)->pessoa;
-        if (!empty($pessoa?->cidade)) {
+        if (! empty($pessoa?->cidade)) {
             $validated['cidade'] = $pessoa->cidade;
         }
-        if (!isset($validated['cidade']) || trim((string)$validated['cidade']) === '') {
+        if (! isset($validated['cidade']) || trim((string) $validated['cidade']) === '') {
             $validated['cidade'] = 'Belém';
         }
 
@@ -217,16 +222,20 @@ class TermoReferenciaController extends Controller
         // Persiste itens dinâmicos, se enviados
         $itens = $request->input('itens', []);
         foreach ($itens as $i) {
-            $descricao = trim((string)($i['descricao'] ?? ''));
-            if ($descricao === '') { continue; }
+            $descricao = trim((string) ($i['descricao'] ?? ''));
+            if ($descricao === '') {
+                continue;
+            }
             $unidade = $i['unidade'] ?? null;
             $quantidade = $this->normalizeNumber($i['quantidade'] ?? 0);
-            $valorUnit  = $this->normalizeNumber($i['valor_unitario'] ?? 0);
-            if (($quantidade ?? 0) <= 0 && ($valorUnit ?? 0) <= 0) { continue; }
+            $valorUnit = $this->normalizeNumber($i['valor_unitario'] ?? 0);
+            if (($quantidade ?? 0) <= 0 && ($valorUnit ?? 0) <= 0) {
+                continue;
+            }
             $tr->itens()->create([
-                'descricao'      => $descricao,
-                'unidade'        => $unidade,
-                'quantidade'     => $quantidade ?? 0,
+                'descricao' => $descricao,
+                'unidade' => $unidade,
+                'quantidade' => $quantidade ?? 0,
                 'valor_unitario' => $valorUnit ?? 0,
             ]);
         }
@@ -237,6 +246,7 @@ class TermoReferenciaController extends Controller
     public function show(TermoReferencia $tr)
     {
         $tr->loadMissing(['itens', 'logs.usuario']);
+
         return view('termos_referencia.show', compact('tr'));
     }
 
@@ -246,6 +256,7 @@ class TermoReferenciaController extends Controller
             return redirect()->route('contratacoes.termos-referencia.show', $tr)
                 ->with('warning', 'Edição desabilitada: TR está finalizado.');
         }
+
         return view('termos_referencia.edit', compact('tr'));
     }
 
@@ -352,17 +363,17 @@ class TermoReferenciaController extends Controller
 
         $validator = Validator::make($request->all(), $rules);
 
-        $validator->after(function($v) use ($request){
+        $validator->after(function ($v) use ($request) {
             foreach ([
-                'objeto','justificativa','escopo','requisitos','criterios_julgamento','prazos','local_execucao','forma_pagamento',
-                'prova_qualidade_justificativa','edital_amostra_justificativa','orcamento_sigiloso_justificativa',
-                'itens_exclusivos_lista','garantia_bem_itens',
-                'habilitacao_tecnica_qual','habilitacao_tecnica_justificativa',
-                'qt_declaracao_justificativa','qt_registro_justificativa','qt_indicacao_justificativa',
-                'qt_outro_especificar','qt_outro_justificativa',
-                'criterio_sustentabilidade_especificar','riscos_assumidos_especificar',
-                'recebimento_endereco','garantia_contrato_justificativa',
-                'funcional_programatica','elemento_despesa','fonte_recurso'
+                'objeto', 'justificativa', 'escopo', 'requisitos', 'criterios_julgamento', 'prazos', 'local_execucao', 'forma_pagamento',
+                'prova_qualidade_justificativa', 'edital_amostra_justificativa', 'orcamento_sigiloso_justificativa',
+                'itens_exclusivos_lista', 'garantia_bem_itens',
+                'habilitacao_tecnica_qual', 'habilitacao_tecnica_justificativa',
+                'qt_declaracao_justificativa', 'qt_registro_justificativa', 'qt_indicacao_justificativa',
+                'qt_outro_especificar', 'qt_outro_justificativa',
+                'criterio_sustentabilidade_especificar', 'riscos_assumidos_especificar',
+                'recebimento_endereco', 'garantia_contrato_justificativa',
+                'funcional_programatica', 'elemento_despesa', 'fonte_recurso',
             ] as $field) {
                 $content = (string) $request->input($field);
                 if ($content !== '') {
@@ -382,10 +393,10 @@ class TermoReferenciaController extends Controller
         // Cidade: prioriza Pessoa ligada ao usuário; fallback para Belém
         $user = \Illuminate\Support\Facades\Auth::user();
         $pessoa = optional($user)->pessoa;
-        if (!empty($pessoa?->cidade)) {
+        if (! empty($pessoa?->cidade)) {
             $validated['cidade'] = $pessoa->cidade;
         }
-        if (!isset($validated['cidade']) || trim((string)$validated['cidade']) === '') {
+        if (! isset($validated['cidade']) || trim((string) $validated['cidade']) === '') {
             $validated['cidade'] = 'Belém';
         }
 
@@ -397,6 +408,7 @@ class TermoReferenciaController extends Controller
         $validated['responsavel_matricula'] = $profile->matricula ?? ($validated['responsavel_matricula'] ?? null);
 
         $tr->update($validated);
+
         return redirect()->route('contratacoes.termos-referencia.show', $tr)->with('success', 'Termo de Referência atualizado com sucesso!');
     }
 
@@ -412,8 +424,9 @@ class TermoReferenciaController extends Controller
             'termo_referencia_id' => $tr->id,
             'acao' => 'enviar_aprovacao',
             'usuario_id' => \Illuminate\Support\Facades\Auth::id(),
-            'motivo' => $request->input('motivo')
+            'motivo' => $request->input('motivo'),
         ]);
+
         return redirect()->route('contratacoes.termos-referencia.show', $tr)
             ->with('success', 'Termo de Referência enviado para aprovação.');
     }
@@ -438,8 +451,9 @@ class TermoReferenciaController extends Controller
             'termo_referencia_id' => $tr->id,
             'acao' => 'aprovar',
             'usuario_id' => \Illuminate\Support\Facades\Auth::id(),
-            'motivo' => $request->input('motivo')
+            'motivo' => $request->input('motivo'),
         ]);
+
         return redirect()->route('contratacoes.termos-referencia.show', $tr)
             ->with('success', 'Termo de Referência aprovado com sucesso.');
     }
@@ -456,8 +470,9 @@ class TermoReferenciaController extends Controller
             'termo_referencia_id' => $tr->id,
             'acao' => 'retornar',
             'usuario_id' => \Illuminate\Support\Facades\Auth::id(),
-            'motivo' => $request->input('motivo')
+            'motivo' => $request->input('motivo'),
         ]);
+
         return redirect()->route('contratacoes.termos-referencia.show', $tr)
             ->with('success', 'Termo de Referência retornado para elaboração.');
     }
@@ -468,7 +483,7 @@ class TermoReferenciaController extends Controller
     public function reprovar(TermoReferencia $tr, Request $request)
     {
         $data = $request->validate([
-            'motivo' => 'required|string|min:3'
+            'motivo' => 'required|string|min:3',
         ]);
         if ($tr->status !== 'rascunho') {
             $tr->update(['status' => 'rascunho']);
@@ -477,8 +492,9 @@ class TermoReferenciaController extends Controller
             'termo_referencia_id' => $tr->id,
             'acao' => 'reprovar',
             'usuario_id' => \Illuminate\Support\Facades\Auth::id(),
-            'motivo' => $data['motivo']
+            'motivo' => $data['motivo'],
         ]);
+
         return redirect()->route('contratacoes.termos-referencia.show', $tr)
             ->with('success', 'Termo de Referência reprovado e retornado para elaboração.');
     }
@@ -493,7 +509,7 @@ class TermoReferenciaController extends Controller
         }
         // Itens com quantidade e valor válidos
         $invalidItens = $tr->itens()
-            ->where(function($q){
+            ->where(function ($q) {
                 $q->where('quantidade', '<=', 0)->orWhere('valor_unitario', '<=', 0);
             })->count();
         if ($invalidItens > 0) {
@@ -514,12 +530,14 @@ class TermoReferenciaController extends Controller
         if (empty($tr->titulo) || empty($tr->objeto)) {
             $erros[] = 'Título e objeto do TR são obrigatórios.';
         }
+
         return $erros;
     }
 
     public function destroy(TermoReferencia $tr)
     {
         $tr->delete();
+
         return redirect()->route('contratacoes.termos-referencia.index')->with('success', 'Termo de Referência removido com sucesso!');
     }
 
@@ -530,8 +548,11 @@ class TermoReferenciaController extends Controller
         $normalized = preg_replace('/<\/(p|div|li)>/i', "\n", $normalized);
         $plain = strip_tags($normalized);
         $plain = trim($plain);
-        if ($plain === '') return 0;
+        if ($plain === '') {
+            return 0;
+        }
         $lines = preg_split('/\r\n|\r|\n/', $plain);
+
         return count($lines);
     }
 
@@ -543,25 +564,25 @@ class TermoReferenciaController extends Controller
         ])->setPaper('a4');
 
         // Salva no disco público
-        $filename = 'tr_pdfs/TR_'.$tr->id.'_'.now()->format('Ymd_His').'.pdf';
-        $path = storage_path('app/public/'.$filename);
-        if (!is_dir(dirname($path))) {
+        $filename = 'tr_pdfs/TR_' . $tr->id . '_' . now()->format('Ymd_His') . '.pdf';
+        $path = storage_path('app/public/' . $filename);
+        if (! is_dir(dirname($path))) {
             mkdir(dirname($path), 0777, true);
         }
         file_put_contents($path, $pdf->output());
 
         // Registra documento para visualização
         $doc = \App\Models\Documento::create([
-            'tipo'           => 'tr_pdf',
-            'titulo'         => $tr->titulo,
-            'descricao'      => 'PDF gerado do Termo de Referência #'.$tr->id,
-            'caminho_arquivo'=> 'tr_pdfs/'.basename($path),
-            'data_upload'    => now(),
-            'metadados'      => [
+            'tipo' => 'tr_pdf',
+            'titulo' => $tr->titulo,
+            'descricao' => 'PDF gerado do Termo de Referência #' . $tr->id,
+            'caminho_arquivo' => 'tr_pdfs/' . basename($path),
+            'data_upload' => now(),
+            'metadados' => [
                 'tr_id' => $tr->id,
                 'tipo_tr' => $tr->tipo_tr,
             ],
-            'created_by'     => \Illuminate\Support\Facades\Auth::id(),
+            'created_by' => \Illuminate\Support\Facades\Auth::id(),
         ]);
 
         return redirect()->route('documentos.visualizar', [

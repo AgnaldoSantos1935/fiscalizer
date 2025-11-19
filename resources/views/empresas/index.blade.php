@@ -2,6 +2,7 @@
 @section('title', 'Empresas Cadastradas')
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="container-fluid">
 
     <!-- 🔹 Card de Filtros -->

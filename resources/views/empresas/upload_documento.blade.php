@@ -3,6 +3,7 @@
 @section('title', 'Envio de Documento Técnico – Fiscalizer')
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="container py-5">
 
     <div class="text-center mb-4">

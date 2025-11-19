@@ -3,6 +3,7 @@
 @section('title', 'Documentos')
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="container-fluid">
     <!-- 🔹 Filtros -->
     <div class="card shadow-sm border-0 rounded-4 mb-4">

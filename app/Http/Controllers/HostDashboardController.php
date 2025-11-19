@@ -128,8 +128,8 @@ class HostDashboardController extends Controller
                             <i class='fas fa-circle me-1'></i>$status
                         </span>";
                 })
-                ->addColumn('latencia_ms', fn ($row) => $row->latencia_ms ? number_format($row->latencia_ms, 2, ',', '.').' ms' : '—')
-                ->addColumn('perda_pacotes', fn ($row) => $row->perda_pacotes ? number_format($row->perda_pacotes, 1, ',', '.').'%' : '—')
+                ->addColumn('latencia_ms', fn ($row) => $row->latencia_ms ? number_format($row->latencia_ms, 2, ',', '.') . ' ms' : '—')
+                ->addColumn('perda_pacotes', fn ($row) => $row->perda_pacotes ? number_format($row->perda_pacotes, 1, ',', '.') . '%' : '—')
                 ->addColumn('modo_execucao', fn ($row) => ucfirst($row->modo_execucao))
                 ->addColumn('executado_por', fn ($row) => $row->executado_por ?? '—')
                 ->addColumn('created_at', fn ($row) => $row->created_at->format('d/m/Y H:i'))

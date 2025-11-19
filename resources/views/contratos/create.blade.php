@@ -2,17 +2,14 @@
 @section('title', 'Novo Contrato')
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 @section('breadcrumb')
-  <nav aria-label="breadcrumb" class="mb-3">
-    <ol class="breadcrumb bg-white px-3 py-2 rounded-3 shadow-sm">
-      <li class="breadcrumb-item">
-        <a href="{{ route('contratos.index') }}" class="text-decoration-none text-primary fw-semibold">
-          <i class="fas fa-file-contract me-1"></i> Contratos
-        </a>
-      </li>
-      <li class="breadcrumb-item active text-secondary fw-semibold">Novo Contrato</li>
-    </ol>
-    </nav>
+  @include('layouts.components.breadcrumbs', [
+    'trail' => [
+      ['label' => 'Contratos', 'icon' => 'fas fa-file-contract', 'url' => route('contratos.index')],
+      ['label' => 'Novo Contrato']
+    ]
+  ])
 @endsection
 <h2 class="mb-4">Cadastrar Novo Contrato</h2>
 
@@ -34,76 +31,13 @@
       <select name="contratada_id" id="contratada_id" class="form-select" required>
         <option value="">Selecione...</option>
         @foreach($empresas as $empresa)
-          <option value="{{ $empresa->id }}">{{ $empresa->razao_social }}</option>
+          <option value="{{ $empresa->id }}" @if(request('empresa_id') == $empresa->id) selected @endif>{{ $empresa->razao_social }}</option>
         @endforeach
       </select>
       <button type="button" class="btn btn-outline-primary" id="btnVerificarCnpj"><i class="fas fa-search"></i></button>
-      <button type="button" class="btn btn-outline-success" id="btnNovaEmpresa" data-bs-toggle="modal" data-bs-target="#modalNovaEmpresa"><i class="fas fa-plus"></i></button>
+      <a href="{{ route('empresas.create', ['return' => 'contratos.create']) }}" class="btn btn-outline-success" id="btnCadastrarEmpresa"><i class="fas fa-plus"></i></a>
       </div>
-      <small class="text-muted">Use a lupa para verificar por CNPJ e o + para cadastrar nova empresa.</small>
-    </div>
-  </div>
-
-  <div class="modal fade" id="modalNovaEmpresa" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Cadastrar Nova Empresa</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label">Razão Social</label>
-              <input type="text" id="novaRazao" class="form-control" required>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">CNPJ</label>
-              <input type="text" id="novoCnpj" class="form-control cnpj-input" placeholder="00.000.000/0000-00" required>
-            </div>
-            <div class="col-md-3">
-              <label class="form-label">CEP</label>
-              <input type="text" id="novoCep" class="form-control cep-input" placeholder="00000-000">
-            </div>
-            <div class="col-md-5">
-              <label class="form-label">Logradouro</label>
-              <input type="text" id="novoLogradouro" class="form-control">
-            </div>
-            <div class="col-md-2">
-              <label class="form-label">Número</label>
-              <input type="text" id="novoNumero" class="form-control">
-            </div>
-            <div class="col-md-2">
-              <label class="form-label">Complemento</label>
-              <input type="text" id="novoComplemento" class="form-control">
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Bairro</label>
-              <input type="text" id="novoBairro" class="form-control">
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Cidade</label>
-              <input type="text" id="novoCidade" class="form-control">
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">UF</label>
-              <input type="text" id="novoUf" class="form-control" maxlength="2">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Contato</label>
-              <input type="text" id="novoContato" class="form-control">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Email</label>
-              <input type="email" id="novoEmail" class="form-control">
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="button" class="btn btn-success" id="btnSalvarEmpresa"><i class="fas fa-save me-1"></i>Salvar</button>
-        </div>
-      </div>
+      <small class="text-muted">Use a lupa para verificar por CNPJ e o + para cadastrar nova empresa em outra tela.</small>
     </div>
   </div>
   <div class="mb-3">
@@ -191,15 +125,11 @@
       if(msgEl) msgEl.textContent = message;
       if(toastEl && typeof bootstrap !== 'undefined' && bootstrap.Toast){ try { new bootstrap.Toast(toastEl).show(); } catch(e){} }
     }
-    const modalEl = document.getElementById('modalNovaEmpresa');
-    let modal = null;
-    if (modalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-      try { modal = new bootstrap.Modal(modalEl); } catch(e) { modal = null; }
-    }
-    const btnNova = document.getElementById('btnNovaEmpresa');
+    // Botão "+": abre diretamente a tela de cadastro de empresa
+    const btnCadastrar = document.getElementById('btnCadastrarEmpresa');
     const btnVerificar = document.getElementById('btnVerificarCnpj');
     const selectEmpresa = document.getElementById('contratada_id');
-    if(btnNova && modal){ btnNova.addEventListener('click', ()=> modal.show()); }
+    // Sem interceptação: navegação direta via href com return=contratos.create
     if(btnVerificar){
       btnVerificar.addEventListener('click', async ()=>{
         const cnpj = prompt('Informe o CNPJ (somente números ou com máscara):');
@@ -214,92 +144,15 @@
               const o = document.createElement('option'); o.value = j.data.id; o.textContent = j.data.razao_social; selectEmpresa.appendChild(o);
             }
             selectEmpresa.value = j.data.id;
-            alert('Empresa encontrada. Contratos cadastrados: ' + (j.contratos_count ?? 0));
+            // Removido alert: seleção silenciosa
           } else {
-            alert('Empresa não encontrada. Você pode cadastrá-la agora.');
-            if(modal) modal.show();
+            const clean = (cnpj||'').replace(/\D+/g,'');
+            const urlCreate = "{{ route('empresas.create') }}" + '?return=contratos.create' + (clean ? ('&cnpj=' + encodeURIComponent(clean)) : '');
+            window.location.href = urlCreate;
           }
-        } catch(err){ console.error(err); alert('Falha ao verificar CNPJ'); }
+        } catch(err){ console.error(err); /* alert removido */ }
       });
     }
-    const btnSalvarEmpresa = document.getElementById('btnSalvarEmpresa');
-    if(btnSalvarEmpresa){
-      btnSalvarEmpresa.addEventListener('click', async ()=>{
-        const btn = btnSalvarEmpresa;
-        const data = {
-          razao_social: document.getElementById('novaRazao').value,
-          cnpj: (document.getElementById('novoCnpj').value || '').replace(/\D+/g,''),
-          cep: document.getElementById('novoCep').value,
-          logradouro: document.getElementById('novoLogradouro').value,
-          numero: document.getElementById('novoNumero').value,
-          complemento: document.getElementById('novoComplemento').value,
-          bairro: document.getElementById('novoBairro').value,
-          cidade: document.getElementById('novoCidade').value,
-          uf: document.getElementById('novoUf').value,
-          contato: document.getElementById('novoContato').value,
-          email: document.getElementById('novoEmail').value,
-        };
-        try{
-          btn.disabled = true;
-          const r = await fetch('{{ route('empresas.store') }}', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-            body: JSON.stringify(data)
-          });
-          let j = null;
-          try { j = await r.json(); } catch(e) { j = null; }
-          if(r.ok && j && j.success){
-            const o = document.createElement('option'); o.value = j.data.id; o.textContent = j.data.razao_social; selectEmpresa.appendChild(o);
-            selectEmpresa.value = j.data.id;
-            if(modal){ modal.hide(); }
-            showToast('success', 'Empresa cadastrada com sucesso!');
-          } else {
-            let msg = 'Falha ao cadastrar empresa.';
-            if(j){
-              if(j.errors){
-                const flat = Object.values(j.errors).flat();
-                msg = flat.join('\n');
-              } else if(j.message){
-                msg = j.message;
-              }
-            } else if(!r.ok) {
-              msg = 'Erro '+r.status+' ao cadastrar empresa';
-            }
-            alert(msg);
-          }
-        } catch(err){ console.error(err); alert('Erro ao cadastrar empresa'); }
-        finally { btn.disabled = false; }
-      });
-    }
-    // CEP lookup
-    (function(){
-      function maskCEP(v){
-        var d = (v||'').replace(/\D/g,'').slice(0,8);
-        if(d.length > 5) return d.slice(0,5)+'-'+d.slice(5);
-        return d;
-      }
-      async function viaCEP(cep){
-        var d = (cep||'').replace(/\D/g,'');
-        if(d.length !== 8) return null;
-        const r = await fetch('https://viacep.com.br/ws/'+d+'/json/');
-        const j = await r.json();
-        if(j && !j.erro) return j;
-        return null;
-      }
-      const novoCep = document.getElementById('novoCep');
-      if(novoCep){
-        novoCep.addEventListener('input', function(){ novoCep.value = maskCEP(novoCep.value); });
-        novoCep.addEventListener('blur', async function(){
-          const data = await viaCEP(novoCep.value);
-          if(data){
-            document.getElementById('novoLogradouro').value = data.logradouro || '';
-            document.getElementById('novoBairro').value = data.bairro || '';
-            document.getElementById('novoCidade').value = data.localidade || '';
-            document.getElementById('novoUf').value = (data.uf || '').toUpperCase();
-          }
-        });
-      }
-    })();
   })();
 </script>
 @endsection

@@ -3,6 +3,7 @@
 @section('title', 'Monitoramento de Conexões')
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="container-fluid">
 
     {{-- RESUMO EM CARDS --}}
@@ -62,7 +63,7 @@
                     <small class="text-muted" id="graficoHostNome">Selecione um host na tabela abaixo…</small>
                 </div>
                 <div class="card-body">
-                    <canvas id="graficoLatencia" style="height: 260px;"></canvas>
+                    <canvas id="graficoLatencia" class="canvas-h-260"></canvas>
                 </div>
             </div>
         </div>
@@ -93,8 +94,7 @@
                     <tbody>
                         @foreach ($ultimos as $m)
                             <tr data-host-id="{{ $m->host->id ?? '' }}"
-                                data-host-nome="{{ $m->host->nome_conexao ?? 'N/D' }}"
-                                style="cursor: pointer;">
+                                data-host-nome="{{ $m->host->nome_conexao ?? 'N/D' }}" class="cursor-pointer">
                                 <td>{{ $m->host->nome_conexao ?? 'N/D' }}</td>
                                 <td>{{ $m->host->host_alvo ?? $m->host->ip_atingivel ?? 'N/D' }}</td>
                                 <td>
@@ -113,7 +113,7 @@
                                 <td>{{ optional($m->ultima_verificacao)->format('d/m/Y H:i:s') ?? '—' }}</td>
                                 <td>
                                     @if($m->erro)
-                                        <span class="text-truncate d-inline-block" style="max-width: 240px;" title="{{ $m->erro }}">
+                                        <span class="text-truncate d-inline-block max-w-240" title="{{ $m->erro }}">
                                             {{ Str::limit($m->erro, 60) }}
                                         </span>
                                     @else

@@ -3,6 +3,7 @@
 @section('title', 'Desempenho do Fiscal Administrativo')
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="container-fluid">
 
     <h4 class="fw-bold mb-4">

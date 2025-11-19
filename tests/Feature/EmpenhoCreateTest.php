@@ -14,16 +14,16 @@ class EmpenhoCreateTest extends TestCase
     public function it_creates_an_empenho_and_redirects_to_contrato()
     {
         $empresa = \App\Models\Empresa::create([
-            'razao_social' => 'Empresa Teste '.time(),
+            'razao_social' => 'Empresa Teste ' . time(),
             'cnpj' => (string) random_int(10000000000000, 99999999999999),
         ]);
         $contrato = Contrato::create([
-            'numero' => 'C-'.time(),
+            'numero' => 'C-' . time(),
             'objeto' => 'Contrato de teste automatizado',
         ]);
 
         $payload = [
-            'numero' => 'TEST-'.time(),
+            'numero' => 'TEST-' . time(),
             'empresa_id' => $empresa->id,
             'contrato_id' => $contrato->id,
             'data_lancamento' => now()->toDateString(),

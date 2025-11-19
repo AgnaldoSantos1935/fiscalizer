@@ -4,23 +4,13 @@
 @section('content')
 <div class="container-fluid">
   @section('breadcrumb')
-    <nav aria-label="breadcrumb" class="mb-3">
-      <ol class="breadcrumb bg-white px-3 py-2 rounded-3 shadow-sm">
-        <li class="breadcrumb-item">
-          <a href="{{ route('contratos.index') }}" class="text-decoration-none text-primary fw-semibold">
-            <i class="fas fa-file-contract me-1"></i> Contratos
-          </a>
-        </li>
-        @if(isset($preContrato) && $preContrato)
-          <li class="breadcrumb-item">
-            <a href="{{ route('contratos.show', $preContrato->id) }}" class="text-decoration-none text-primary fw-semibold">
-              Contrato {{ $preContrato->numero }}
-            </a>
-          </li>
-        @endif
-        <li class="breadcrumb-item active text-secondary fw-semibold">Novo Empenho</li>
-      </ol>
-    </nav>
+    @include('layouts.components.breadcrumbs', [
+      'trail' => array_filter([
+        ['label' => 'Contratos', 'icon' => 'fas fa-file-contract', 'url' => route('contratos.index')],
+        isset($preContrato) && $preContrato ? ['label' => 'Contrato ' . ($preContrato->numero ?? ''), 'url' => route('contratos.show', $preContrato->id)] : null,
+        ['label' => 'Novo Empenho']
+      ])
+    ])
   @endsection
   <div class="card rounded-4 shadow-sm">
     <div class="card-header bg-white"><h4 class="mb-0">Cadastrar Nota de Empenho</h4></div>

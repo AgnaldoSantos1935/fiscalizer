@@ -3,6 +3,7 @@
 @section('title', 'Dashboard de Contratos')
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="container-fluid">
     <h3 class="mb-4">
         <i class="fas fa-file-contract text-primary"></i>

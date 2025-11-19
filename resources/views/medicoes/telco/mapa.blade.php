@@ -7,13 +7,14 @@
 @endsection
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="container-fluid">
     <h3 class="mb-3">
         <i class="fas fa-map-marked-alt text-primary"></i>
         Mapa de Downtime – Medição {{ $medicao->competencia }}
     </h3>
 
-    <div id="map" style="height: 75vh;"></div>
+    <div id="map" class="ui-map h-75vh"></div>
 </div>
 @endsection
 

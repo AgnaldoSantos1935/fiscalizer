@@ -1,6 +1,7 @@
 @extends('layouts.auth')
 
 @section('content')
+@include('layouts.components.breadcrumbs')
     <div class="container auth-login">
         <div class="row justify-content-center">
             <div class="col-md-6 col-lg-5 col-xl-4">
@@ -24,13 +25,13 @@
                                 <label for="email" class="form-label">E-mail</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
-                                        <span class="input-group-text" style="height: 45px;"><i
+                                        <span class="input-group-text h-45px"><i
                                                 class="fas fa-envelope fa-lg"></i></span>
                                     </div>
                                     <input id="email" type="email"
                                         class="form-control @error('email') is-invalid @enderror" name="email"
                                         value="{{ old('email') }}" required autocomplete="email" autofocus
-                                        placeholder="Digite seu e-mail" style="height: 45px;">
+                                        placeholder="Digite seu e-mail" class="h-45px">
 
                                     @error('email')
                                         <span class="invalid-feedback" role="alert">
@@ -44,13 +45,13 @@
                                 <label for="password" class="form-label">Senha</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
-                                        <span class="input-group-text" style="height: 45px;"><i
+                                        <span class="input-group-text h-45px"><i
                                                 class="fas fa-lock fa-lg"></i></span>
                                     </div>
                                     <input id="password" type="password"
                                         class="form-control @error('password') is-invalid @enderror" name="password"
                                         required autocomplete="current-password" placeholder="Digite sua senha"
-                                        style="height: 45px;">
+                                        class="h-45px">
 
                                     @error('password')
                                         <span class="invalid-feedback" role="alert">

@@ -4,26 +4,12 @@
 
 @section('css')
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-<style>
-    html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-    }
-    #map {
-        height: 80vh !important;
-        min-height: 500px !important;
-        width: 100% !important;
-    }
-    .card-body {
-        overflow: visible !important;
-    }
-</style>
 @endsection
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <iframe src="{{ asset('mapas/mapa_escolas_para_dre_cluster.html') }}"
-        width="100%" height="700px" style="border:none;"></iframe>
+        width="100%" height="700px" class="border-0"></iframe>
 
 @endsection
 

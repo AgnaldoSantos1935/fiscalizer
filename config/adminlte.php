@@ -602,9 +602,21 @@ return [
 
         [
             'text' => 'Relatórios',
-            'route' => 'relatorios.index',
+            'route' => '',
             'icon' => 'fas fa-fw fa-file-alt',
             'can' => 'view-relatorios', // Gate permission
+            'submenu' => [
+                [
+                    'text' => 'Relatórios',
+                    'route' => 'relatorios.index',
+                    'icon' => 'fas fa-fw fa-list',
+                ],
+                [
+                    'text' => 'Jasper (demo)',
+                    'route' => 'relatorios.jasper.demo',
+                    'icon' => 'fas fa-fw fa-file-pdf',
+                ],
+            ],
         ],
 
         [

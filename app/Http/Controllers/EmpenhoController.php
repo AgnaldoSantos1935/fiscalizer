@@ -24,11 +24,11 @@ class EmpenhoController extends Controller
             ->editColumn('data_lancamento', fn ($e) => $e->data_formatada)
             ->addColumn('acoes', function ($e) {
                 return '
-                    <a href="'.route('empenhos.show', $e->id).'" class="btn btn-sm btn-outline-primary me-1" title="Visualizar">
+                    <a href="' . route('empenhos.show', $e->id) . '" class="btn btn-sm btn-outline-primary me-1" title="Visualizar">
                         <i class="fas fa-eye"></i>
                     </a>
-                    <form action="'.route('empenhos.destroy', $e->id).'" method="POST" class="d-inline">
-                        '.csrf_field().method_field('DELETE').'
+                    <form action="' . route('empenhos.destroy', $e->id) . '" method="POST" class="d-inline">
+                        ' . csrf_field() . method_field('DELETE') . '
                         <button class="btn btn-sm btn-outline-danger" title="Excluir" onclick="return confirm(\'Excluir empenho?\')">
                             <i class="fas fa-trash"></i>
                         </button>
@@ -128,7 +128,7 @@ class EmpenhoController extends Controller
 
         return Pdf::loadView('empenhos.pdf', compact('nota'))
             ->setPaper('a4', 'portrait')
-            ->stream('Empenho_'.$nota->numero.'.pdf');
+            ->stream('Empenho_' . $nota->numero . '.pdf');
 
     }
 

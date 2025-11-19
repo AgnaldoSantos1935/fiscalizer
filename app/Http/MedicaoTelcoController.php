@@ -25,7 +25,7 @@ class MedicaoTelcoController extends Controller
         // 1) chama backend Python pra buscar SLA
         $backendUrl = config('services.monitor_backend.url'); // ex: http://monitor:8002
 
-        $response = Http::post($backendUrl.'/telco/sla', [
+        $response = Http::post($backendUrl . '/telco/sla', [
             'agent_id' => $contrato->agent_id_telco,
             'host_label' => null, // ou um host específico
         ]);

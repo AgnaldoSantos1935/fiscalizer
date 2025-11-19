@@ -98,7 +98,7 @@ class DreController extends Controller
         $dre = Dre::findOrFail($id);
 
         $request->validate([
-            'codigodre' => 'required|string|max:10|unique:dres,codigodre,'.$dre->id,
+            'codigodre' => 'required|string|max:10|unique:dres,codigodre,' . $dre->id,
             'nome_dre' => 'required|string|max:150',
             'municipio_sede' => 'required|string|max:100',
             'email' => 'nullable|email|max:150',

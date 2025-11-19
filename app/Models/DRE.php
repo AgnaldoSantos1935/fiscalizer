@@ -19,6 +19,12 @@ class Dre extends Model
         'email',
         'telefone',
         'endereco',
+        'cep',
+        'logradouro',
+        'numero',
+        'complemento',
+        'bairro',
+        'uf',
     ];
 
     public function escolas()

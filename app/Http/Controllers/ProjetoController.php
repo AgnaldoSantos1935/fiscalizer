@@ -180,7 +180,7 @@ class ProjetoController extends Controller
     public function update(Request $request, Projeto $projeto)
     {
         $data = $request->validate([
-            'codigo' => 'nullable|string|max:50|unique:projetos,codigo,'.$projeto->id,
+            'codigo' => 'nullable|string|max:50|unique:projetos,codigo,' . $projeto->id,
             'titulo' => 'required|string|max:255',
             'descricao' => 'nullable|string',
             'sistema' => 'nullable|string|max:150',
@@ -193,8 +193,8 @@ class ProjetoController extends Controller
             'escola_id' => 'nullable|integer|exists:escolas,id',
             'data_inicio' => 'nullable|date',
             'data_fim' => 'nullable|date|after_or_equal:data_inicio',
-            'situacao' => 'required|string|in:'.implode(',', array_keys($this->situacoes)),
-            'prioridade' => 'required|string|in:'.implode(',', array_keys($this->prioridades)),
+            'situacao' => 'required|string|in:' . implode(',', array_keys($this->situacoes)),
+            'prioridade' => 'required|string|in:' . implode(',', array_keys($this->prioridades)),
             'pf_planejado' => 'nullable|numeric|min:0',
             'ust_planejada' => 'nullable|numeric|min:0',
             'horas_planejadas' => 'nullable|integer|min:0',

@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="card shadow-sm border-0 rounded-4">
     <div class="card-body">
         <h5 class="fw-semibold mb-3">{{ $teste->host->nome_conexao ?? '—' }}</h5>

@@ -62,11 +62,11 @@ class MedicaoItem extends Model
 
         static::creating(function ($item) {
             $item->item_unico_hash = sha1(
-                ($item->demanda_id ?? '').'-'.
-                ($item->requisito_id ?? '').'-'.
-                ($item->quantidade_pf ?? 0).'-'.
-                ($item->tipo_contagem ?? '').'-'.
-                ($item->sistema_id ?? '').'-'.
+                ($item->demanda_id ?? '') . '-' .
+                ($item->requisito_id ?? '') . '-' .
+                ($item->quantidade_pf ?? 0) . '-' .
+                ($item->tipo_contagem ?? '') . '-' .
+                ($item->sistema_id ?? '') . '-' .
                 ($item->modulo_id ?? '')
             );
         });

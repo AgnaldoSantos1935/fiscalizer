@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 <div class="card shadow-sm border-0 rounded-4">
     <div class="card-body">
 
@@ -41,8 +42,8 @@
                             <input type="text" name="nome_completo" class="form-control" required>
                         </div>
                         <div class="col-md-3 mb-3">
-                            <label class="form-label">CPF</label>
-                            <input type="text" name="cpf" class="form-control" required>
+<label class="form-label">CPF</label>
+<input type="text" name="cpf" class="form-control cpf-input mask-cpf" placeholder="000.000.000-00" required>
                         </div>
                         <div class="col-md-3 mb-3">
                             <label class="form-label">RG</label>
