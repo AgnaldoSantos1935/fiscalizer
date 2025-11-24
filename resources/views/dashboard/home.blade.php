@@ -553,7 +553,7 @@
           @forelse($boletinsRecentes as $b)
             <tr>
               <td>{{ $b->id }}</td>
-              <td>{{ $b->projeto->nome ?? '—' }}</td>
+              <td>{{ $b->projeto->titulo ?? '—' }}</td>
               <td>{{ $b->medicao->contrato->numero ?? '—' }}</td>
               <td>{{ $b->medicao->mes_referencia ?? '—' }}</td>
               <td class="text-end">R$ {{ number_format($b->valor_total, 2, ',', '.') }}</td>

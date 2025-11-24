@@ -83,21 +83,20 @@ return [
             ]) : [],
         ],
 
-'pgsql' => [
-    'driver' => 'pgsql',
-    'url' => env('DATABASE_URL'),
-    'host' => env('DB_HOST', '191.252.109.76'),
-    'port' => env('DB_PORT', '5432'),
-    'database' => env('DB_DATABASE', 'forge'),
-    'username' => env('DB_USERNAME', 'forge'),
-    'password' => env('DB_PASSWORD', ''),
-    'charset' => 'utf8',
-    'prefix' => '',
-    'prefix_indexes' => true,
-    'schema' => 'public',
-    'sslmode' => 'prefer',
-],
-
+        'pgsql' => [
+            'driver' => 'pgsql',
+            'url' => env('DB_URL'),
+            'host' => env('DB_HOST', '191.252.109.76'),
+            'port' => env('DB_PORT', '5432'),
+            'database' => env('DB_DATABASE', 'fiscalizer_db'),
+            'username' => env('DB_USERNAME', 'fiscalizer_user'),
+            'password' => env('DB_PASSWORD', 'S@n#t0s.100'),
+            'charset' => env('DB_CHARSET', 'utf8'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'search_path' => env('DB_SCHEMA', 'public'),
+            'sslmode' => 'prefer',
+        ],
 
         'sqlsrv' => [
             'driver' => 'sqlsrv',
@@ -149,7 +148,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')) . '-database-'),
+            'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-database-'),
             'persistent' => env('REDIS_PERSISTENT', false),
         ],
 
