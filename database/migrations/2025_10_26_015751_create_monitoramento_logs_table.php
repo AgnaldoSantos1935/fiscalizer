@@ -8,6 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('monitoramento_logs')) {
+            return; // evita criação duplicada
+        }
+
         Schema::create('monitoramento_logs', function (Blueprint $table) {
             $table->id();
 

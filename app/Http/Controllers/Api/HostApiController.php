@@ -26,4 +26,20 @@ class HostApiController extends Controller
             'data' => $hosts,
         ]);
     }
+
+    public function status()
+    {
+        $status = Host::with(['monitoramentos' => function ($q) {
+            $q->latest()->limit(1);
+        }])
+            ->get()
+            ->map(function ($h) {
+                return [
+                    'id' => $h->id,
+                    'status' => optional($h->monitoramentos->first())->online ? 1 : 0,
+                ];
+            });
+
+        return response()->json($status);
+    }
 }

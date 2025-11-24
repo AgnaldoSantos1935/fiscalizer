@@ -7,7 +7,7 @@
   <div class="card shadow-sm rounded-4">
     <div class="card-header bg-white d-flex justify-content-between">
       <h4 class="mb-0">Nota de Empenho Nº {{ $nota->numero }}</h4>
-      <a href="{{ route('empenhos.imprimir', $nota->id) }}" class="btn btn-outline-primary"><i class="fas fa-file-pdf"></i> Imprimir</a>
+<a href="{{ route('empenhos.imprimir', $nota->id) }}" target="_blank" rel="noopener" class="btn btn-outline-primary"><i class="fas fa-file-pdf"></i> Download PDF</a>
     </div>
     <div class="card-body">
       <p><strong>Empresa:</strong> {{ $nota->empresa->razao_social ?? '—' }}</p>

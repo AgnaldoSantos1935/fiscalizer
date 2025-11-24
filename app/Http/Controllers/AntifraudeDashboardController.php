@@ -3,16 +3,25 @@
 namespace App\Http\Controllers;
 
 use App\Models\Medicao;
+use Illuminate\Support\Facades\Auth;
 
 class AntifraudeDashboardController extends Controller
 {
     public function index()
     {
-        // últimas N medições com agregados
-        $medicoes = Medicao::with('itens', 'contrato.empresa')
-            ->latest('created_at')
-            ->take(20)
-            ->get();
+        // últimas N medições com agregados (filtradas pelos contratos do usuário)
+        if (Auth::check()) {
+            $usuario = Auth::user();
+            $medicoes = Medicao::with('itens', 'contrato.empresa')
+                ->whereHas('contrato', function ($q) use ($usuario) {
+                    $q->doUsuario($usuario);
+                })
+                ->latest('created_at')
+                ->take(20)
+                ->get();
+        } else {
+            $medicoes = collect();
+        }
 
         $cards = [
             'total_medicoes' => $medicoes->count(),

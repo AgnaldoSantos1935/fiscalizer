@@ -202,6 +202,12 @@ class ProjetoController extends Controller
 
         $projeto->update($data);
 
+        // Notificação: projeto atualizado
+        notify_event('notificacoes.projetos.projeto_atualizado', [
+            'titulo' => 'Projeto atualizado',
+            'mensagem' => "Projeto {$projeto->id} ({$projeto->titulo}) foi atualizado.",
+        ], $projeto);
+
         return redirect()
             ->route('projetos.show', $projeto->id)
             ->with('success', 'Projeto atualizado com sucesso.');
@@ -261,8 +267,11 @@ class ProjetoController extends Controller
 
         $projeto = Projeto::create($data);
 
-        // Aqui você pode disparar notificação para o fluxo BPM
-        // NotificationService::enviar(...);
+        // Notificação: projeto criado
+        notify_event('notificacoes.projetos.projeto_criado', [
+            'titulo' => 'Projeto criado',
+            'mensagem' => "Projeto {$projeto->id} ({$projeto->titulo}) criado e enviado para análise.",
+        ], $projeto);
 
         return redirect()->route('projetos.show', $projeto->id)
             ->with('success', 'Projeto criado e enviado para análise.');

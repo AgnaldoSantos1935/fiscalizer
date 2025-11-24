@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Demanda;
+use App\Models\Projeto;
 use App\Models\RequisitoSistema;
 use Illuminate\Database\Seeder;
 
@@ -10,6 +11,26 @@ class DemandaRequisitosSeeder extends Seeder
 {
     public function run(): void
     {
+        // Garantir projetos mínimos para respeitar a FK de demandas
+        $projeto1 = Projeto::firstOrCreate([
+            'codigo' => 'PRJ-SEED-001',
+        ], [
+            'contrato_id' => null,
+            'titulo' => 'Projeto Seed 001',
+            'sistema' => 'Sistema X',
+            'modulo' => 'Módulo A',
+            'status' => 'planejado',
+        ]);
+
+        $projeto2 = Projeto::firstOrCreate([
+            'codigo' => 'PRJ-SEED-002',
+        ], [
+            'contrato_id' => null,
+            'titulo' => 'Projeto Seed 002',
+            'sistema' => 'Sistema Y',
+            'modulo' => 'Módulo B',
+            'status' => 'planejado',
+        ]);
         /*
         |--------------------------------------------------------------------------
         | 1) Demanda Evolutiva: Novo módulo de relatórios
@@ -17,7 +38,7 @@ class DemandaRequisitosSeeder extends Seeder
         */
 
         $d1 = Demanda::create([
-            'projeto_id' => 1,
+            'projeto_id' => $projeto1->id,
             'sistema_id' => 2,
             'modulo_id' => 10,
             'tipo_manutencao' => 'evolutiva',
@@ -28,7 +49,7 @@ class DemandaRequisitosSeeder extends Seeder
             'status' => 'aberta',
         ]);
 
-        Requisito::insert([
+        RequisitoSistema::insert([
             [
                 'demanda_id' => $d1->id,
                 'codigo_interno' => 'REQ001',
@@ -52,7 +73,7 @@ class DemandaRequisitosSeeder extends Seeder
         */
 
         $d2 = Demanda::create([
-            'projeto_id' => 1,
+            'projeto_id' => $projeto1->id,
             'sistema_id' => 2,
             'modulo_id' => 3,
             'tipo_manutencao' => 'corretiva',
@@ -87,7 +108,7 @@ class DemandaRequisitosSeeder extends Seeder
         */
 
         $d3 = Demanda::create([
-            'projeto_id' => 2,
+            'projeto_id' => $projeto2->id,
             'sistema_id' => 4,
             'modulo_id' => 9,
             'tipo_manutencao' => 'adaptativa',

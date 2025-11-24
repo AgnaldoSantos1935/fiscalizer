@@ -78,29 +78,7 @@
                         <th>Arquivo</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @isset($documentos)
-                        @foreach($documentos as $doc)
-                        <tr>
-                            <td class="text-center">
-                                <input type="radio" name="docSelecionado" value="{{ $doc->id }}">
-                            </td>
-                            <td>{{ $doc->tipo }}</td>
-                            <td>{{ $doc->titulo ?? '-' }}</td>
-                            <td>{{ $doc->contrato->numero ?? $doc->contrato_id }}</td>
-                            <td>{{ $doc->data_upload ?? '-' }}</td>
-                            <td>{{ $doc->versao ?? '-' }}</td>
-                            <td>
-                                @if(!empty($doc->caminho_arquivo))
-                                    <a href="{{ Storage::url($doc->caminho_arquivo) }}" target="_blank">Download</a>
-                                @else
-                                    -
-                                @endif
-                            </td>
-                        </tr>
-                        @endforeach
-                    @endisset
-                </tbody>
+                <tbody></tbody>
             </table>
         </div>
     </div>
@@ -108,24 +86,41 @@
 @endsection
 
 @section('css')
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 <style>
 .nav-link.disabled { opacity: 0.5; pointer-events: none; }
 </style>
 @endsection
 
 @section('js')
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 <script>
 $(function() {
     const tabela = $('#tabelaDocumentos').DataTable({
-        processing: false,
+        processing: true,
         serverSide: false,
-        language: { url: '{{ asset("js/pt-BR.json") }}' },
+        ajax: {
+            url: '{{ route('documentos.data') }}',
+            dataSrc: 'data'
+        },
+        language: { url: '{{ asset('js/pt-BR.json') }}' },
         dom: 't<"bottom"p>',
         pageLength: 10,
-        order: [[1, 'asc']]
+        order: [[1, 'asc']],
+        columns: [
+            { data: 'id', render: function(id){
+                return '<input type="radio" name="docSelecionado" value="'+id+'">';
+            }, orderable: false, searchable: false, className: 'text-center' },
+            { data: 'tipo' },
+            { data: 'titulo' },
+            { data: 'contrato' },
+            { data: 'data_upload' },
+            { data: 'versao' },
+            { data: 'arquivo', render: function(arquivo){
+                if(!arquivo) return '-';
+                return '<a href="'+arquivo.url+'" target="_blank" rel="noopener">'
+                    + '<i class="fas '+arquivo.icon+' '+arquivo.color+'"></i> Download'
+                    + '</a>';
+            }, orderable: false, searchable: false }
+        ]
     });
 
     let selecionado = null;

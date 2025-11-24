@@ -10,6 +10,7 @@
         <h3 class="card-title mb-0">
             <i class="fas fa-bell me-2"></i>
             Minhas notificações
+            <span class="badge bg-danger ms-3">Não lidas: {{ $naoLidas ?? 0 }}</span>
         </h3>
         <form action="{{ route('notificacoes.todas') }}" method="POST" class="ms-auto">
             @csrf
@@ -17,11 +18,17 @@
                 <i class="fas fa-check-double me-1"></i> Marcar todas como lidas
             </button>
         </form>
+        <form action="{{ route('notificacoes.teste') }}" method="POST" class="ms-2">
+            @csrf
+            <button type="submit" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-paper-plane me-1"></i> Enviar notificação de teste
+            </button>
+        </form>
     </div>
 
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover mb-0">
+            <table id="tabelaNotificacoes" class="table table-hover mb-0 w-100">
                 <thead class="table-light">
                     <tr>
                         <th class="text-center" style="width: 60px">Status</th>
@@ -32,67 +39,62 @@
                         <th class="text-nowrap" style="width: 140px">Ações</th>
                     </tr>
                 </thead>
-                <tbody>
-                @forelse($notificacoes as $n)
-                    <tr>
-                        <td class="text-center">
-                            @if(!$n->lida)
-                                <span class="badge bg-warning text-dark">Nova</span>
-                            @else
-                                <span class="badge bg-secondary">Lida</span>
-                            @endif
-                        </td>
-                        <td>
-                            {{ $n->titulo }}
-                        </td>
-                        <td class="d-none d-md-table-cell text-muted">
-                            {{ $n->mensagem }}
-                        </td>
-                        <td>
-                            @if($n->link)
-                                <a href="{{ $n->link }}" class="text-primary" target="_blank">
-                                    Abrir
-                                    <i class="fas fa-external-link-alt ms-1"></i>
-                                </a>
-                            @else
-                                <span class="text-muted">—</span>
-                            @endif
-                        </td>
-                        <td class="text-nowrap">
-                            {{ $n->created_at->format('d/m/Y H:i') }}
-                        </td>
-                        <td>
-                            @if(!$n->lida)
-                                <form action="{{ route('notificacoes.lida', $n) }}" method="POST" class="d-inline">
-                                    @csrf
-                                    <button type="submit" class="btn btn-sm btn-outline-success">
-                                        <i class="fas fa-check me-1"></i> Marcar lida
-                                    </button>
-                                </form>
-                            @else
-                                <span class="text-muted">—</span>
-                            @endif
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="6" class="text-center text-muted py-4">
-                            <i class="far fa-bell-slash me-1"></i> Sem notificações no momento
-                        </td>
-                    </tr>
-                @endforelse
-                </tbody>
+                <tbody></tbody>
             </table>
         </div>
     </div>
 
     <div class="card-footer d-flex justify-content-between align-items-center">
         <div class="small text-muted">
-            Total: {{ $notificacoes->total() }}
+            Carregando via AJAX
         </div>
-        <div>
-            {{ $notificacoes->links() }}
+        <div class="small text-muted">
+            Página dinâmica
         </div>
     </div>
 </div>
+@endsection
+
+@section('js')
+<script>
+$(function() {
+    const tabela = $('#tabelaNotificacoes').DataTable({
+        processing: true,
+        serverSide: false,
+        ajax: { url: '{{ route('notificacoes.data') }}', dataSrc: 'data' },
+        language: { url: '{{ asset('js/pt-BR.json') }}' },
+        dom: 't<"bottom"p>',
+        pageLength: 10,
+        order: [[4, 'desc']],
+        columns: [
+            { data: 'lida', className: 'text-center', render: function(lida){
+                return lida
+                    ? '<span class="badge bg-secondary">Lida</span>'
+                    : '<span class="badge bg-warning text-dark">Nova</span>';
+            }, orderable: false, searchable: false },
+            { data: 'titulo' },
+            { data: 'mensagem', className: 'd-none d-md-table-cell text-muted' },
+            { data: 'link', render: function(link){
+                if (!link) return '<span class="text-muted">—</span>';
+                return '<a href="'+link+'" class="text-primary" target="_blank">Abrir <i class="fas fa-external-link-alt ms-1"></i></a>';
+            }, orderable: false, searchable: false },
+            { data: 'recebida', className: 'text-nowrap' },
+            { data: null, render: function(row){
+                if (row.lida) return '<span class="text-muted">—</span>';
+                return '<button type="button" class="btn btn-sm btn-outline-success btn-marcar-lida" data-id="'+row.id+'">\
+                    <i class="fas fa-check me-1"></i> Marcar lida\
+                </button>';
+            }, orderable: false, searchable: false }
+        ]
+    });
+
+    $('#tabelaNotificacoes').on('click', '.btn-marcar-lida', function(){
+        const id = $(this).data('id');
+        fetch('{{ url('/notificacoes') }}' + '/' + id + '/lida', {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+        }).then(() => tabela.ajax.reload(null, false));
+    });
+});
+</script>
 @endsection

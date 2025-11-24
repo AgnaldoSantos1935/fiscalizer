@@ -25,6 +25,12 @@ return new class extends Migration
             $table->decimal('longitude', 11, 8)->nullable();
             $table->timestamps();
         });
+
+        if (Schema::hasTable('projetos') && Schema::hasColumn('projetos', 'dre_id')) {
+            Schema::table('projetos', function (Blueprint $table) {
+                $table->foreign('dre_id')->references('id')->on('dres')->nullOnDelete();
+            });
+        }
     }
 
     public function down(): void

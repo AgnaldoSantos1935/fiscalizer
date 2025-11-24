@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Action;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -22,13 +25,21 @@ class AuthServiceProvider extends ServiceProvider
     {
         // Administradores podem tudo (ID 1)
         Gate::before(function ($user, $ability) {
-            if ($user && $user->role_id === 1) { // ID do Administrador
-                \Illuminate\Support\Facades\Log::debug('Gate::before - Usuário é Administrador (ID 1), concedendo permissão para: ' . $ability);
+            // Admin (role_id=1) tem acesso total
+            if ($user && $user->role_id === 1) {
+                \Illuminate\Support\Facades\Log::debug('Gate::before - Admin concede: ' . $ability);
 
                 return true;
             }
-            \Illuminate\Support\Facades\Log::debug('Gate::before - Verificação falhou para: ' . $ability . ' - User ID: ' . ($user ? $user->id : 'null') . ' - Role ID: ' . ($user ? $user->role_id : 'null'));
 
+            // Fallback RBAC: concede se o usuário possui a Action (suporta curingas)
+            if ($user && method_exists($user, 'hasAction') && $user->hasAction($ability)) {
+                \Illuminate\Support\Facades\Log::debug('Gate::before - RBAC concede por hasAction("' . $ability . '")');
+
+                return true;
+            }
+
+            // Sem decisão aqui; permite que outros gates/policies decidam
             return null;
         });
 
@@ -75,8 +86,70 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('view-create-empresas', fn($user) => $user->role_id === 2);
         Gate::define('view-create-contratos', fn($user) => $user->role_id === 2);
         Gate::define('view-escolas', fn($user) => $user->role_id === 2);
-         Gate::define('view-index-user_profiles', fn($user) => $user->role_id === 2);
-           Gate::define('view-create-user_profiles', fn($user) => $user->role_id === 2);*/
+        Gate::define('view-index-user_profiles', fn($user) => $user->role_id === 2);
+        Gate::define('view-create-user_profiles', fn($user) => $user->role_id === 2);*/
+
+        // ===== Conceder acesso para Fiscais (Administrativo e Técnico) =====
+        $allowFiscal = function ($user): bool {
+            $roleName = is_object($user->role)
+                ? ($user->role->nome ?? $user->role->name ?? null)
+                : ($user->role ?? null);
+
+            return in_array($roleName, ['fiscal_administrativo', 'fiscal_tecnico']);
+        };
+
+        // Contratos
+        Gate::define('view-contratos', fn ($user) => $allowFiscal($user));
+
+        // Projetos
+        Gate::define('view-projetos', fn ($user) => $allowFiscal($user));
+
+        // Medições
+        Gate::define('view-medicoes', fn ($user) => $allowFiscal($user));
+
+        // Empenhos
+        Gate::define('view-index-empenhos', fn ($user) => $allowFiscal($user));
+        Gate::define('view-create-empenhos', fn ($user) => $allowFiscal($user));
+
+        // Conexões (Hosts e Monitoramentos)
+        Gate::define('view-index-host', fn ($user) => $allowFiscal($user));
+        Gate::define('view-create-host', fn ($user) => $allowFiscal($user));
+        Gate::define('view-index-monitoramento', fn ($user) => $allowFiscal($user));
+
+        // Mapas (Escolas)
+        Gate::define('view-escolas', fn ($user) => $allowFiscal($user));
+
+        // Projetos de Software
+        Gate::define('view-index-projetos_soft', fn ($user) => $allowFiscal($user));
+        Gate::define('view-show-projetos_soft', fn ($user) => $allowFiscal($user));
+
+        // Dashboard IA / Base de dados
+        Gate::define('view-ia-dashboard', fn ($user) => $allowFiscal($user));
+
+        // ===== Gates dinâmicos baseados em Actions (RBAC) =====
+        // Carrega os códigos de actions e define gates que utilizam User->hasAction()
+        try {
+            if (Schema::hasTable('actions')) {
+                $actions = Cache::remember('rbac_actions_list', 300, function () {
+                    return Action::query()->select(['codigo'])->get();
+                });
+
+                foreach ($actions as $action) {
+                    Gate::define($action->codigo, function ($user) use ($action) {
+                        return $user->hasAction($action->codigo);
+                    });
+                }
+
+                Gate::define('view-index-user_profiles', function ($user) {
+                    return $user->role_id === 1;
+                });
+                Gate::define('view-create-user_profiles', function ($user) {
+                    return $user->role_id === 1;
+                });
+            }
+        } catch (\Throwable $e) {
+            
+        }
 
     }
 }

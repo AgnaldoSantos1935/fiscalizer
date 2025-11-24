@@ -7,8 +7,14 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // Ignora em SQLite (ambiente de testes) que não suporta MODIFY
-        if (config('database.default') === 'sqlite') {
+        $driver = config('database.default');
+        if ($driver === 'pgsql') {
+            DB::statement("ALTER TABLE projetos ALTER COLUMN situacao TYPE VARCHAR(50) USING situacao::text");
+            DB::statement("ALTER TABLE projetos ALTER COLUMN situacao SET DEFAULT 'planejado'");
+            DB::statement("ALTER TABLE projetos ALTER COLUMN situacao SET NOT NULL");
+            return;
+        }
+        if ($driver === 'sqlite') {
             return;
         }
         DB::statement("ALTER TABLE `projetos` MODIFY `situacao` VARCHAR(50) NOT NULL DEFAULT 'planejado'");
@@ -16,7 +22,12 @@ return new class extends Migration
 
     public function down(): void
     {
-        if (config('database.default') === 'sqlite') {
+        $driver = config('database.default');
+        if ($driver === 'pgsql') {
+            DB::statement("ALTER TABLE projetos ALTER COLUMN situacao DROP DEFAULT");
+            return;
+        }
+        if ($driver === 'sqlite') {
             return;
         }
         DB::statement(

@@ -44,9 +44,11 @@
     <div class="card shadow-sm border-0 rounded-4">
         <div class="card-header bg-white d-flex justify-content-between align-items-center">
             <h4 class="mb-0"><i class="fas fa-clipboard-check text-primary me-2"></i>Medições</h4>
+            @can('medicoes.criar')
             <a href="{{ route('medicoes.create') }}" class="btn btn-primary btn-sm">
                 <i class="fas fa-plus me-1"></i> Nova Medição
             </a>
+            @endcan
         </div>
         <div class="card-body">
             <!-- 🔹 Navbar de ações -->
@@ -71,33 +73,18 @@
                         <th>Status</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @foreach($medicoes as $m)
-                    <tr>
-                        <td class="text-center"><input type="radio" name="medicaoSelecionada" value="{{ $m->id }}"></td>
-                        <td>{{ $m->contrato->numero ?? '—' }}</td>
-                        <td>{{ $m->competencia }}</td>
-                        <td>{{ strtoupper($m->tipo) }}</td>
-                        <td class="text-end">R$ {{ number_format($m->valor_liquido ?? 0, 2, ',', '.') }}</td>
-                        <td>{{ $m->status }}</td>
-                    </tr>
-                    @endforeach
-                </tbody>
+                <tbody></tbody>
             </table>
-
-            {{ $medicoes->links() }}
+            
         </div>
     </div>
 </div>
 @endsection
 
 @section('css')
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
 @endsection
 
 @section('js')
-<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
 <script>
 $(function() {
     const tabela = $('#tabelaMedicoes').DataTable({
@@ -105,7 +92,28 @@ $(function() {
         pageLength: 10,
         order: [[1, 'asc']],
         dom: 't<"bottom"p>',
-        responsive: true
+        responsive: true,
+        ajax: {
+            url: '{{ route('medicoes.data') }}',
+            data: function (d) {
+                d.contrato = $('#filtroContrato').val();
+                d.competencia = $('#filtroCompetencia').val();
+                d.status = $('#filtroStatus').val();
+            }
+        },
+        columns: [
+            { data: 'id', orderable: false, searchable: false, className: 'text-center', width: '45px',
+              render: function(id){ return `<input type="radio" name="medicaoSelecionada" value="${id}">`; }
+            },
+            { data: 'contrato' },
+            { data: 'competencia' },
+            { data: 'tipo' },
+            { data: 'valor_liquido', className: 'text-end', render: function(v){
+                const num = Number(v || 0);
+                return 'R$ ' + num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            } },
+            { data: 'status' }
+        ]
     });
 
     let medicaoSelecionada = null;
@@ -120,16 +128,12 @@ $(function() {
     });
 
     $('#btnAplicarFiltros').on('click', function () {
-        tabela.column(1).search($('#filtroContrato').val());
-        tabela.column(2).search($('#filtroCompetencia').val());
-        tabela.column(5).search($('#filtroStatus').val());
-        tabela.draw();
+        tabela.ajax.reload();
     });
 
     $('#btnLimpar').on('click', function () {
         $('#formFiltros')[0].reset();
-        tabela.search('').columns().search('');
-        tabela.order([1, 'asc']);
+        tabela.ajax.reload();
         $('#navDetalhes').addClass('disabled');
         medicaoSelecionada = null;
     });

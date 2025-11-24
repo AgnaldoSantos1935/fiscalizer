@@ -1,0 +1,386 @@
+/* =========================================================
+   🎨 FISCALIZER – GOVBR BLUE THEME (Base #007BFF)
+   Arquivo único para uso no Vite
+   ========================================================= */
+
+/* ========================== */
+/* 🎨 PALETA DE CORES */
+/* ========================== */
+:root {
+    --fisc-blue: #122f4e;
+    --fisc-blue-dark: #122f4e;
+    --fisc-blue-deep: #122f4e;
+    --fisc-blue-light: #d4d946;
+    --fisc-white: #ffffff;
+    --fisc-gray-100: #f7f9fc;
+    --fisc-gray-200: #e4e8f0;
+    --fisc-gray-300: #cfd6e5;
+    --fisc-gray-600: #6b7280;
+    --fisc-gray-900: #1f2937;
+}
+
+/* ========================== */
+/* 🔵 SIDEBAR GOVBR BLUE */
+/* ========================== */
+.brand-link{
+    background: linear-gradient(180deg, var(--fisc-blue-deep) 0%, var(--fisc-blue-dark) 55%, var(--fisc-blue) 100%);
+}
+a.brand-link{
+    color: #e9f0ff;
+}
+.sidebar-fiscalizer {
+    width: 240px;
+
+    background: linear-gradient(180deg, var(--fisc-blue-deep) 0%, var(--fisc-blue-dark) 55%, var(--fisc-blue) 100%);
+    color: #e9f0ff;
+    transition: width .38s ease;
+    overflow-x: hidden;
+    position: relative;
+    font-weight: 400;
+}
+
+
+.sidebar-collapse .sidebar-fiscalizer {
+    width: 74px !important;
+}
+
+/* Links */
+.sidebar-fiscalizer .nav-link {
+    color: #e9f0ff !important;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-left: 3px solid transparent;
+    transition: all .22s ease;
+    white-space: nowrap;
+}
+
+.sidebar-fiscalizer .nav-icon {
+    font-size: 1.2rem;
+    width: 22px;
+    text-align: center;
+    color: #cfe6ff;
+    opacity: .85;
+    transition: all .2s ease;
+}
+
+.sidebar-fiscalizer .nav-text {
+    transition: opacity .2s ease, transform .2s ease;
+}
+
+/* Condensado */
+.sidebar-collapse .nav-text {
+    opacity: 0;
+    transform: translateX(-10px);
+    pointer-events: none;
+}
+
+/* Hover */
+.sidebar-fiscalizer .nav-link:hover {
+    background: rgba(255,255,255,0.09) !important;
+    color: var(--fisc-white) !important;
+    border-left-color: var(--fisc-gray-600);
+}
+
+.sidebar-fiscalizer .nav-link:hover .nav-icon {
+    opacity: 1;
+    transform: translateX(4px);
+    color: var(--fisc-blue-light);
+}
+
+/* Ativo */
+.sidebar-fiscalizer .nav-link.active {
+    background: rgba(255,255,255,0.15) !important;
+    border-left-color: var(--fisc-blue-light) !important;
+    color: #ffffff !important;
+}
+
+.sidebar-fiscalizer .nav-link.active .nav-icon {
+    color: var(--fisc-gray-100);
+}
+
+/* Submenu GOVBR */
+.sidebar-fiscalizer .nav-treeview {
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: all .25s ease;
+    padding-left: 32px;
+}
+
+.sidebar-fiscalizer .menu-open > .nav-treeview {
+    max-height: 600px;
+    opacity: 1;
+}
+
+.sidebar-collapse .nav-treeview {
+    max-height: 0 !important;
+    opacity: 0 !important;
+}
+
+.nav-treeview .nav-link {
+    background: rgba(0,0,0,0.18) !important;
+    padding: 8px 12px;
+    font-size: .88rem;
+}
+
+/* Scrollbar */
+.sidebar-fiscalizer::-webkit-scrollbar {
+    width: 6px;
+}
+.sidebar-fiscalizer::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.2);
+    border-radius: 4px;
+}
+
+/* ========================== */
+/* 🔵 NAVBAR */
+/* ========================== */
+.navbar-fiscalizer {
+    background: var(--fisc-blue) !important;
+    border-bottom: 2px solid var(--fisc-blue);
+}
+
+.navbar-fiscalizer .nav-link,
+.navbar-fiscalizer .navbar-brand {
+    color: #ffffff !important;
+}
+
+/* ========================== */
+/* 🔵 BOTÕES */
+/* ========================== */
+
+.btn-primary, .btn-fiscalizer {
+    background: var(--fisc-blue);
+    border-color: var(--fisc-blue-dark);
+}
+
+.btn-primary:hover, .btn-fiscalizer:hover {
+    background: var(--fisc-blue-dark);
+    border-color: var(--fisc-blue-deep);
+}
+
+.btn-outline-primary {
+    color: var(--fisc-blue);
+    border-color: var(--fisc-blue);
+}
+
+.btn-outline-primary:hover {
+    background: var(--fisc-blue);
+    color: #fff;
+}
+
+/* Estados */
+.btn-success { background: #00c46a; border-color: #009c55; }
+.btn-warning { background: #ffca2c; border-color: #e0a800; }
+.btn-danger  { background: #dc3545; border-color: #b02a37; }
+
+/* ========================== */
+/* 🔵 CARDS */
+/* ========================== */
+
+.card {
+    border: none !important;
+    border-radius: 10px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+
+.card-header {
+    background: var(--fisc-gray-100) !important;
+    border-bottom: 1px solid var(--fisc-gray-200);
+    font-weight: 600;
+}
+
+.card-primary {
+    border-left: 4px solid var(--fisc-blue);
+}
+
+.card-info {
+    border-left: 4px solid var(--fisc-blue-light);
+}
+
+/* ========================== */
+/* 🔵 TABLES */
+/* ========================== */
+
+.table thead th,
+.dataTable thead th,
+table.dataTable.table thead th {
+    background: var(--fisc-gray-100) !important;
+    color: var(--fisc-gray-900) !important;
+    font-weight: 600;
+    border-bottom: 1px solid var(--fisc-gray-200) !important;
+}
+
+.table tbody tr:nth-child(even) {
+    background: #f5f8ff;
+}
+
+.table tbody tr:hover {
+    background: #e8f1ff;
+}
+
+.table td, .table th {
+    vertical-align: middle;
+}
+
+/* ========================== */
+/* 🔵 FORMS */
+/* ========================== */
+
+.form-control {
+    border-radius: 8px;
+    border: 1px solid var(--fisc-gray-300);
+    transition: border-color .2s;
+}
+
+.form-control:focus {
+    border-color: var(--fisc-blue);
+    box-shadow: 0 0 0 0.15rem rgba(0,123,255,.25);
+}
+
+/* Labels */
+.form-label {
+    font-weight: 600;
+    color: var(--fisc-gray-900);
+}
+
+/* Inputs disabled */
+.form-control[readonly], .form-control:disabled {
+    background: var(--fisc-gray-100);
+}
+
+/* ========================== */
+/* 🔵 BADGES */
+/* ========================== */
+
+.badge-blue {
+    background: var(--fisc-blue);
+    color: #ffffff;
+    border-radius: 6px;
+    padding: 4px 8px;
+}
+
+.badge-soft-blue {
+    background: rgba(0,123,255,0.1);
+    color: var(--fisc-blue);
+}
+
+/* ========================== */
+/* 🔵 ALERTS */
+/* ========================== */
+
+.alert-primary {
+    background: rgba(0,123,255,0.1);
+    border-left: 4px solid var(--fisc-blue);
+    color: var(--fisc-blue-dark);
+}
+
+/* ========================== */
+/* 🔵 DARK MODE */
+/* ========================== */
+
+body.theme-dark {
+    background: #0d1117 !important;
+    color: #d0d7de !important;
+}
+
+body.theme-dark .card {
+    background: #161b22;
+    color: #d0d7de;
+}
+
+body.theme-dark .table thead th {
+    background: #0d3364;
+}
+
+body.theme-dark .form-control {
+    background: #0f1520;
+    color: #d0d7de;
+}
+body.theme-dark .note-editor.note-frame { background: #161b22; color: #d0d7de; border-color: #3E3E3A; }
+body.theme-dark .note-toolbar { background: #0f1520; border-color: #3E3E3A; }
+body.theme-dark .note-editing-area .note-editable { background: #0f1520; color: #d0d7de; }
+body.theme-dark .note-btn { background-color: #161b22; color: #d0d7de; border-color: #3E3E3A; }
+body.theme-dark .note-dropdown-menu { background-color: #161b22; color: #d0d7de; }
+/* =======================================================
+   CORREÇÃO DO CONTENT WRAPPER PARA SIDEBAR CUSTOMIZADA
+   ======================================================= */
+
+/* Content padrão (sidebar normal = 240px) */
+body:not(.sidebar-collapse) .content-wrapper,
+body:not(.sidebar-collapse) .main-footer,
+body:not(.sidebar-collapse) .main-header {
+    margin-left: 240px !important;
+    transition: margin-left .3s ease;
+}
+
+/* Content com sidebar condensada (74px) */
+body.sidebar-collapse .content-wrapper,
+body.sidebar-collapse .main-footer,
+body.sidebar-collapse .main-header {
+    margin-left: 74px !important;
+    transition: margin-left .3s ease;
+}
+
+/* Garante que o conteúdo não sobreponha a sidebar */
+.content-wrapper {
+    z-index: 10 !important;
+    background: #f7f9fc;
+    min-height: 100vh;
+    padding-bottom: 0px;
+}
+/* =========================================================
+   📱 SIDEBAR MOBILE GOVBR FISCALIZER
+   ========================================================= */
+
+/* Sidebar oculta fora da tela */
+@media (max-width: 991px) {
+    .sidebar-fiscalizer {
+        position: fixed !important;
+        left: -260px;
+        top: 0;
+        height: 100vh;
+        width: 240px;
+        z-index: 1050 !important;
+        transition: left .3s ease;
+        box-shadow: 3px 0 12px rgba(0,0,0,0.35);
+    }
+
+    /* Quando ativada */
+    body.sidebar-open .sidebar-fiscalizer {
+        left: 0 !important;
+    }
+
+    /* Content ocupa tela cheia no mobile */
+    .content-wrapper,
+    .main-header,
+    .main-footer {
+        margin-left: 0 !important;
+        transition: none !important;
+    }
+
+    /* Overlay escuro */
+    .sidebar-overlay {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, .45);
+        z-index: 1040;
+        display: none;
+    }
+
+    body.sidebar-open .sidebar-overlay {
+        display: block !important;
+    }
+}
+
+/* END OF THEME */
+.dataTables_paginate .paginate_button.disabled { opacity: .5; pointer-events: none; }
+.dataTables_paginate .paginate_button { border-radius: .375rem; }
+@media (max-width: 576px) {
+  .dataTables_paginate { display: flex; justify-content: center; gap: 8px; }
+  .dataTables_paginate .paginate_button { padding: .25rem .5rem; font-size: .875rem; }
+  .dataTables_paginate .paginate_button:not(.previous):not(.next) { display: none; }
+}

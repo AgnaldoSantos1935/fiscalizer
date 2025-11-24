@@ -1,10 +1,13 @@
 @extends('layouts.app')
 
+@section('plugins.Sweetalert2', true)
 @section('title', 'Perfis de Usuário')
 
 @section('content')
 @include('layouts.components.breadcrumbs')
 <div class="container-fluid">
+    <!-- Área de notificações inline -->
+    <div id="alertArea" class="mb-3" aria-live="polite"></div>
     <!-- 🔹 Filtros -->
     <div class="card shadow-sm border-0 rounded-4 mb-4">
         <div class="card-header bg-white border-0 d-flex align-items-center justify-content-between">
@@ -78,18 +81,33 @@
 @endsection
 
 @section('css')
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 @endsection
 
 @section('js')
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 <script>
 $(function() {
     const tabela = $('#tabelaPerfis').DataTable({
         processing: false,
         serverSide: true,
-        ajax: "{{ route('user_profiles.index') }}",
+        ajax: {
+            url: "{{ route('user_profiles.index') }}",
+            error: function(xhr) {
+                let title = 'Erro ao carregar lista';
+                let message = 'Tente novamente mais tarde.';
+                if (xhr && xhr.responseJSON && xhr.responseJSON.message) {
+                    message = xhr.responseJSON.message;
+                }
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({ icon: 'error', title, text: message });
+                }
+                const alertHtml = `
+                  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-1"></i> ${title}. ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+                  </div>`;
+                $('#alertArea').html(alertHtml);
+            }
+        },
         language: { url: '{{ asset("js/pt-BR.json") }}' },
         dom: 't<"bottom"p>',
         pageLength: 10,
@@ -113,7 +131,18 @@ $(function() {
 
     $('#navDetalhes').on('click', function (e) {
         e.preventDefault();
-        if (!perfilSelecionado) return;
+        if (!perfilSelecionado) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({ icon: 'info', title: 'Seleção necessária', text: 'Selecione um perfil na tabela para visualizar os detalhes.' });
+            }
+            const alertHtml = `
+              <div class="alert alert-info alert-dismissible fade show" role="alert">
+                <i class="fas fa-info-circle me-1"></i> Selecione um perfil na tabela para visualizar os detalhes.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+              </div>`;
+            $('#alertArea').html(alertHtml);
+            return;
+        }
         window.location.href = '{{ url('user_profiles') }}' + '/' + perfilSelecionado;
     });
 
@@ -122,6 +151,12 @@ $(function() {
         tabela.column(2).search($('#filtroCpf').val());
         tabela.column(4).search($('#filtroDre').val());
         tabela.draw();
+        const alertHtml = `
+          <div class="alert alert-secondary alert-dismissible fade show" role="alert">
+            <i class="fas fa-filter me-1"></i> Filtros aplicados.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+          </div>`;
+        $('#alertArea').html(alertHtml);
     });
     $('#btnLimpar').on('click', function () {
         $('#formFiltros')[0].reset();
@@ -129,6 +164,12 @@ $(function() {
         tabela.order([1, 'asc']);
         $('#navDetalhes').addClass('disabled');
         perfilSelecionado = null;
+        const alertHtml = `
+          <div class="alert alert-secondary alert-dismissible fade show" role="alert">
+            <i class="fas fa-undo me-1"></i> Filtros limpos.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+          </div>`;
+        $('#alertArea').html(alertHtml);
     });
 });
 </script>

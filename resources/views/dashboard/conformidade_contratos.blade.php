@@ -32,9 +32,7 @@
             <div class="card shadow-sm border-0 text-center">
                 <div class="card-body">
                     <h6 class="text-muted">Contratos Críticos (score &lt; 40)</h6>
-                    <h3 class="fw-bold text-danger">
-                        {{ \App\Models\Contrato::where('risco_score', '<', 40)->count() }}
-                    </h3>
+                    <h3 class="fw-bold text-danger">{{ $totalCriticos }}</h3>
                 </div>
             </div>
         </div>

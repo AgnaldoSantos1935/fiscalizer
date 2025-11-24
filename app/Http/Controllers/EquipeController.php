@@ -12,10 +12,12 @@ class EquipeController extends Controller
         $data = $request->validate([
             'projeto_id' => 'required|exists:projetos,id',
             'pessoa_id' => 'required|exists:pessoas,id',
-            'papel' => 'nullable|string|max:100',
+            // Renomeado no frontend: aceitar "perfil" e mapear para coluna "papel"
+            'perfil' => 'nullable|string|max:100',
             'horas_previstas' => 'nullable|numeric',
             'horas_realizadas' => 'nullable|numeric',
         ]);
+        // Usar diretamente o atributo "perfil" (coluna renomeada)
 
         $membro = EquipeProjeto::create($data);
 
@@ -25,10 +27,11 @@ class EquipeController extends Controller
     public function update(Request $request, EquipeProjeto $equipe)
     {
         $data = $request->validate([
-            'papel' => 'nullable|string|max:100',
+            'perfil' => 'nullable|string|max:100',
             'horas_previstas' => 'nullable|numeric',
             'horas_realizadas' => 'nullable|numeric',
         ]);
+        // Usar diretamente o atributo "perfil" (coluna renomeada)
 
         $equipe->update($data);
 

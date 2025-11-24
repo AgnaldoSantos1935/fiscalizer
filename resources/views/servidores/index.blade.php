@@ -50,7 +50,8 @@ document.addEventListener('DOMContentLoaded', function () {
       { data: 'data_admissao', name: 'data_admissao' },
       { data: 'acoes', orderable: false, searchable: false }
     ],
-    language: { url: '/datatables/pt-BR.json' }
+    language: { url: '{{ asset("js/pt-BR.json") }}' },
+    dom: 't<"bottom"ip>'
   });
 });
 </script>

@@ -12,7 +12,7 @@ class EquipeProjeto extends Model
     protected $table = 'equipes_projeto';
 
     protected $fillable = [
-        'projeto_id', 'pessoa_id', 'papel', 'horas_previstas', 'horas_realizadas',
+        'projeto_id', 'pessoa_id', 'perfil', 'horas_previstas', 'horas_realizadas',
     ];
 
     protected $casts = [

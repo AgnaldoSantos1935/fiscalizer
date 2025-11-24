@@ -1,0 +1,199 @@
+/* =========================================================
+   🎨 FISCALIZER – THEMES EXTRAS (LOGIN + DATATABLES + SUMMERNOTE)
+   Base institucional GOVBR 🔵 #007BFF
+   ========================================================= */
+
+/* ============================= */
+/* 1️⃣ LOGIN PAGE THEME (GOVBR)  */
+/* ============================= */
+
+.login-page, .register-page {
+    background: linear-gradient(135deg, #003d80 0%, #0056b3 40%, #007BFF 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+}
+
+.login-box {
+    width: 420px;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+    padding: 35px 40px;
+}
+
+.login-box .login-logo {
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+    font-weight: 700;
+    color: #122f4e;
+}
+
+.login-box .form-control {
+    border-radius: 10px;
+    border: 1px solid #cfd6e5;
+}
+
+.login-box .btn-primary {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    background: #007BFF;
+    border-color: #0056b3;
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+.login-box .btn-primary:hover {
+    background: #0056b3 !important;
+}
+
+.login-footer {
+    text-align: center;
+    margin-top: 20px;
+    color: #e8f1ff;
+    font-size: .9rem;
+}
+
+/* ============================= */
+/* 2️⃣ DATATABLES GOVBR BLUE     */
+/* ============================= */
+
+.dataTables_wrapper .dataTables_length select {
+    border-radius: 8px;
+    border: 1px solid #d0d7de;
+}
+
+.dataTables_wrapper .dataTables_filter input {
+    border-radius: 8px;
+    border: 1px solid #d0d7de;
+}
+
+/* Cabeçalho GOVBR */
+table.dataTable thead th {
+    background: #003d80 !important;
+    color: #ffffff !important;
+    border-bottom: none !important;
+    font-weight: 600 !important;
+    padding: 14px 10px !important;
+}
+
+/* Linhas */
+table.dataTable tbody tr:nth-child(even) {
+    background: #f5f8ff !important;
+}
+table.dataTable tbody tr:hover {
+    background: #e8f1ff !important;
+}
+
+/* Paginação GOVBR */
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    border: 1px solid #0056b3 !important;
+    border-radius: 6px !important;
+    padding: 4px 10px !important;
+    margin: 2px !important;
+    color: #0056b3 !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background: #007BFF !important;
+    color: #ffffff !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: #0056b3 !important;
+    color: #ffffff !important;
+    border-color: #003d80 !important;
+}
+
+/* Botões DataTables */
+button.dt-button, div.dt-button, a.dt-button {
+    background: #007BFF !important;
+    color: #fff !important;
+    border-radius: 6px !important;
+    border: none !important;
+    padding: 8px 14px !important;
+    margin-right: 6px !important;
+    transition: background .2s ease;
+}
+
+button.dt-button:hover {
+    background: #0056b3 !important;
+}
+
+/* ============================= */
+/* 3️⃣ SUMMERNOTE GOVBR BLUE     */
+/* ============================= */
+
+/* Toolbar */
+.note-toolbar.card-header,
+.note-toolbar {
+    background: #003d80 !important;
+    border: none !important;
+    padding: 10px !important;
+}
+
+.note-toolbar .note-btn {
+    background: #0056b3 !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 6px !important;
+}
+
+.note-toolbar .note-btn:hover {
+    background: #007BFF !important;
+}
+
+/* Editor */
+.note-editor.note-frame {
+    border: 1px solid #bcd0f5 !important;
+    border-radius: 8px !important;
+    overflow: hidden;
+}
+
+.note-editor .note-editing-area .note-editable {
+    background: #ffffff;
+    color: #003d80;
+    padding: 16px !important;
+    min-height: 150px;
+}
+
+/* Status bar */
+.note-statusbar {
+    background: #f2f6ff !important;
+    border-top: 1px solid #d0d7de !important;
+}
+
+/* Dropdown menus (font-size, tables, etc) */
+.note-dropdown-menu {
+    border-radius: 8px !important;
+}
+
+.note-dropdown-menu .dropdown-item:hover {
+    background: #007BFF !important;
+    color: #ffffff !important;
+}
+
+/* Buttons inside popovers */
+.note-popover .note-btn {
+    background: #0056b3 !important;
+    color: #ffffff;
+}
+
+.note-popover .note-btn:hover {
+    background: #007BFF !important;
+}
+
+/* Link modal */
+.note-modal .modal-content {
+    border-radius: 12px !important;
+}
+
+.note-modal .modal-header {
+    background: #003d80 !important;
+    color: #ffffff !important;
+}
+
+/* END EXTRAS */

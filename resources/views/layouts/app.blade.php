@@ -51,6 +51,11 @@ $ultimas = \App\Models\UserNotification::where('user_id', auth()->id())
 @endphp
 
 
+    <li class="nav-item">
+        <a class="nav-link" href="#" id="toggleTheme" aria-label="Alternar tema">
+            <i class="fas fa-moon text-white" id="toggleThemeIcon"></i>
+        </a>
+    </li>
     @include('layouts.components.notificacoes')
 
     @endsection
@@ -103,8 +108,6 @@ $ultimas = \App\Models\UserNotification::where('user_id', auth()->id())
         </div>
     @endif
 
-    {{-- Carrega jQuery antes dos scripts de página --}}
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     {{-- Stack para scripts adicionais --}}
     @stack('scripts')
 @stop
@@ -129,6 +132,7 @@ $ultimas = \App\Models\UserNotification::where('user_id', auth()->id())
 {{-- ========================================= --}}
 @push('js')
     @vite(['resources/js/app.js'])
+
 <script>
     $(function () {
         // JS comum a todas as páginas
@@ -139,14 +143,21 @@ $ultimas = \App\Models\UserNotification::where('user_id', auth()->id())
   window.AppUserId = @json(auth()->id());
   window.AppIsAuthenticated = @json(auth()->check());
   window.CSRFToken = @json(csrf_token());
-</script>
+    </script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
 @endpush
 
 {{-- ========================================= --}}
 {{-- 🔹 Estilos Comuns --}}
 {{-- ========================================= --}}
 @push('css')
-    @vite(['resources/css/app.css'])
+
+     @vite(['resources/css/fiscalizer-theme.css'])
+     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
 @endpush
 
 
@@ -155,11 +166,13 @@ $ultimas = \App\Models\UserNotification::where('user_id', auth()->id())
 {{-- ========================================= --}}
 @section('usermenu_body')
     @php($user = auth()->user())
+    @php($profile = \App\Models\UserProfile::where('user_id', $user?->id)->first())
     <div class="px-3">
         <div class="text-muted small">Nome</div>
-        <div>{{ $user?->name }}</div>
+        <div>{{ $user?->display_name }}</div>
 
-        <div class="text-muted small mt-2">Papel</div>
+
+        <div class="text-muted small mt-2">Perfil</div>
         <div>{{ optional($user?->role)->nome ?? '—' }}</div>
     </div>
 @endsection

@@ -22,12 +22,10 @@ return new class extends Migration
 
             if (! Schema::hasColumn('medicao_itens', 'sistema_id')) {
                 $table->unsignedBigInteger('sistema_id')->nullable()->after('requisito_id');
-                $table->foreign('sistema_id')->references('id')->on('sistemas')->nullOnDelete();
             }
 
             if (! Schema::hasColumn('medicao_itens', 'modulo_id')) {
                 $table->unsignedBigInteger('modulo_id')->nullable()->after('sistema_id');
-                $table->foreign('modulo_id')->references('id')->on('modulos')->nullOnDelete();
             }
 
             if (! Schema::hasColumn('medicao_itens', 'tipo_manutencao')) {

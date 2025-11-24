@@ -18,6 +18,50 @@ class MedicaoController extends Controller
         return view('medicoes.index', compact('medicoes'));
     }
 
+    /**
+     * Endpoint JSON para DataTables na listagem de medições.
+     */
+    public function data(Request $request)
+    {
+        $query = Medicao::with('contrato');
+
+        // Filtros leves (contrato, competencia, status)
+        if ($contratoTxt = trim((string) $request->get('contrato'))) {
+            $query->whereHas('contrato', function ($q) use ($contratoTxt) {
+                $q->where('numero', 'like', "%$contratoTxt%");
+            });
+        }
+        if ($comp = trim((string) $request->get('competencia'))) {
+            $query->where('competencia', 'like', "%$comp%");
+        }
+        if ($status = trim((string) $request->get('status'))) {
+            $query->where('status', 'like', "%$status%");
+        }
+
+        $medicoes = $query->latest()->get();
+
+        $data = $medicoes->map(function (Medicao $m) {
+            return [
+                'id' => $m->id,
+                'contrato' => $m->contrato->numero ?? '—',
+                'competencia' => $m->competencia,
+                'tipo' => strtoupper($m->tipo),
+                'valor_liquido' => $m->valor_liquido ?? 0,
+                'status' => $m->status,
+            ];
+        });
+
+        return response()->json(['data' => $data]);
+    }
+
+    /**
+     * Redireciona detalhes da medição para a tela de comparação de documentos.
+     */
+    public function show($id)
+    {
+        return redirect()->route('medicoes.documentos.comparacao', ['medicao' => $id]);
+    }
+
     public function create(Contrato $contrato)
     {
         // tipo sugerido pelo contrato (campo tipo_medicao)
@@ -39,6 +83,12 @@ class MedicaoController extends Controller
             'tipo' => $data['tipo'],
             'status' => 'rascunho',
         ]);
+
+        // Notificação: medição criada
+        notify_event('notificacoes.medicoes.medicao_criada', [
+            'titulo' => 'Medição criada',
+            'mensagem' => "Medição {$medicao->id} criada para o contrato {$contrato->numero}",
+        ], $medicao);
 
         // delega para fluxo especializado
         return match ($medicao->tipo) {

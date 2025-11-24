@@ -25,11 +25,4 @@ return [
     'verify_if_not_recieved' => 'caso não tenha recebido o email',
     'verify_request_another' => 'clique aqui para solicitar um novo',
     'confirm_password_message' => 'Por favor, confirme sua senha para continuar.',
-    'failed' => 'Credenciais inválidas.',
-    'password_expired' => '🔒 Sua senha expirou. Entre em contato com o administrador do sistema.',
-     'reset' => 'Sua senha foi redefinida!',
-    'sent' => 'Enviamos o link de redefinição de senha para o seu e-mail!',
-    'throttled' => 'Aguarde antes de tentar novamente.',
-    'token' => 'O token de redefinição de senha é inválido ou expirou.',
-    'user' => "Não encontramos um usuário com esse endereço de e-mail.",
 ];

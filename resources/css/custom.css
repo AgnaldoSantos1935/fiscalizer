@@ -356,11 +356,12 @@ div.dataTables_wrapper {
    Use a classe wrapper `.auth-login` no container da view
    =============================================== */
 .auth-login .card {
-  border-radius: 6px;
+  border-radius: 12px;
   overflow: hidden;
   background-color: #ffffff; /* branco */
   color: #1f2937; /* texto escuro */
-  border: 1px solid #000; /* borda preta */
+  border: 1px solid #e2e8f0; /* borda suave */
+  box-shadow: 0 10px 24px rgba(13, 17, 23, 0.08);
 }
 
 .auth-login .card-header {
@@ -407,6 +408,83 @@ div.dataTables_wrapper {
     linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(0,0,0,0.02) 100%);
   background-blend-mode: normal, normal, normal;
   background-attachment: fixed;
+}
+
+/* ===============================================
+   Login Reference Styling (scoped em .auth-login)
+   =============================================== */
+.auth-login .login-title { color: #0f7c7c; font-weight: 800; letter-spacing: 0.3px; }
+.auth-login .title-divider { height: 1px; background: #e5eef2; margin: 12px 0 18px; }
+.auth-login .card { border: 1px solid #d7e0e5; border-radius: 12px; }
+.auth-login .card-footer { background: #eef4f7; border-top: 1px solid #d7e0e5; }
+.auth-login .ui-input { border-radius: 8px; width: 100%; }
+.auth-login .ui-select { width: 100%; }
+.auth-login .ui-btn { background: #1f8f99; border-color: #1f8f99; }
+.auth-login .ui-btn:hover { background: #167b83; }
+.auth-login .ui-cta { display: inline-block; background: #fff8c5; color: #0f7c7c; border: 1px solid #e59335; border-radius: 6px; padding: 4px 10px; font-weight: 700; }
+.auth-login .ui-cta:hover { background: #e7842d; }
+/* Override específico para a tela de login */
+.login-page .ui-btn { background: #007BFF; border-color: #007BFF; border-radius: 8px; }
+.login-page .ui-btn:hover { background: #0069d9; border-color: #0069d9; }
+/* Inputs na tela de login: fundo branco e borda cinza
+   Corrige o autofill azul (#E8F0FE) do Chrome */
+.login-page .ui-input,
+.login-page .ui-select {
+  background-color: #fff;
+  border-color: #ced4da;
+  border-radius: 3px;
+  padding: 10px 12px;
+  width: 70%;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Inline layout: label à esquerda, input à direita (30% / 70%) */
+.login-page .form-group.login-inline {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.login-page .form-group.login-inline .form-label {
+  width: 30%;
+  margin-bottom: 0;
+  text-align: right;
+  padding-right: 8px;
+}
+.login-page .form-group.login-inline .login-input-wrap {
+  width: 70%;
+}
+.login-page .form-group.login-inline .ui-input,
+.login-page .form-group.login-inline .ui-select {
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+}
+.login-page .ui-input:hover,
+.login-page .ui-select:hover {
+  border-color: #0a3a7a;
+  box-shadow: 0 0 0 3px rgba(10,58,122,0.25);
+}
+.login-page .ui-input:focus-visible,
+.login-page .ui-select:focus-visible {
+  outline: 3px solid #0a3a7a;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 3px rgba(10,58,122,0.35);
+}
+/* Aumenta o espaçamento interno do container/card na tela de login */
+.login-page .card-body { padding: 20px; }
+.login-page .ui-input:-webkit-autofill,
+.login-page .ui-input:-webkit-autofill:hover,
+.login-page .ui-input:-webkit-autofill:focus,
+.login-page .ui-select:-webkit-autofill,
+.login-page .ui-select:-webkit-autofill:hover,
+.login-page .ui-select:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 30px #fff inset !important;
+  box-shadow: 0 0 0 30px #fff inset !important;
+  -webkit-text-fill-color: inherit;
+  background-color: #fff !important;
+  border-color: #ced4da !important;
 }
 /* Scrollbar para áreas de conteúdo longas */
 .content-scroll {
@@ -498,6 +576,18 @@ div.dataTables_wrapper {
 .ui-btn:focus-visible, .ui-select:focus-visible, .ui-input:focus-visible, a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px solid var(--ui-accent); outline-offset: 3px; box-shadow: 0 0 0 3px rgba(249,255,0,0.35); }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
 
+/* UI Inputs/Selects: estados e acessibilidade */
+.ui-input::placeholder, .ui-select::placeholder { color: #6b7280; }
+.ui-input.is-invalid, .ui-select.is-invalid { border-color: #dc3545 !important; box-shadow: 0 0 0 2px rgba(220,53,69,0.12); }
+.ui-input:disabled, .ui-select:disabled, .ui-btn:disabled { opacity: .65; cursor: not-allowed; }
+.ui-input.sm, .ui-select.sm { padding: 6px 10px; border-radius: 10px; }
+.ui-input.lg, .ui-select.lg { padding: 12px 14px; border-radius: 14px; }
+
+/* UI Link: padrão para links fora de navbars */
+.ui-link { color: var(--ui-primary); font-weight: 600; text-decoration: none; transition: color .2s ease; }
+.ui-link:hover { color: #0a5bc1; text-decoration: underline; }
+.ui-link.muted { color: #475569; }
+
 /* Layout flex chain to fill to footer */
 html, body { height: 100%; }
 .wrapper { min-height: 100vh; display: flex; flex-direction: column; }
@@ -528,6 +618,7 @@ section.content > .container-fluid > .row > [class^="col-"] { flex: 1 1 auto; mi
 /* additional utilities */
 .overflow-visible { overflow: visible !important; }
 .min-h-500 { min-height: 500px !important; }
+.text-black { color: #000 !important; }
 
 /* Components */
 .heatbox { width: 16px; height: 16px; margin: 1px; border-radius: 3px; display: inline-block; }

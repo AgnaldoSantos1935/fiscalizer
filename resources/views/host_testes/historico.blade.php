@@ -68,11 +68,8 @@
 </div>
 @stop
 @section('css')
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 @endsection
 @section('js')
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 <script>
 $(document).ready(function() {
     const tabela = $('#tabelaHistorico').DataTable({
@@ -95,7 +92,8 @@ $(document).ready(function() {
         ],
         order: [[8, 'desc']],
 
-        language: { url: 'js/pt-BR.json' },
+        language: { url: '{{ asset("js/pt-BR.json") }}' },
+        dom: 't<"bottom"ip>',
         pageLength: 25,
         responsive: true
     });

@@ -37,6 +37,12 @@ return new class extends Migration
             $table->timestamps();
 
         });
+
+        if (Schema::hasTable('projetos') && Schema::hasColumn('projetos', 'escola_id')) {
+            Schema::table('projetos', function (Blueprint $table) {
+                $table->foreign('escola_id')->references('id')->on('escolas')->nullOnDelete();
+            });
+        }
     }
 
     public function down(): void

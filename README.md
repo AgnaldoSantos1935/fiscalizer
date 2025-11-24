@@ -1,5 +1,37 @@
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
+## Relatórios por templates (Word/Excel)
+
+O sistema agora suporta geração de relatórios idênticos aos modelos existentes editados em Word (.docx) e, futuramente, Excel (.xlsx).
+
+### Como preparar o modelo (Word)
+- Crie/edite seu `.docx` normalmente e insira placeholders na forma `${chave}` onde deseja substituir valores.
+- Salve o arquivo em `resources/reports/templates/` (ex.: `resources/reports/templates/contrato.docx`).
+
+### Endpoint
+- `POST /reports/templates/docx`
+- Body (JSON):
+```
+{
+  "template": "contrato.docx",
+  "variables": {
+    "empresa": "ACME Ltda.",
+    "valor_total": "R$ 123,45",
+    "data_assinatura": "01/11/2025"
+  },
+  "output": "contrato_123"
+}
+```
+- Resposta: arquivo `.docx` para download, com o conteúdo substituído e mantendo 100% da formatação do modelo.
+
+### Excel (.xlsx)
+- A geração via modelos XLSX exige as extensões `ext-zip` e `ext-gd` habilitadas no PHP.
+- Depois de habilitar no `php.ini` e instalar `phpoffice/phpspreadsheet`, o endpoint `POST /reports/templates/xlsx` poderá ser usado com a mesma estrutura de `template`, `variables` e `output`.
+
+### Observações
+- Os arquivos gerados ficam em `storage/app/reports/`.
+- A substituição preserva integralmente a formatação do arquivo modelo.
+
 <p align="center">
 <a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>

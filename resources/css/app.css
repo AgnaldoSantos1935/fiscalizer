@@ -6,4 +6,65 @@
 @import "@fortawesome/fontawesome-free/css/all.min.css";
 @import "sweetalert2/dist/sweetalert2.min.css";
 @import "./custom.css";
+/* Notificações: estilos para não lidas no dropdown (tema azul) */
+.notif-dropdown .dropdown-item-unread {
+  background-color: rgba(13, 110, 253, 0.12); /* Bootstrap primary em transparência */
+  border-left: 3px solid #0d6efd;
+}
+.notif-dropdown.notif-pulse .fa-bell {
+  animation: notifPulse 1.2s ease-in-out infinite;
+}
+
+/* =========================================================
+   🔵 ABAS INTELIGENTES - Fiscalizer TR
+   ========================================================= */
+
+.tr-nav .nav-link {
+    padding: 12px 24px !important;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #555;
+    border: none !important;
+    border-bottom: 3px solid transparent !important;
+}
+
+.tr-nav .nav-link:hover {
+    background: #f7f7f7;
+    border-bottom: 3px solid #d0d0d0 !important;
+    color: #333;
+}
+
+.tr-nav .nav-link.active {
+    color: #0d6efd !important;
+    background: #ffffff !important;
+    border-bottom: 3px solid #0d6efd !important;
+}
+
+/* =========================================================
+   🔵 TÍTULOS DE SEÇÃO (Section Title)
+   ========================================================= */
+
+.section-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 18px;
+    margin-top: 8px;
+    padding-left: 12px;
+    border-left: 4px solid #0d6efd;
+    color: #2b2b2b;
+}
+
+
+
+/* Animação suave */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes notifPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
 

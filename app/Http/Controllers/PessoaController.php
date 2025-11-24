@@ -66,8 +66,10 @@ class PessoaController extends Controller
         // Cria o registro da pessoa
         $pessoa = Pessoa::create($validated);
 
-        // Se informado email, cria automaticamente um usuário vinculado
-        if (! empty($validated['email'])) {
+        // RCSB: Criação/gestão de conta de usuário deve ser feita no módulo RCSB
+        // Apenas administradores podem vincular/gerar conta de usuário a partir de Pessoa
+        $isAdmin = auth()->user()?->hasRole('Administrador');
+        if ($isAdmin && ! empty($validated['email'])) {
             $user = User::create([
                 'name' => $validated['nome_completo'],
                 'email' => $validated['email'],
@@ -93,6 +95,15 @@ class PessoaController extends Controller
      */
     public function update(Request $request, Pessoa $pessoa)
     {
+        // Se o usuário tentar editar seus próprios dados via Pessoa (fora do RCSB)
+        // e não for administrador, redireciona para "Meu Perfil"
+        $isAdmin = auth()->user()?->hasRole('Administrador');
+        if (! $isAdmin && auth()->id() && $pessoa->user_id === auth()->id()) {
+            return redirect()
+                ->route('user_profiles.me')
+                ->with('info', 'A edição dos seus dados pessoais é centralizada no módulo RCSB. Utilize a página "Meu Perfil".');
+        }
+
         $validated = $request->validate([
             'nome_completo' => 'required|string|max:255',
             'cpf' => 'required|string|max:14|unique:pessoas,cpf,' . $pessoa->id,
@@ -108,8 +119,9 @@ class PessoaController extends Controller
 
         $pessoa->update($validated);
 
-        // Atualiza ou cria usuário vinculado
-        if ($validated['email'] ?? false) {
+        // RCSB: Criação/gestão de conta de usuário deve ser feita no módulo RCSB
+        // Apenas administradores podem vincular/atualizar conta de usuário a partir de Pessoa
+        if ($isAdmin && ($validated['email'] ?? false)) {
             if ($pessoa->user) {
                 $pessoa->user->update(['email' => $validated['email'], 'name' => $validated['nome_completo']]);
             } else {
@@ -130,7 +142,9 @@ class PessoaController extends Controller
      */
     public function destroy(Pessoa $pessoa)
     {
-        if ($pessoa->user) {
+        // Apenas administradores podem excluir a conta de usuário vinculada
+        $isAdmin = auth()->user()?->hasRole('Administrador');
+        if ($isAdmin && $pessoa->user) {
             $pessoa->user->delete();
         }
 

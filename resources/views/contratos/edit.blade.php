@@ -2,8 +2,7 @@
 
 @section('title', "Editar Contrato {$contrato->numero}")
 
-@section('content')
-@include('layouts.components.breadcrumbs')
+@section('content_body')
 <div class="container-fluid">
 
     <h3 class="mb-4">
@@ -12,8 +11,8 @@
     </h3>
 
     <div class="mb-3">
-        <a href="{{ route('contratos.pdf', $contrato->id) }}" class="btn btn-outline-primary btn-sm">
-            <i class="fas fa-file-pdf"></i> Ver PDF do Contrato
+        <a href="{{ route('contratos.pdf', $contrato->id) }}" target="_blank" rel="noopener" class="btn btn-outline-primary btn-sm">
+<i class="fas fa-file-pdf"></i> Download PDF
         </a>
     </div>
 

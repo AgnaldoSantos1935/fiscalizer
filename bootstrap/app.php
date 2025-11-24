@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\CanAction;
 use App\Http\Middleware\CheckRole;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -16,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Alias personalizados (acessíveis em routes/web.php)
         $middleware->alias([
             'role' => CheckRole::class,
+            'can.action' => CanAction::class,
         ]);
 
         // Middleware globais (se quiser aplicar a todos os requests)

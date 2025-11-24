@@ -77,9 +77,11 @@ use Illuminate\Support\Str;
         </a>
       </li>
       <li class="nav-item">
+        @can('contratos.create')
         <a href="{{ route('contratos.create') }}" class="nav-link active" aria-current="page">
           <i class="fas fa-plus-circle me-1"></i> Novo Contrato
         </a>
+        @endcan
       </li>
     </ul>
 
@@ -154,21 +156,22 @@ use Illuminate\Support\Str;
 @endsection
 
 @push('css')
-{{-- Removido: CSS do DataTables via CDN (já importado em resources/css/app.css) --}}
 @endpush
 
 @push('scripts')
-<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
-<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
-<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
-
 <script>
 $(document).ready(function () {
 
 // 🔹 Monta o filtro e a legenda com cores, ícones e tooltips
-fetch(`{{ route('api.situacoes') }}`)
-  .then(resp => resp.json())
+fetch(`{{ route('api.situacoes') }}`, { headers: { 'Accept': 'application/json' } })
+  .then(async (resp) => {
+      const ct = resp.headers.get('content-type') || '';
+      if (!resp.ok || !ct.includes('application/json')) {
+          const text = await resp.text();
+          throw new Error(`Resposta inválida da API de situações (status ${resp.status}). Conteúdo: ${text.slice(0, 200)}`);
+      }
+      return resp.json();
+  })
   .then(situacoes => {
       const select = $('#filtroSituacao');
       const legenda = $('#listaLegendas');
@@ -203,17 +206,43 @@ fetch(`{{ route('api.situacoes') }}`)
           $('[data-bs-toggle="tooltip"]').tooltip();
       }
   })
-  .catch(err => console.error('Erro ao carregar situações:', err));
+  .catch(err => {
+      console.error('Erro ao carregar situações:', err);
+      // mantém seleção padrão e evita quebrar a página
+      const select = $('#filtroSituacao');
+      if (select.find('option').length === 0) {
+          select.append('<option value="">Todas</option>');
+      }
+  });
 
     // ==============================
     // 🔹 Inicializa DataTable via AJAX
     // ==============================
+    // Evita popups padrão do DataTables em erros AJAX
+    $.fn.dataTable.ext.errMode = 'none';
+
     const tabela = $('#tabelaContratos').DataTable({
-        ajax: `{{ route('api.contratos') }}`,
+        ajax: {
+            url: `{{ route('api.contratos') }}`,
+            type: 'GET',
+            dataSrc: 'data',
+            data: function (d) {
+                // Envia filtros para o endpoint
+                d.numero = $('#filtroNumero').val();
+                d.empresa = $('#filtroEmpresa').val();
+                d.situacao = $('#filtroSituacao').val();
+            },
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('Accept', 'application/json');
+            },
+            error: function (xhr, status, err) {
+                console.error('Erro ao carregar contratos:', xhr.status, status, err, (xhr.responseText || '').slice(0, 200));
+            }
+        },
         language: { url: "{{ asset('js/pt-BR.json') }}" },
         pageLength: 10,
         order: [[1, 'asc']],
-        dom: 't<"bottom"p>',
+        dom: 't<"bottom"ip>',
         responsive: true,
         columns: [
             {
@@ -279,22 +308,8 @@ fetch(`{{ route('api.situacoes') }}`)
     // ===================================
     $('#btnAplicarFiltros').on('click', function (e) {
         e.preventDefault();
-
-        const numero   = $('#filtroNumero').val().trim().toLowerCase();
-        const empresa  = $('#filtroEmpresa').val().trim().toLowerCase();
-        const situacao = $('#filtroSituacao').val().trim().toLowerCase();
-
-        // Atualiza os filtros nas colunas
-        tabela.column(1).search(numero);
-        tabela.column(3).search(empresa);
-        tabela.draw();
-
-        // Filtro de situação (porque é HTML)
-        $('#tabelaContratos tbody tr').each(function () {
-            const badgeText = $(this).find('td:nth-child(7) span').text().trim().toLowerCase();
-            const match = !situacao || badgeText.includes(situacao);
-            $(this).toggle(match);
-        });
+        // Recarrega via AJAX com filtros server-side
+        tabela.ajax.reload();
     });
 
     // ===========================================
@@ -304,8 +319,6 @@ fetch(`{{ route('api.situacoes') }}`)
         e.preventDefault();
         $('#formFiltros')[0].reset();
 
-        tabela.search('');
-        tabela.columns().search('');
         tabela.order([1, 'asc']);
         tabela.ajax.reload(null, false);
 

@@ -9,6 +9,8 @@ class Servidor extends Model
 {
     use HasFactory;
 
+    protected $table = 'servidores';
+
     protected $fillable = [
         'pessoa_id', 'matricula', 'cargo', 'funcao', 'lotacao',
         'data_admissao', 'vinculo', 'situacao', 'salario',

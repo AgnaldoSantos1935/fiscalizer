@@ -44,6 +44,7 @@
                 @if($tr->status !== 'finalizado')
                     <a href="{{ route('contratacoes.termos-referencia.edit', $tr) }}" class="btn btn-outline-warning btn-sm"><i class="fas fa-edit me-1"></i>Editar</a>
                 @endif
+                <a href="{{ route('contratacoes.termos-referencia.pdf', $tr) }}" target="_blank" rel="noopener" class="btn btn-outline-success btn-sm"><i class="fas fa-file-pdf me-1"></i>Download PDF</a>
                 <a href="{{ route('contratacoes.termos-referencia.index') }}" class="btn btn-outline-secondary btn-sm">Voltar</a>
             </div>
         </div>

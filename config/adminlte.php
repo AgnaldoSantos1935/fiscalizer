@@ -63,7 +63,7 @@ return [
     |
     */
 
-    'logo' => '<b>Fisca</b>LIZER',
+    'logo' => '<b>Admin</b>LTE',
     'logo_img' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
     'logo_img_class' => 'brand-image img-circle elevation-3',
     'logo_img_xl' => null,
@@ -110,7 +110,7 @@ return [
     */
 
     'preloader' => [
-        'enabled' => true,
+        'enabled' => false,
         'mode' => 'fullscreen',
         'img' => [
             'path' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
@@ -134,8 +134,8 @@ return [
     */
 
     'usermenu_enabled' => true,
-    'usermenu_header' => true,
-    'usermenu_header_class' => 'bg-secondary',
+    'usermenu_header' => false,
+    'usermenu_header_class' => 'bg-primary',
     'usermenu_image' => false,
     'usermenu_desc' => false,
     'usermenu_profile_url' => false,
@@ -155,7 +155,7 @@ return [
     'layout_topnav' => null,
     'layout_boxed' => null,
     'layout_fixed_sidebar' => null,
-    'layout_fixed_navbar' => true,
+    'layout_fixed_navbar' => null,
     'layout_fixed_footer' => null,
     'layout_dark_mode' => null,
 
@@ -171,7 +171,7 @@ return [
     |
     */
 
-    'classes_auth_card' => 'card-outline',
+    'classes_auth_card' => 'card-outline card-primary',
     'classes_auth_header' => '',
     'classes_auth_body' => '',
     'classes_auth_footer' => '',
@@ -190,15 +190,15 @@ return [
     |
     */
 
-    'classes_body' => 'footer-custom theme-fiscalizer preset-fiscalizer-dark-navy',
+    'classes_body' => 'theme-fiscalizer',
     'classes_brand' => '',
     'classes_brand_text' => '',
-    'classes_content_wrapper' => 'content-custom',
+    'classes_content_wrapper' => '',
     'classes_content_header' => '',
-    'classes_content' => 'content-custom',
-    'classes_sidebar' => 'sidebar-dark-primary elevation-4 sidebar-custom',
+    'classes_content' => '',
+    'classes_sidebar' => 'sidebar-fiscalizer',
     'classes_sidebar_nav' => '',
-    'classes_topnav' => 'navbar-dark navbar-primary topnav-custom',
+    'classes_topnav' => 'navbar-fiscalizer',
     'classes_topnav_nav' => 'navbar-expand',
     'classes_topnav_container' => 'container',
 
@@ -238,9 +238,9 @@ return [
 
     'right_sidebar' => false,
     'right_sidebar_icon' => 'fas fa-cogs',
-    'right_sidebar_theme' => 'light',
-    'right_sidebar_slide' => false,
-    'right_sidebar_push' => false,
+    'right_sidebar_theme' => 'dark',
+    'right_sidebar_slide' => true,
+    'right_sidebar_push' => true,
     'right_sidebar_scrollbar_theme' => 'os-theme-light',
     'right_sidebar_scrollbar_auto_hide' => 'l',
 
@@ -299,345 +299,113 @@ return [
     */
 
     'menu' => [
-
-        // 🔍 Barra superior
+        ['header' => 'Painel'],
         [
-            'type' => 'fullscreen-widget',
-            'topnav_right' => true,
-        ],
-
-        // 🔎 Pesquisa lateral
-        [
-            'type' => 'sidebar-menu-search',
-            'text' => 'Procurar menu',
-        ],
-
-        [
-            'text' => 'Início',
+            'text' => 'Painel',
             'route' => 'home',
-            'icon' => 'fas fa-fw fa-house',
-            'can' => 'view-home', // Gate permission
+            'icon' => 'fas fa-home',
+        ],
 
-        ],
-        [
-            'text' => 'Dashboards',
-            'route' => '',
-            'icon' => 'fas fa-fw fa-chart-pie',
-            'can' => 'view-dashboard', // Gate permission
-            'submenu' => [
-                [
-                    'text' => 'Teste de Conexões ',
-                    'route' => 'monitoramentos.index',
-                    'icon' => 'fas fa-fw fa-plug',
-                    'can' => 'view-index-monitoramento', // Gate permission
-                ],
-                [
-                    'text' => 'Histórico de Testes',
-                    'url' => '/host_testes/historico',
-                    'icon' => 'fas fa-clipboard-list',
-                    'label_color' => 'info',
-                    'can' => 'view-historico-host_testes', // Gate permission
-                ],
-                [
-                    'text' => 'Dashboard Conexões ',
-                    'url' => '/host_testes/dashboard',
-                    'icon' => 'fas fa-satellite-dish',
-                    'label_color' => 'info',
-                    'can' => 'view-index-host_testes', // Gate permission
-                ],
-
-            ],
-        ],
-        [
-            'text' => 'Empresas',
-            'route' => '',
-            'icon' => 'fas fa-fw fa-industry',
-            'submenu' => [
-                [
-                    'text' => 'Empresas Cadastradas',
-                    'route' => 'empresas.index',
-                    'icon' => 'fas fa-fw fa-list',
-                    'can' => 'view-index-empresas', // Gate permission
-                ],
-                [
-                    'text' => 'Cadastrar Empresa',
-                    'route' => 'empresas.create',
-                    'icon' => 'fas fa-fw fa-plus',
-                    'can' => 'view-create-empresas', // Gate permission
-                ],
-            ],
-        ],
-        [
-            'text' => 'Empenhos',
-            'route' => '',
-            'icon' => 'fas fa-fw fa-file-pdf', // view-create-contratos
-            'submenu' => [
-                [
-                    'text' => 'Exibir todos',
-                    'route' => 'empenhos.index',
-                    'icon' => 'fas fa-fw fa-list',
-                    'can' => 'view-index-empenhos', // Gate permission
-                ],
-                [
-                    'text' => 'Cadastrar',
-                    'route' => 'empenhos.create',
-                    'icon' => 'fas fa-fw fa-plus',
-                    'can' => 'view-create-empenhos', // Gate permission
-                ],
-            ],
-        ],
-        [
-            'text' => 'Atas de Registro',
-            'route' => '',
-            'icon' => 'fas fa-fw fa-file-contract',
-            'submenu' => [
-                [
-                    'text' => 'Exibir todas',
-                    'route' => 'atas.index',
-                    'icon' => 'fas fa-fw fa-list',
-                ],
-                [
-                    'text' => 'Cadastrar Ata',
-                    'route' => 'atas.create',
-                    'icon' => 'fas fa-fw fa-plus',
-                ],
-            ],
-        ],
+        ['header' => 'Contratos'],
         [
             'text' => 'Contratos',
-            'route' => '',
-            'icon' => 'fas fa-fw fa-file-contract', // view-create-contratos
+            'icon' => 'fas fa-file-contract',
             'submenu' => [
-                [
-                    'text' => 'Exibir todos',
-                    'route' => 'contratos.index',
-                    'icon' => 'fas fa-fw fa-list',
-                    'can' => 'view-contratos', // Gate permission
-                ],
-                [
-                    'text' => 'Cadastrar novo',
-                    'route' => 'contratos.create',
-                    'icon' => 'fas fa-fw fa-plus',
-                    'can' => 'view-create-empresas', // Gate permission
-                ],
+                [ 'text' => 'Listar Contratos', 'route' => 'contratos.index' ],
+                [ 'text' => 'Novo Contrato', 'route' => 'contratos.create' ],
             ],
         ],
+
+        ['header' => 'Medição'],
         [
-            'text' => 'Medições (APF)',
-            'route' => 'medicoes.index',
-            'icon' => 'fas fa-fw fa-chart-line',
-            'can' => 'view-medicoes', // Gate permission
-        ],
-        [
-            'text' => 'Documentos',
-            'route' => 'documentos.index',
-            'icon' => 'fas fa-fw fa-folder-open',
-            'can' => 'view-documentos', // Gate permission
+            'text' => 'Medição',
+            'icon' => 'fas fa-calculator',
+            'submenu' => [
+                [ 'text' => 'Medições', 'route' => 'medicoes.index' ],
+                [ 'text' => 'Boletins de Medição', 'route' => 'boletins.index' ],
+            ],
         ],
 
-        // Removido: Atalhos diretos para Termos de Referência (mantido apenas menu "Contratações")
+        ['header' => 'Monitoramento'],
+        [
+            'text' => 'Monitoramento',
+            'icon' => 'fas fa-signal',
+            'submenu' => [
+                [ 'text' => 'Infraestrutura', 'route' => 'monitoramentos.index' ],
+                [ 'text' => 'Dashboard', 'route' => 'monitoramentos.dashboard2' ],
+                [ 'text' => 'Heatline', 'route' => 'monitoramentos.heatline' ],
+                [ 'text' => 'Matriz', 'route' => 'monitoramentos.matrix' ],
+                [ 'text' => 'Hosts', 'route' => 'hosts.index', 'can' => 'view-index-host' ],
+                [ 'text' => 'Dashboard Conexões', 'route' => 'host_testes.dashboard' ],
+            ],
+        ],
 
+        ['header' => 'Cadastros'],
+        [
+            'text' => 'Cadastros',
+            'icon' => 'fas fa-address-book',
+            'submenu' => [
+                [ 'text' => 'Empresas', 'route' => 'empresas.index' ],
+                [ 'text' => 'Escolas', 'route' => 'escolas.index', 'can' => 'view-escolas' ],
+                [ 'text' => 'DREs', 'route' => 'dres.index' ],
+            ],
+        ],
+
+        ['header' => 'Contratações'],
         [
             'text' => 'Contratações',
-            'route' => '',
-            'icon' => 'fas fa-fw fa-file-signature',
+            'icon' => 'fas fa-clipboard-list',
             'submenu' => [
-                [
-                    'text' => 'Termos de Referência',
-                    'route' => 'contratacoes.termos-referencia.index',
-                    'icon' => 'fas fa-fw fa-list',
-                ],
-                [
-                    'text' => 'Novo Termo',
-                    'route' => 'contratacoes.termos-referencia.create',
-                    'icon' => 'fas fa-fw fa-plus',
-                ],
+                [ 'text' => 'Painel', 'route' => 'contratacoes.index' ],
+                [ 'text' => 'Termos de Referência', 'route' => 'contratacoes.termos-referencia.index' ],
+                [ 'text' => 'Novo TR', 'route' => 'contratacoes.termos-referencia.create' ],
             ],
         ],
 
-        [
-            'text' => 'Ocorrências',
-            'route' => 'ocorrencias.index',
-            'icon' => 'fas fa-fw fa-clipboard-check',
-            'can' => 'view-ocorrencias', // Gate permission
-        ],
-        [
-            'text' => 'Conexões',
-            'icon' => 'fas fa-fw fa-network-wired',
-            'route' => '',
-            // Gate permission  'can' => 'view-monitoramentos',
-            'submenu' => [
-                [
-                    'text' => 'Exibir todas',
-                    'route' => 'hosts.index',
-                    'icon' => 'fas fa-fw fa-list-ul',
-                    'can' => 'view-index-host', // Gate permission
-                ],
-                [
-                    'text' => 'Nova conexão',
-                    'route' => 'hosts.create',
-                    'icon' => 'fas fa-fw fa-plus',
-                    'can' => 'view-create-host', // Gate permission
-                ],
-
-            ],
-        ],
+        ['header' => 'Projetos'],
         [
             'text' => 'Projetos',
-            'route' => '',
-            'icon' => 'fas fa-fw fa-project-diagram',
-            'can' => '', // Gate permission
+            'icon' => 'fas fa-diagram-project',
             'submenu' => [
-                [
-                    'text' => 'Exibir todos',
-                    'route' => 'projetos.index',
-                    'icon' => 'fas fa-fw fa-list-ul',
-                    'can' => 'view-index-projetos_soft', // Gate permission
-                ],
-                [
-                    'text' => 'Novo Projeto',
-                    'route' => 'projetos.create',
-                    'icon' => 'fas fa-fw fa-plus',
-                    'can' => 'view-index-projetos_soft', // Gate permission
-                ],
-
-            ],
-        ],
-        [
-            'text' => 'Escolas',
-            'route' => '',
-            'icon' => 'fas fa-fw fa-school',
-
-            'submenu' => [
-                [
-                    'text' => 'Lista de Escolas',
-                    'route' => 'escolas.index',
-                    'icon' => 'fas fa-fw fa-list',
-                    'can' => 'view-escolas', // Gate permission
-                ],
-                [
-                    'text' => 'Mapa de Escolas',
-                    'route' => 'mapas.escolas',
-                    'icon' => 'fas fa-fw fa-map',
-                    'can' => 'view-mapa1', // Gate permission
-                ],
-                [
-                    'text' => 'Cadastrar Escola',
-                    'route' => 'escolas.create',
-                    'icon' => 'fas fa-fw fa-plus',
-                    'can' => 'view-create-escola', // Gate permission
-                ],
-            ],
-        ],
-        [
-            'text' => 'Diretorias Regionais de Educação (DREs)',
-            'route' => '',
-            'icon' => 'fas fa-fw fa-school',
-
-            'submenu' => [
-                [
-                    'text' => 'Lista de DREs',
-                    'route' => 'dres.index',
-                    'icon' => 'fas fa-fw fa-list',
-                    'can' => 'view-index-dre', // Gate permission
-                ],
-                [
-                    'text' => 'Cadastrar DRE',
-                    'route' => 'dres.create',
-                    'icon' => 'fas fa-fw fa-plus',
-                    'can' => 'view-create-dre', // Gate permission
-                ],
+                [ 'text' => 'Painel de Projetos', 'route' => 'dashboard.projetos', 'can' => 'view-index-projetos_soft' ],
+                [ 'text' => 'Listar Projetos', 'route' => 'projetos.index', 'can' => 'view-index-projetos_soft' ],
+                [ 'text' => 'Novo Projeto', 'route' => 'projetos.create', 'can' => 'view-index-projetos_soft' ],
             ],
         ],
 
-        [
-            'header' => 'USUÁRIOS',
-        ],
-        [
-            'text' => 'Perfis de Usuários',
-            'url' => '',
-            'icon' => 'fas fa-users',
-            'submenu' => [
-                [
-                    'text' => 'Lista de Usuários',
-                    'route' => 'user_profiles.index',
-                    'icon' => 'fas fa-fw fa-list',
-                    'can' => 'view-index-user_profiles', // Gate permission
-                ],
-                [
-                    'text' => 'Cadastrar Usuário',
-                    'route' => 'user_profiles.create',
-                    'icon' => 'fas fa-fw fa-plus',
-                    'can' => 'view-create-user_profiles', // Gate permission
-                ],
-            ],
-        ],
-        [
-            'text' => 'Pessoas',
-            'url' => 'pessoas',
-            'icon' => 'fas fa-fw fa-user',
-        ],
-        [
-            'text' => 'Servidores',
-            'url' => 'servidores',
-            'icon' => 'fas fa-fw fa-users',
-        ],
-        /*[
-            'text' => 'Usuários',
-            'url' => '/usuarios',
-            'icon' => 'fas fa-fw fa-users',
-            'can' => 'view-usrregister', // Gate permission
-        ],
-        [
-            'text' => 'Perfil',
-            'url' => '/profile',
-            'icon' => 'fas fa-fw fa-user-circle',
-        ],
-        [
-            'text' => 'Alterar Senha',
-            'route' => 'password.request',
-            'icon' => 'fas fa-fw fa-lock',
-            'can' => 'view-pswreset', // Gate permission
-        ],*/
-
+        ['header' => 'Relatórios'],
         [
             'text' => 'Relatórios',
-            'route' => '',
-            'icon' => 'fas fa-fw fa-file-alt',
-            'can' => 'view-relatorios', // Gate permission
+            'icon' => 'fas fa-file-alt',
             'submenu' => [
-                [
-                    'text' => 'Relatórios',
-                    'route' => 'relatorios.index',
-                    'icon' => 'fas fa-fw fa-list',
-                ],
-                [
-                    'text' => 'Jasper (demo)',
-                    'route' => 'relatorios.jasper.demo',
-                    'icon' => 'fas fa-fw fa-file-pdf',
-                ],
+                [ 'text' => 'Listar Relatórios', 'route' => 'relatorios.index', 'can' => 'view-relatorios' ],
+                [ 'text' => 'Gerar Relatório', 'route' => 'relatorios.gerar', 'can' => 'view-relatorios' ],
             ],
         ],
 
+        ['header' => 'Administração'],
         [
-            'text' => 'Ajuda',
-            'url' => 'https://wiki.seduc.pa.gov.br',
-            'target' => '_blank',
-            'icon' => 'fas fa-fw fa-question-circle',
+            'text' => 'Administração',
+            'icon' => 'fas fa-users-cog',
+            'submenu' => [
+                [ 'text' => 'Usuários', 'route' => 'usuarios.index' ],
+                [ 'text' => 'Situações de Contrato', 'route' => 'situacoes.index' ],
+                [ 'text' => 'Permissões (RBAC)', 'route' => 'rbac.roles_actions.index', 'can' => 'system.admin' ],
+            ],
         ],
     ],
 
     /*
-        |--------------------------------------------------------------------------
-        | Menu Filters
-        |--------------------------------------------------------------------------
-        |
-        | Here we can modify the menu filters of the admin panel.
-        |
-        | For detailed instructions you can look the menu filters section here:
-        | https://github.com/jeroennoten/Laravel-AdminLTE/wiki/Menu-Configuration
-        |
-        */
+    |--------------------------------------------------------------------------
+    | Menu Filters
+    |--------------------------------------------------------------------------
+    |
+    | Here we can modify the menu filters of the admin panel.
+    |
+    | For detailed instructions you can look the menu filters section here:
+    | https://github.com/jeroennoten/Laravel-AdminLTE/wiki/Menu-Configuration
+    |
+    */
 
     'filters' => [
         JeroenNoten\LaravelAdminLte\Menu\Filters\GateFilter::class,
@@ -662,21 +430,6 @@ return [
     */
 
     'plugins' => [
-        'Summernote' => [
-            'active' => true,
-            'files' => [
-                [
-                    'type' => 'js',
-                    'asset' => false,
-                    'location' => '//cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.js',
-                ],
-                [
-                    'type' => 'css',
-                    'asset' => false,
-                    'location' => '//cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.css',
-                ],
-            ],
-        ],
         'Datatables' => [
             'active' => false,
             'files' => [

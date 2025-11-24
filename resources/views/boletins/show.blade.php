@@ -10,8 +10,8 @@
   <div class="card shadow-sm border-0 rounded-4 mb-4">
     <div class="card-header bg-primary text-white d-flex align-items-center justify-content-between">
       <h4 class="mb-0"><i class="fas fa-file-invoice-dollar me-2"></i>Boletim de Medição Nº {{ $boletim->id }}</h4>
-      <a href="{{ route('boletins.pdf', $boletim->id) }}" class="btn btn-light btn-sm">
-        <i class="fas fa-file-pdf text-danger me-1"></i> Exportar PDF
+      <a href="{{ route('boletins.pdf', $boletim->id) }}" target="_blank" rel="noopener" class="btn btn-light btn-sm">
+<i class="fas fa-file-pdf text-danger me-1"></i> Download PDF
       </a>
     </div>
     <div class="card-body bg-white">

@@ -44,12 +44,9 @@
 @endsection
 
 @push('css')
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
 @endpush
 
 @push('scripts')
-<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
 <script>
 $(function(){
     const tabela = $('#trs-table').DataTable({
@@ -57,7 +54,7 @@ $(function(){
             url: "{{ route('contratacoes.termos-referencia.api') }}",
             dataSrc: 'data'
         },
-        dom: 't<"bottom"p>',
+        dom: 't<"bottom"ip>',
         pageLength: 10,
         order: [[1, 'asc']],
         responsive: true,
@@ -82,13 +79,11 @@ $(function(){
                     <div class="text-end">
                         <a href="${row.show_url}" class="btn btn-outline-primary btn-sm">Detalhes</a>
                         <a href="${row.edit_url}" class="btn btn-outline-warning btn-sm">Editar</a>
-                        <a href="${row.pdf_url}" class="btn btn-outline-success btn-sm">Gerar PDF</a>
+                        <a href="${row.pdf_url}" target="_blank" rel="noopener" class="btn btn-outline-success btn-sm"><i class="fas fa-file-pdf me-1"></i>Download PDF</a>
                     </div>`;
             }}
         ],
-        language: {
-            url: "{{ asset('js/pt-BR.json') }}"
-        }
+        language: { url: "{{ asset('js/pt-BR.json') }}" }
     });
 
     let trSelecionado = null;

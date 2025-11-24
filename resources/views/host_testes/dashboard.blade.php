@@ -173,5 +173,6 @@ async function abrirHistorico(id,nome){
 
 document.getElementById('filtros').addEventListener('submit',e=>{e.preventDefault();carregarDashboard();});
 document.addEventListener('DOMContentLoaded', carregarDashboard);
+window.addEventListener('theme:change', ()=>{carregarDashboard();});
 </script>
 @stop

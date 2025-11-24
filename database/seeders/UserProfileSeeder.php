@@ -54,7 +54,6 @@ class UserProfileSeeder extends Seeder
                     'data_nascimento' => $this->parseData($pessoa['data_nasc'] ?? null),
                     'idade' => $pessoa['idade'] ?? null,
                     'sexo' => $pessoa['sexo'] ?? null,
-                    'signo' => $pessoa['signo'] ?? null,
                     'mae' => $pessoa['mae'] ?? null,
                     'pai' => $pessoa['pai'] ?? null,
                     'tipo_sanguineo' => $pessoa['tipo_sanguineo'] ?? null,
@@ -64,7 +63,6 @@ class UserProfileSeeder extends Seeder
                     'peso' => isset($pessoa['peso'])
                         ? str_replace(',', '.', $pessoa['peso'])
                         : null,
-                    'cor_preferida' => $pessoa['cor'] ?? null,
                     'cep' => $pessoa['cep'] ?? null,
                     'endereco' => $pessoa['endereco'] ?? null,
                     'numero' => strval($pessoa['numero'] ?? ''),
@@ -73,8 +71,6 @@ class UserProfileSeeder extends Seeder
                     'estado' => $pessoa['estado'] ?? 'PA',
                     'telefone_fixo' => $pessoa['telefone_fixo'] ?? null,
                     'celular' => $pessoa['celular'] ?? null,
-                    'email_pessoal' => $pessoa['email'] ?? null,
-                    'email_institucional' => null,
                     'matricula' => 'M' . str_pad($i, 5, '0', STR_PAD_LEFT),
                     'cargo' => fake()->randomElement(['Analista', 'Técnico', 'Coordenador', 'Fiscal']),
                     'dre' => fake()->randomElement(['DRE 1', 'DRE 2', 'DRE 3', 'DRE 4']),

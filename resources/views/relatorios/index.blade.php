@@ -65,8 +65,8 @@
                 <a href="{{ route('relatorios.export.excel') }}" class="btn btn-success btn-sm">
                     <i class="fas fa-file-excel"></i> Exportar Excel
                 </a>
-                <a href="{{ route('relatorios.export.pdf') }}" class="btn btn-danger btn-sm">
-                    <i class="fas fa-file-pdf"></i> Exportar PDF
+                <a href="{{ route('relatorios.export.pdf') }}" target="_blank" rel="noopener" class="btn btn-danger btn-sm">
+<i class="fas fa-file-pdf"></i> Download PDF
                 </a>
             </div>
         </div>

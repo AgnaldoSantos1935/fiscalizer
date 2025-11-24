@@ -132,10 +132,6 @@
 @endsection
 
 @section('js')
-    {{-- DataTables (ajuste o caminho do pt-BR se necessário) --}}
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-
     {{-- Chart.js --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -145,9 +141,8 @@
             $('#tabela-monitoramentos').DataTable({
                 pageLength: 25,
                 order: [[5, 'desc']],
-                language: {
-                    url: '/datatables/pt-BR.json'
-                }
+                language: { url: '{{ asset("js/pt-BR.json") }}' },
+                dom: 't<"bottom"ip>'
             });
         });
 

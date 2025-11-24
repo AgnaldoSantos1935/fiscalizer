@@ -34,11 +34,9 @@
                     <div class="col-md-4 mb-2"><strong>Data Nasc.:</strong> {{ $profile->data_nascimento ? \Carbon\Carbon::parse($profile->data_nascimento)->format('d/m/Y') : '—' }}</div>
                     <div class="col-md-3 mb-2"><strong>Idade:</strong> {{ $profile->idade ?? '—' }}</div>
                     <div class="col-md-3 mb-2"><strong>Sexo:</strong> {{ $profile->sexo ?? '—' }}</div>
-                    <div class="col-md-3 mb-2"><strong>Signo:</strong> {{ $profile->signo ?? '—' }}</div>
                     <div class="col-md-3 mb-2"><strong>Tipo Sanguíneo:</strong> {{ $profile->tipo_sanguineo ?? '—' }}</div>
                     <div class="col-md-3 mb-2"><strong>Altura:</strong> {{ $profile->altura ? number_format($profile->altura, 2, ',', '.') . ' m' : '—' }}</div>
                     <div class="col-md-3 mb-2"><strong>Peso:</strong> {{ $profile->peso ? $profile->peso . ' kg' : '—' }}</div>
-                    <div class="col-md-3 mb-2"><strong>Cor Preferida:</strong> {{ ucfirst($profile->cor_preferida) ?? '—' }}</div>
                     <div class="col-md-6 mb-2"><strong>Mãe:</strong> {{ $profile->mae ?? '—' }}</div>
                     <div class="col-md-6 mb-2"><strong>Pai:</strong> {{ $profile->pai ?? '—' }}</div>
                 </div>
@@ -72,7 +70,7 @@
             <div class="col-md-4 mb-2"><strong>Estado:</strong> {{ $profile->estado ?? '—' }}</div>
             <div class="col-md-4 mb-2"><strong>Telefone:</strong> {{ $profile->telefone_fixo ?? '—' }}</div>
             <div class="col-md-4 mb-2"><strong>Celular:</strong> {{ $profile->celular ?? '—' }}</div>
-            <div class="col-md-4 mb-2"><strong>E-mail Pessoal:</strong> {{ $profile->email_pessoal ?? '—' }}</div>
+            <div class="col-md-4 mb-2"><strong>E-mail:</strong> {{ $profile->user?->email ?? '—' }}</div>
         </div>
     </div>
 </div>
@@ -88,7 +86,7 @@
             <div class="col-md-3 mb-2"><strong>Cargo:</strong> {{ $profile->cargo ?? '—' }}</div>
             <div class="col-md-3 mb-2"><strong>DRE:</strong> {{ $profile->dre ?? '—' }}</div>
             <div class="col-md-3 mb-2"><strong>Lotação:</strong> {{ $profile->lotacao ?? '—' }}</div>
-            <div class="col-md-6 mb-2"><strong>E-mail Institucional:</strong> {{ $profile->email_institucional ?? '—' }}</div>
+            <div class="col-md-6 mb-2"><strong>E-mail:</strong> {{ $profile->user?->email ?? '—' }}</div>
         </div>
 
         @if ($profile->observacoes)
@@ -106,7 +104,7 @@
         <i class="fas fa-arrow-left me-1"></i>Voltar
     </a>
     <a href="{{ route('user_profiles.edit', $profile->id) }}" class="btn btn-primary">
-        <i class="fas fa-edit me-1"></i>Editar
+        <i class="fas fa-edit me-1"></i>{{ ($isAdmin ?? false) ? 'Editar' : 'Atualizar Foto' }}
     </a>
 </div>
 @stop

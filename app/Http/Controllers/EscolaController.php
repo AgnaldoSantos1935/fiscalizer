@@ -45,24 +45,24 @@ class EscolaController extends Controller
     {
         $query = Escola::query();
 
-        // 🔍 Filtros opcionais
-        if ($request->filled('id_escola')) {
-            $query->where('id_escola', 'like', '%' . $request->codigo . '%');
+        // 🔍 Filtros opcionais (compatíveis com UI)
+        if ($request->filled('codigo')) {
+            $query->where('codigo_inep', 'like', '%' . trim((string) $request->codigo) . '%');
         }
         if ($request->filled('nome')) {
-            $query->where('escola', 'like', '%' . $request->nome . '%');
+            $query->where('escola', 'like', '%' . trim((string) $request->nome) . '%');
         }
         if ($request->filled('municipio')) {
-            $query->where('municipio', 'like', '%' . $request->municipio . '%');
+            $query->where('municipio', 'like', '%' . trim((string) $request->municipio) . '%');
         }
         if ($request->filled('uf')) {
-            $query->where('uf', strtoupper($request->uf));
+            $query->where('uf', strtoupper(trim((string) $request->uf)));
         }
 
-        // 🔗 Relaciona DRE (caso exista relação definida)
         $escolas = $query
             ->select('id_escola', 'codigo_inep', 'escola', 'municipio', 'uf', 'dre')
-            ->limit(300)
+            ->orderBy('escola')
+            ->limit(500)
             ->get();
 
         return response()->json(['data' => $escolas]);

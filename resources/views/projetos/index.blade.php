@@ -75,9 +75,11 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        @can('projetos.criar')
                         <a href="{{ route('projetos.create') }}" class="nav-link active">
                             <i class="fas fa-plus-circle me-1"></i> Novo Projeto
                         </a>
+                        @endcan
                     </li>
                 </ul>
             </nav>
@@ -104,12 +106,9 @@
 @endsection
 
 @section('css')
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 @endsection
 
 @section('js')
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 <script>
 $(function() {
     const SITUACOES = @json($situacoes);
@@ -119,8 +118,21 @@ $(function() {
         return badgeMap[situacao] ? `badge bg-${badgeMap[situacao]}` : 'badge bg-secondary';
     }
 
+    // Evita popups padrão do DataTables em erros AJAX
+    $.fn.dataTable.ext.errMode = 'none';
+
     const tabela = $('#tabelaProjetos').DataTable({
-        ajax: `{{ route('api.projetos') }}`,
+        ajax: {
+            url: `{{ route('api.projetos') }}`,
+            type: 'GET',
+            dataSrc: 'data',
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('Accept', 'application/json');
+            },
+            error: function (xhr, status, err) {
+                console.error('Erro ao carregar projetos:', xhr.status, status, err, (xhr.responseText || '').slice(0, 200));
+            }
+        },
         language: { url: "{{ asset('js/pt-BR.json') }}" },
         pageLength: 10,
         order: [[1, 'asc']],

@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\AntifraudeDashboardController;
 use App\Http\Controllers\ApfController;
-use App\Http\Controllers\Api\NocMapController;
 use App\Http\Controllers\Api\ProjetoApiController;
 use App\Http\Controllers\AtividadeController;
 use App\Http\Controllers\BoletimMedicaoController;
@@ -20,9 +19,11 @@ use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\EquipeController;
 use App\Http\Controllers\EscolaController;
 use App\Http\Controllers\FiscalizacaoProjetoController;
+use App\Http\Controllers\FluxoOrdemServicoController;
 use App\Http\Controllers\FuncaoSistemaController;
 use App\Http\Controllers\HostController;
 use App\Http\Controllers\HostDashboardController;
+use App\Http\Controllers\HostMonitorController;
 use App\Http\Controllers\HostTesteController;
 use App\Http\Controllers\MapaController;
 use App\Http\Controllers\MedicaoController;
@@ -32,13 +33,14 @@ use App\Http\Controllers\MonitoramentoController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OcorrenciaController;
 use App\Http\Controllers\OcorrenciaFiscalizacaoController;
-use App\Http\Controllers\PessoaController;
+use App\Http\Controllers\PagamentosController;
 use App\Http\Controllers\ProjetoController;
 use App\Http\Controllers\ProjetoRelacionamentoController;
 use App\Http\Controllers\ProjetoWorkflowController;
 use App\Http\Controllers\RelatorioController;
 use App\Http\Controllers\RequisitoController;
 use App\Http\Controllers\ServidorController;
+use App\Http\Controllers\SituacaoContratoController;
 use App\Http\Controllers\TermoReferenciaController;
 use App\Http\Controllers\UserProfileController;
 use Illuminate\Support\Facades\Auth;
@@ -52,23 +54,34 @@ Route::get('/', function () {
 // Home visível a qualquer usuário autenticado
 Route::get('home', [DashboardController::class, 'index'])->name('home');
 
+// Atalho enxuto para abrir diretamente o perfil do usuário autenticado
+Route::get('meu-perfil', [UserProfileController::class, 'me'])
+    ->middleware('auth')
+    ->name('user_profiles.me');
+
 // Rotas de autenticação
 Auth::routes(['register' => false, 'reset' => true]);
 
 Route::middleware(['auth', 'password.expiration'])->group(function () {
-    Route::resource('user_profiles', UserProfileController::class);
+    Route::resource('user_profiles', UserProfileController::class)
+        ->middleware('can:view-index-user_profiles');
 });
 
 // 🔹 Rotas RESTful (CRUD completo)
 Route::resource('escolas', EscolaController::class);
 Route::resource('empresas', EmpresaController::class);
+// Endpoint JSON para DataTables (Empresas)
+Route::get('empresas/data', [EmpresaController::class, 'data'])->name('empresas.data');
 // Verificação de CNPJ (AJAX/GET)
 Route::get('empresas/verificar', [EmpresaController::class, 'verificar'])->name('empresas.verificar');
 Route::resource('hosts', HostController::class);
 Route::resource('contratos', ContratoController::class);
 Route::resource('medicoes', MedicaoController::class);
+// Endpoint JSON para DataTables (Medições)
+Route::get('medicoes/data', [MedicaoController::class, 'data'])->name('medicoes.data');
 Route::resource('funcoes-sistema', FuncaoSistemaController::class);
 Route::resource('documentos', DocumentoController::class);
+Route::get('documentos/data', [DocumentoController::class, 'data'])->name('documentos.data');
 // Visualizador de PDFs e streaming inline
 Route::get('documentos/{documento}/visualizar', [DocumentoController::class, 'visualizar'])->name('documentos.visualizar');
 Route::get('documentos/{documento}/stream', [DocumentoController::class, 'stream'])->name('documentos.stream');
@@ -79,22 +92,64 @@ Route::get('documentos/{documento}/print', [DocumentoController::class, 'print']
 Route::get('contratos/{contrato}/pdf', [ContratoController::class, 'pdf'])->name('contratos.pdf');
 // Cadastro de documentos vinculados ao contrato
 Route::get('contratos/{contrato}/documentos/create', [App\Http\Controllers\ContratoController::class, 'createDocumento'])
+    ->middleware('can.action:contratos.anexar_documento')
     ->name('contratos.documentos.create');
 Route::resource('ocorrencias-fiscalizacao', OcorrenciaFiscalizacaoController::class);
 Route::resource('ocorrencias', OcorrenciaController::class);
 Route::resource('projetos', ProjetoController::class);
 // API para DataTables da tela de Projetos
 Route::get('/api/projetos', [ProjetoController::class, 'getJsonProjetos'])->name('api.projetos');
-Route::resource('user_profiles', UserProfileController::class);
-Route::resource('usuarios', UserProfileController::class);
+Route::resource('user_profiles', UserProfileController::class)
+    ->middleware('can:view-index-user_profiles');
+Route::resource('usuarios', UserProfileController::class)
+    ->middleware('can:view-index-user_profiles');
+
+// RBAC: Actions CRUD
+Route::resource('actions', App\Http\Controllers\ActionController::class);
+// RBAC: Gestão de vínculo Role × Action
+Route::get('rbac/roles-actions', [App\Http\Controllers\RoleActionController::class, 'index'])
+    ->middleware('can.action:system.admin')
+    ->name('rbac.roles_actions.index');
+Route::post('rbac/roles-actions/{role}', [App\Http\Controllers\RoleActionController::class, 'update'])
+    ->middleware('can.action:system.admin')
+    ->name('rbac.roles_actions.update');
 Route::resource('empresas', EmpresaController::class);
+// Rota explícita para POST de criação de empenhos para evitar conflitos no ambiente de teste
+Route::post('empenhos', [EmpenhoController::class, 'store'])->name('empenhos.store');
 Route::resource('empenhos', EmpenhoController::class);
+// PDF de Pretensão de Empenho (submissão ao gestor do contrato)
+Route::get('empenhos/{id}/pretensao/pdf', [EmpenhoController::class, 'pretensaoPdf'])->name('empenhos.pretensao_pdf');
+// Upload do PDF emitido (finaliza etapa Emitido)
+Route::post('empenhos/{id}/emitido/upload', [EmpenhoController::class, 'uploadEmitidoPdf'])->name('empenhos.emitido_upload');
+Route::post('empenhos/{id}/pretensao/solicitar', [EmpenhoController::class, 'solicitarPretensao'])->name('empenhos.pretensao_solicitar');
+// Nova rota para salvar solicitação via formulário
+Route::post('empenhos/{id}/solicitacao', [EmpenhoController::class, 'salvarSolicitacao'])->name('empenhos.solicitacao_salvar');
+// Upload do comprovante de liquidação (finaliza etapa Pago)
+Route::post('empenhos/{id}/pago/upload', [EmpenhoController::class, 'uploadComprovanteLiquidacao'])->name('empenhos.pago_upload');
+// Registro de Empenho a partir de Pretensão (solicitacoes_empenho)
+Route::get('financeiro/solicitacoes-empenho/{solicitacao}/registrar', [EmpenhoController::class, 'registrarFromSolicitacaoForm'])
+    ->middleware(['auth', 'can.action:financeiro.registrar_empenho'])
+    ->name('financeiro.solicitacoes.registrar_empenho.form');
+Route::post('financeiro/solicitacoes-empenho/{solicitacao}/registrar', [EmpenhoController::class, 'registrarFromSolicitacaoStore'])
+    ->middleware(['auth', 'can.action:financeiro.registrar_empenho'])
+    ->name('financeiro.solicitacoes.registrar_empenho.store');
+// Registro de Pagamento para um Empenho
+Route::get('financeiro/empenhos/{empenho}/pagamentos/create', [PagamentosController::class, 'create'])
+    ->middleware(['auth', 'can.action:financeiro.registrar_pagamento'])
+    ->name('financeiro.pagamentos.create');
+Route::post('financeiro/empenhos/{empenho}/pagamentos', [PagamentosController::class, 'store'])
+    ->middleware(['auth', 'can.action:financeiro.registrar_pagamento'])
+    ->name('financeiro.pagamentos.store');
+// Aprovar solicitação e gerar PDF/Documento
+Route::post('empenhos/solicitacoes/{solicitacao}/aprovar', [EmpenhoController::class, 'aprovarSolicitacao'])
+    ->middleware(['auth', 'role:Administrador,Gestor de Contrato'])
+    ->name('empenhos.solicitacoes.aprovar');
 Route::resource('hosts', HostController::class);
 Route::resource('dres', DREController::class);
 Route::resource('host_testes', HostTesteController::class)->only(['index', 'show']);
+Route::resource('situacoes', SituacaoContratoController::class);
 Route::resource('projetos.apfs', ApfController::class); // nested: /projetos/{projeto}/apfs
 Route::resource('projetos.fiscalizacoes', FiscalizacaoProjetoController::class)->shallow();
-Route::resource('pessoas', PessoaController::class);
 Route::resource('servidores', ServidorController::class);
 Route::resource('boletins', BoletimMedicaoController::class);
 Route::resource('demandas', DemandaController::class);
@@ -117,6 +172,8 @@ Route::prefix('contratacoes')->name('contratacoes.')->group(function () {
         ->name('termos-referencia.api');
     Route::get('termos-referencia/{tr}/pdf', [TermoReferenciaController::class, 'pdf'])
         ->name('termos-referencia.pdf');
+    Route::get('termos-referencia/{tr}/docx', [TermoReferenciaController::class, 'docx'])
+        ->name('termos-referencia.docx');
     // Workflow simples de TR: enviar para aprovação e aprovar
     Route::post('termos-referencia/{tr}/enviar-aprovacao', [TermoReferenciaController::class, 'enviarAprovacao'])
         ->middleware(['auth'])
@@ -155,12 +212,20 @@ Route::prefix('contratacoes')->name('contratacoes.')->group(function () {
 Route::get('empenho/{id}/imprimir', [EmpenhoController::class, 'imprimir'])
     ->name('empenho.imprimir');
 
+// Ajuste para ambiente de teste onde a base URL inclui "/fiscalizer/public"
+if (app()->environment('testing')) {
+    Route::post('fiscalizer/public/empenhos', [EmpenhoController::class, 'store']);
+}
+
 // CADASTRO DE PERFIS DE USUÁRIOS
 Route::get('user_profiles/index', [App\Http\Controllers\UserProfileController::class, 'index'])
+    ->middleware('can:view-index-user_profiles')
     ->name('user_profiles.index');
 Route::get('user_profiles/create', [App\Http\Controllers\UserProfileController::class, 'create'])
+    ->middleware('can:view-create-user_profiles')
     ->name('user_profiles.create');
 Route::get('user_profiles/show', [App\Http\Controllers\UserProfileController::class, 'show'])
+    ->middleware('can:view-index-user_profiles')
     ->name('user_profiles.show');
 // FIM DE USUÁRIOS
 
@@ -219,8 +284,11 @@ Route::get('/monitoramentos/matrix', [MonitoramentoController::class, 'matrix'])
     ->name('monitoramentos.matrix');
 // FINAL DE DASHBOARD MONITORAMENTO DE CONEXÕES
 // INICIO DO NOC
-Route::get('/noc/export/pdf', [NocReportController::class, 'pdf'])->name('noc.export.pdf');
-Route::get('/noc/export/excel', [NocReportController::class, 'excel'])->name('noc.export.excel');
+// Rotas de exportação do NOC (somente se o controlador existir)
+if (class_exists(\App\Http\Controllers\NocReportController::class)) {
+    Route::get('/noc/export/pdf', [\App\Http\Controllers\NocReportController::class, 'pdf'])->name('noc.export.pdf');
+    Route::get('/noc/export/excel', [\App\Http\Controllers\NocReportController::class, 'excel'])->name('noc.export.excel');
+}
 
 // FINAL DO NOC
 
@@ -232,6 +300,11 @@ Route::prefix('projetos/{projeto}')->group(function () {
     Route::get('equipe', [ProjetoRelacionamentoController::class, 'equipe']);
 });
 // FINAL DA ROTA DE PROJETOS
+// Rotas públicas para upload de documento técnico pela empresa
+Route::get('empresa/upload/{token}', [FluxoOrdemServicoController::class, 'formUploadEmpresa'])
+    ->name('empresa.upload_documento');
+Route::post('empresa/upload/{token}', [FluxoOrdemServicoController::class, 'receberDocumentoEmpresa'])
+    ->name('empresa.upload_documento_post');
 // ROTAS DE REQUISITOS
 Route::post('/requisitos', [RequisitoController::class, 'store'])->name('requisitos.store');
 Route::post('/atividades', [AtividadeController::class, 'store'])->name('atividades.store');
@@ -270,38 +343,56 @@ Route::prefix('projetos/{projeto}')->group(function () {
 
 // inicio rotas workflow medição
 Route::post('medicoes/{medicao}/documentos/upload', [MedicaoDocumentoController::class, 'upload'])
+    ->middleware('can.action:medicoes_validar')
     ->name('medicoes.documentos.upload');
 
 Route::post('medicoes/{medicao}/documentos/validar_nf', [MedicaoDocumentoController::class, 'validarNF'])
+    ->middleware('can.action:medicoes_validar')
     ->name('medicoes.documentos.validar_nf');
 
 Route::post('medicoes/{medicao}/documentos/{doc}/revalidar', [MedicaoDocumentoController::class, 'revalidar'])
+    ->middleware('can.action:medicoes_validar')
     ->name('medicoes.documentos.revalidar');
 
 Route::post('medicoes/{medicao}/documentos/substituir_nf', [MedicaoDocumentoController::class, 'substituirNF'])
+    ->middleware('can.action:medicoes_validar')
     ->name('medicoes.documentos.substituir_nf');
 
 // fim das rotas workflow medição
 // inicio das rotas de documentos de medição
 
 Route::prefix('medicoes/{medicao}')->group(function () {
-    Route::post('documentos/upload', [MedicaoDocumentoController::class, 'upload'])->name('medicoes.documentos.upload');
-    Route::post('documentos/validar-nf', [MedicaoDocumentoController::class, 'validarNF'])->name('medicoes.documentos.validar_nf');
-    Route::post('documentos/{doc}/revalidar', [MedicaoDocumentoController::class, 'revalidar'])->name('medicoes.documentos.revalidar');
-    Route::post('documentos/substituir-nf', [MedicaoDocumentoController::class, 'substituirNF'])->name('medicoes.documentos.substituir_nf');
+    Route::post('documentos/upload', [MedicaoDocumentoController::class, 'upload'])
+        ->middleware('can.action:medicoes_validar')
+        ->name('medicoes.documentos.upload');
+    Route::post('documentos/validar-nf', [MedicaoDocumentoController::class, 'validarNF'])
+        ->middleware('can.action:medicoes_validar')
+        ->name('medicoes.documentos.validar_nf');
+    Route::post('documentos/{doc}/revalidar', [MedicaoDocumentoController::class, 'revalidar'])
+        ->middleware('can.action:medicoes_validar')
+        ->name('medicoes.documentos.revalidar');
+    Route::post('documentos/substituir-nf', [MedicaoDocumentoController::class, 'substituirNF'])
+        ->middleware('can.action:medicoes_validar')
+        ->name('medicoes.documentos.substituir_nf');
     Route::get('comparacao', [MedicaoDocumentoController::class, 'comparacao'])->name('medicoes.documentos.comparacao');
 });
 // final das rotas de documentos de medição
 // inicio rotas demandas
 
 Route::post('demandas/{demanda}/requisitos', [DemandaController::class, 'addRequisito'])
+    ->middleware('can.action:projetos.editar_requisitos')
     ->name('demandas.requisitos.store');
 Route::delete('demandas/{demanda}/requisitos/{requisito}', [DemandaController::class, 'deleteRequisito'])
+    ->middleware('can.action:projetos.editar_requisitos')
     ->name('demandas.requisitos.destroy');
 // final rotas demandas
 // Inicio Rotas Contratos
-Route::get('contratos/{contrato}/edit', [ContratoController::class, 'edit'])->name('contratos.edit');
-Route::put('contratos/{contrato}', [ContratoController::class, 'update'])->name('contratos.update');
+Route::get('contratos/{contrato}/edit', [ContratoController::class, 'edit'])
+    ->middleware('can.action:contratos.edit')
+    ->name('contratos.edit');
+Route::put('contratos/{contrato}', [ContratoController::class, 'update'])
+    ->middleware('can.action:contratos.edit')
+    ->name('contratos.update');
 Route::get('dashboard/contratos/conformidade', [ContratoConformidadeController::class, 'index'])
     ->name('dashboard.contratos.conformidade');
 // Upload inteligente (IA) – página e processamento opcional
@@ -310,7 +401,9 @@ Route::post('contratos/upload', [ContratoInteligenteController::class, 'receberU
 Route::post('contratos/salvar', [ContratoInteligenteController::class, 'salvar'])->name('contratos.salvar');
 Route::post('contratos/extrair', [ContratoController::class, 'extrair'])->name('contratos.extrair');
 // Upload de PDF vinculado a um contrato já existente
-Route::post('contratos/{contrato}/pdf', [ContratoController::class, 'uploadPdf'])->name('contratos.pdf.upload');
+Route::post('contratos/{contrato}/pdf', [ContratoController::class, 'uploadPdf'])
+    ->middleware('can.action:contratos.anexar_documento')
+    ->name('contratos.pdf.upload');
 
 // Final Rotas contratos
 // Rotas de notificação
@@ -323,6 +416,14 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/notificacoes/marcar-todas', [NotificationController::class, 'marcarTodas'])
         ->name('notificacoes.todas');
+
+    // Dados em JSON para DataTables
+    Route::get('/notificacoes/data', [NotificationController::class, 'data'])
+        ->name('notificacoes.data');
+
+    // Envia uma notificação de teste para o usuário autenticado
+    Route::post('/notificacoes/teste', [NotificationController::class, 'teste'])
+        ->name('notificacoes.teste');
 
     Route::post('/push/subscribe', function (\Illuminate\Http\Request $request) {
         auth()->user()->updatePushSubscription(
@@ -405,11 +506,15 @@ Route::get('/api/monitoramentos/heatline', [MonitoramentoController::class, 'api
     ->name('api.monitoramentos.heatline');
 Route::get('/api/monitoramentos/matrix', [MonitoramentoController::class, 'apiMatrix'])
     ->name('api.monitoramentos.matrix');
-Route::get('/api/noc/mapa-sla', [NocMapController::class, 'mapaSla'])
-    ->name('api.noc.mapa-sla');
+if (class_exists(\App\Http\Controllers\Api\NocMapController::class)) {
+    Route::get('/api/noc/mapa-sla', [\App\Http\Controllers\Api\NocMapController::class, 'mapaSla'])
+        ->name('api.noc.mapa-sla');
+}
 
-Route::get('/api/noc/top-downtime', [NocStatsController::class, 'topDowntime'])
-    ->name('api.noc.top-downtime');
+if (class_exists(\App\Http\Controllers\Api\NocStatsController::class)) {
+    Route::get('/api/noc/top-downtime', [\App\Http\Controllers\Api\NocStatsController::class, 'topDowntime'])
+        ->name('api.noc.top-downtime');
+}
 
 Route::prefix('projetos/{projeto}')->group(function () {
     Route::get('apf', [ProjetoApiController::class, 'apf'])->name('api.projetos.apf');
@@ -452,5 +557,56 @@ Route::get('/escolas/{id}/detalhes', [EscolaController::class, 'detalhes'])
 Route::get('/api/servidores', [ServidorController::class, 'index'])->name('api.servidores.index');
 // FINAL DE ROTAS DE API AJAX
 // JasperReports demo
-use App\Http\Controllers\ReportController;
-Route::get('/relatorios/jasper/demo', [ReportController::class, 'jasperDemo'])->name('relatorios.jasper.demo');
+// Removido demo JasperReports
+
+Route::middleware(['auth'])->group(function () {
+
+    // Permitir acesso ao dashboard IA para Admin, Gestor e Fiscais
+    Route::middleware(['role:Administrador,Gestor de Contrato,admin,gestor,Fiscal,fiscal_administrativo,fiscal_tecnico'])->group(function () {
+        Route::get('/ia-dashboard', function () {
+            return view('fiscalizer-ia');
+        })->name('fiscalizer-ia.index');
+    });
+
+    // Ordens de Fornecimento
+    Route::middleware(['role:Administrador,Gestor de Contrato,Fiscal'])
+        ->prefix('ordens-fornecimento')
+        ->name('ordens_fornecimento.')
+        ->group(function () {
+            Route::get('/', [\App\Http\Controllers\OrdemFornecimentoController::class, 'index'])->name('index');
+            Route::get('/{id}', [\App\Http\Controllers\OrdemFornecimentoController::class, 'show'])->name('show');
+            Route::get('/{id}/pdf', [\App\Http\Controllers\OrdemFornecimentoController::class, 'pdf'])->name('pdf');
+        });
+
+    // Relatórios: contratos (PDF via DomPDF)
+    Route::get('/reports/contratos', [\App\Http\Controllers\JasperReportsController::class, 'contratos'])
+        ->name('reports.contratos');
+
+    // Preview do Termo de Referência (layout Blade)
+    Route::get('/reports/termo-referencia', [TermoReferenciaController::class, 'preview'])
+        ->name('reports.tr.preview');
+
+    // Relatórios por templates (Word/Excel)
+    Route::post('/reports/templates/docx', [\App\Http\Controllers\TemplateReportsController::class, 'generateDocx'])
+        ->name('reports.templates.docx');
+    Route::post('/reports/templates/xlsx', [\App\Http\Controllers\TemplateReportsController::class, 'generateXlsx'])
+        ->name('reports.templates.xlsx');
+
+});
+// Admin: Notificações (eventos/templates)
+Route::middleware(['auth', 'can.action:system.admin'])
+    ->prefix('admin/notificacoes')
+    ->name('admin.notificacoes.')
+    ->group(function () {
+        Route::get('/', [\App\Http\Controllers\NotificationEventController::class, 'index'])->name('index');
+        Route::get('/{evento}', [\App\Http\Controllers\NotificationEventController::class, 'show'])->name('show');
+        Route::get('/create', [\App\Http\Controllers\NotificationEventController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\NotificationEventController::class, 'store'])->name('store');
+        Route::get('/{evento}/edit', [\App\Http\Controllers\NotificationEventController::class, 'edit'])->name('edit');
+        Route::put('/{evento}', [\App\Http\Controllers\NotificationEventController::class, 'update'])->name('update');
+        Route::delete('/{evento}', [\App\Http\Controllers\NotificationEventController::class, 'destroy'])->name('destroy');
+
+        Route::post('/import', [\App\Http\Controllers\NotificationEventController::class, 'importFromConfig'])->name('import');
+        Route::post('/sync', [\App\Http\Controllers\NotificationEventController::class, 'syncActions'])->name('sync');
+        Route::get('/users/search', [\App\Http\Controllers\NotificationEventController::class, 'searchUsers'])->name('users.search');
+    });

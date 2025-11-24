@@ -8,6 +8,28 @@ use Illuminate\Http\Request;
 
 class TermoReferenciaItemController extends Controller
 {
+    private function requiresIntegerForUnit(?string $unit): bool
+    {
+        if ($unit === null) {
+            return false;
+        }
+        $u = trim($unit);
+        if ($u === '') {
+            return false;
+        }
+        if (preg_match('/^UST$/iu', $u)) {
+            return true;
+        }
+        if (preg_match('/^M(e|é)s$/iu', $u)) {
+            return true;
+        }
+        if (preg_match('/^(UN|UND|UNID(?:\.|ADE)?)$/iu', $u)) {
+            return true;
+        }
+
+        return false;
+    }
+
     private function normalizeNumber($value)
     {
         if ($value === null) {
@@ -33,9 +55,18 @@ class TermoReferenciaItemController extends Controller
         $data = $request->validate([
             'descricao' => 'required|string|max:500',
             'unidade' => 'nullable|string|max:50',
-            'quantidade' => 'required|numeric|min:0',
+            'quantidade' => 'required|numeric|min:0|max:2000000',
             'valor_unitario' => 'required|numeric|min:0',
         ]);
+
+        if ($this->requiresIntegerForUnit($data['unidade'] ?? null)) {
+            $q = (float) $data['quantidade'];
+            if (floor($q) !== $q) {
+                return back()
+                    ->withErrors(['quantidade' => 'Para unidade ' . $data['unidade'] . ', a quantidade deve ser inteira.'])
+                    ->withInput();
+            }
+        }
 
         $data['termo_referencia_id'] = $tr->id;
         TermoReferenciaItem::create($data);
@@ -57,9 +88,18 @@ class TermoReferenciaItemController extends Controller
         $data = $request->validate([
             'descricao' => 'required|string|max:500',
             'unidade' => 'nullable|string|max:50',
-            'quantidade' => 'required|numeric|min:0',
+            'quantidade' => 'required|numeric|min:0|max:2000000',
             'valor_unitario' => 'required|numeric|min:0',
         ]);
+
+        if ($this->requiresIntegerForUnit($data['unidade'] ?? null)) {
+            $q = (float) $data['quantidade'];
+            if (floor($q) !== $q) {
+                return redirect()->route('contratacoes.termos-referencia.show', $tr)
+                    ->withErrors(['quantidade' => 'Para unidade ' . $data['unidade'] . ', a quantidade deve ser inteira.'])
+                    ->withInput();
+            }
+        }
 
         $item->update($data);
 

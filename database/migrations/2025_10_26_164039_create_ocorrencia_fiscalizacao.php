@@ -12,6 +12,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('ocorrencias_fiscalizacao')) {
+            return; // evita criação duplicada
+        }
+
         Schema::create('ocorrencias_fiscalizacao', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->id();

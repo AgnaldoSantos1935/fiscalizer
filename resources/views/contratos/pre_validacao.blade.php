@@ -1,14 +1,13 @@
 @extends('layouts.app')
 
-@section('content')
-@include('layouts.components.breadcrumbs')
+@section('content_body')
     <div class="container">
 
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h3 class="mb-0">Revisão de Informações Extraídas</h3>
             <div>
-                <a href="{{ \Illuminate\Support\Facades\Storage::url($arquivo_path) }}" target="_blank" class="btn btn-outline-primary">
-                    Ver PDF do Contrato
+                <a href="{{ \Illuminate\Support\Facades\Storage::url($arquivo_path) }}" target="_blank" rel="noopener" class="btn btn-outline-primary">
+<i class="fas fa-file-pdf"></i> Download PDF
                 </a>
             </div>
         </div>
@@ -24,7 +23,7 @@
                         frameborder="0"
                         title="Visualizador de PDF do Contrato"></iframe>
                 </div>
-                <p class="text-muted small mt-2">Se o PDF não carregar, use o botão "Ver PDF do Contrato" para abrir em nova aba.</p>
+<p class="text-muted small mt-2">Se o PDF não carregar, use o botão "Download PDF" para abrir em nova aba.</p>
             </div>
         </div>
 

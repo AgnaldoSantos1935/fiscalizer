@@ -13,8 +13,22 @@
         </h3>
 
         <div>
-            <a href="{{ Storage::url($doc->arquivo_path) }}" class="btn btn-outline-primary" target="_blank">
-                <i class="fas fa-download"></i> Baixar Documento
+            @php
+                $__path = $doc->arquivo_path ?? '';
+                $__ext = strtolower(pathinfo($__path, PATHINFO_EXTENSION));
+                $__icon = 'fa-file'; $__color = '';
+                switch ($__ext) {
+                    case 'pdf': $__icon = 'fa-file-pdf'; $__color = 'text-danger'; break;
+                    case 'doc': case 'docx': $__icon = 'fa-file-word'; $__color = 'text-primary'; break;
+                    case 'xls': case 'xlsx': $__icon = 'fa-file-excel'; $__color = 'text-success'; break;
+                    case 'ppt': case 'pptx': $__icon = 'fa-file-powerpoint'; $__color = 'text-danger'; break;
+                    case 'zip': case 'rar': $__icon = 'fa-file-archive'; $__color = 'text-warning'; break;
+                    case 'jpg': case 'jpeg': case 'png': case 'gif': case 'webp': $__icon = 'fa-file-image'; $__color = 'text-info'; break;
+                    case 'txt': $__icon = 'fa-file-alt'; break;
+                }
+            @endphp
+            <a href="{{ Storage::url($doc->arquivo_path) }}" class="btn btn-outline-primary" target="_blank" rel="noopener">
+                <i class="fas {{ $__icon }} {{ $__color }}"></i> Download
             </a>
 
             <a href="{{ route('demanda.reprocessar_ia', $demanda->id) }}" class="btn btn-outline-warning">

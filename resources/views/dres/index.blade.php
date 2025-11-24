@@ -201,21 +201,17 @@ div.dataTables_wrapper {
 @endsection
 
 @section('js')
-<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
-<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+ 
 
 
 <script>
 $(document).ready(function() {
     // Inicializa DataTable
     const tabela = $('#tabelaDres').DataTable({
-        language: { url: '/datatables/pt-BR.json' },
+        language: { url: '{{ asset("js/pt-BR.json") }}' },
         pageLength: 10,
         order: [[1, 'asc']],
-        dom: 't<"bottom"p>'
+        dom: 't<"bottom"ip>'
     });
 
     let dreSelecionada = null;

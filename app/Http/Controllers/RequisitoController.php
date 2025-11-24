@@ -21,6 +21,12 @@ class RequisitoController extends Controller
 
         $requisito = FuncaoSistema::create($data);
 
+        // Notificação: requisito criado
+        notify_event('notificacoes.projetos.requisito_criado', [
+            'titulo' => 'Requisito criado',
+            'mensagem' => "Requisito {$requisito->id} criado no projeto {$requisito->projeto_id}",
+        ], $requisito);
+
         return response()->json(['success' => true, 'data' => $requisito]);
     }
 

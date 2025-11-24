@@ -15,18 +15,28 @@ class Empenho extends Model
         'numero',
         'contrato_id',
         'empresa_id',
+        'solicitacao_empenho_id',
+        'medicao_id',
         'processo',
         'programa_trabalho',
         'fonte_recurso',
         'natureza_despesa',
         'data_lancamento',
+        'solicitado_at',
         'valor_extenso',
         'valor_total',
+        'emitido_pdf_path',
+        'emitido_at',
+        'pago_comprovante_path',
+        'pago_at',
     ];
 
     protected $casts = [
         'data_lancamento' => 'date',
+        'solicitado_at' => 'datetime',
         'valor_total' => 'decimal:2',
+        'emitido_at' => 'datetime',
+        'pago_at' => 'datetime',
     ];
 
     // 🔗 Relacionamentos
@@ -43,6 +53,16 @@ class Empenho extends Model
     public function itens()
     {
         return $this->hasMany(EmpenhoItem::class, 'nota_empenho_id');
+    }
+
+    public function solicitacao()
+    {
+        return $this->belongsTo(SolicitacaoEmpenho::class, 'solicitacao_empenho_id');
+    }
+
+    public function medicao()
+    {
+        return $this->belongsTo(Medicao::class, 'medicao_id');
     }
 
     // 🔄 Cálculo automático do valor total
@@ -70,5 +90,10 @@ class Empenho extends Model
     public function pagamentos()
     {
         return $this->hasMany(Pagamentos::class);
+    }
+
+    public function solicitacoes()
+    {
+        return $this->hasMany(EmpenhoSolicitacao::class, 'empenho_id');
     }
 }

@@ -17,7 +17,7 @@
         </a>
     </div>
 
-    @can('fiscal_administrativo')
+    @can('medicoes_validar')
         <div class="card shadow-sm border-0">
             <div class="card-header bg-white">
                 <h5 class="fw-semibold">
@@ -47,7 +47,7 @@
         </div>
     @else
         <div class="alert alert-danger">
-            Apenas o <strong>Fiscal Administrativo</strong> pode enviar documentos.
+            Permissão negada. É necessário possuir a ação <strong>medicoes_validar</strong>.
         </div>
     @endcan
 

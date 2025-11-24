@@ -11,16 +11,15 @@
 @extends('layouts.auth')
 
 @section('content')
-@include('layouts.components.breadcrumbs')
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-5 col-xl-4">
-            <div class="card shadow-lg border-0 rounded-lg mt-3">
-                <div class="card-header bg-white text-center py-3">
-                    <img src="{{ asset('img/logo/fiscalizer-sistema.png') }}" alt="Fiscalizer Sistema" height="60" class="mb-3">
-                    <h3 class="text-center">Recuperar Senha</h3>
-                </div>
+<div class="container-fluid auth-login">
+    <div class="row g-0 min-vh-100 align-items-center">
+        <div class="col-12 col-md-6 col-lg-5 col-xl-4 mx-auto">
+            <div class="card shadow-lg border-0 rounded-lg w-100">
                 <div class="card-body">
+                    <div class="text-center mb-3">
+                        <div class="login-title">Recuperar Senha</div>
+                        <div class="title-divider"></div>
+                    </div>
                     @if (session('status'))
                         <div class="alert alert-success" role="alert">
                             {{ session('status') }}
@@ -32,31 +31,24 @@
 
                         <div class="mb-3">
                             <label for="email" class="form-label">E-mail</label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text h-45px">
-                                        <i class="fas fa-envelope fa-lg"></i>
-                                    </span>
-                                </div>
-                                <input id="email" type="email" class="form-control @error('email') is-invalid @enderror h-45px" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus placeholder="Digite seu e-mail">
-                                @error('email')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
+                            <input id="email" type="email" class="ui-input @error('email') is-invalid @enderror h-45px" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus placeholder="Digite seu e-mail">
+                            @error('email')
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
                         </div>
 
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary btn-lg">
+                            <button type="submit" class="ui-btn">
                                 Enviar Link de Recuperação
                             </button>
                         </div>
                     </form>
                 </div>
                 <div class="card-footer text-center py-3">
-                    <div class="small">
-                        <a href="{{ route('login') }}" class="text-decoration-none">Voltar para o login</a>
+                    <div class="small">Quer voltar?
+                        <a href="{{ route('login') }}" class="ui-cta ms-1">Login</a>
                     </div>
                 </div>
             </div>

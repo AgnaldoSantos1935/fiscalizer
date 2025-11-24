@@ -106,6 +106,16 @@ class TermoReferencia extends Model
         'garantia_contrato_tipo',
         'garantia_contrato_percentual',
         'garantia_contrato_justificativa',
+        // JSON adicionais
+        'fundamentacao_legal_texto',
+        'habilitacao_tecnica_percentual_minimo',
+        'habilitacao_tecnica_documentos',
+        'subcontratacao_permitida',
+        'subcontratacao_excecao',
+        'penalidades',
+        'assin_elaboracao',
+        'assin_supervisor',
+        'assin_ordenador_despesas',
         // 10.x Dados orçamentários
         'funcional_programatica',
         'elemento_despesa',
@@ -145,6 +155,8 @@ class TermoReferencia extends Model
         'prorrogacao_possivel' => 'boolean',
         'pagamento_prazo_dias' => 'integer',
         'garantia_contrato_percentual' => 'float',
+        'habilitacao_tecnica_percentual_minimo' => 'float',
+        'subcontratacao_permitida' => 'boolean',
     ];
 
     public function itens()

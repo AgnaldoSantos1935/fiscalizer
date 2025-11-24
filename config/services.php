@@ -42,12 +42,6 @@ return [
 
     'url' => [env('MONITOR_BACKEND_URL', 'http://localhost:8002')],
 
-    'jasper' => [
-        'enabled' => env('JASPER_ENABLED', true),
-        'starter_path' => env('JASPER_STARTER_PATH'),
-        'templates_dir' => env('JASPER_TEMPLATES_DIR', resource_path('reports')),
-        'db_enabled' => env('JASPER_DB_ENABLED', true),
-        'timeout' => env('JASPER_TIMEOUT', 60),
-    ],
+    // Jasper removido
 
 ];

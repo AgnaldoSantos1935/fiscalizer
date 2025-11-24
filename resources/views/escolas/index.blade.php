@@ -193,7 +193,15 @@ $(document).ready(function() {
 
     // Inicializa DataTable
   const tabela = $('#tabelaEscolas').DataTable({
-    ajax: '{{ route("escolas.data") }}',
+    ajax: {
+      url: '{{ route("escolas.data") }}',
+      data: function(d){
+        d.codigo = $('#filtroCodigo').val();
+        d.nome = $('#filtroNome').val();
+        d.municipio = $('#filtroMunicipio').val();
+        d.uf = $('#filtroUF').val();
+      }
+    },
     columns: [
         { data: 'id_escola', className: 'text-center', render: id_escola => `<input type="radio" name="escolaSelecionada" value="${id_escola}">` },
         { data: 'codigo_inep' },
@@ -267,17 +275,12 @@ $('#navDetalhes').on('click', e => {
 
     // 🔍 Filtros simples (client-side)
     $('#btnAplicarFiltros').on('click', function() {
-        tabela.search(
-            $('#filtroCodigo').val() + ' ' +
-            $('#filtroNome').val() + ' ' +
-            $('#filtroMunicipio').val() + ' ' +
-            $('#filtroUF').val()
-        ).draw();
+        tabela.ajax.reload();
     });
 
     $('#btnLimparFiltros').on('click', function() {
         $('#formFiltros input').val('');
-        tabela.search('').draw();
+        tabela.ajax.reload(null, false);
     });
 });
 </script>

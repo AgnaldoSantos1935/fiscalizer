@@ -8,10 +8,16 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // Evita duplicidade caso a tabela já exista (há outra migração semelhante)
+        if (Schema::hasTable('notas_empenho_itens')) {
+            return;
+        }
+
         Schema::create('notas_empenho_itens', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('nota_empenho_id')->constrained('notas_empenho')->onDelete('cascade');
+            // Corrige FK: itens pertencem à tabela 'empenhos'
+            $table->foreignId('nota_empenho_id')->constrained('empenhos')->onDelete('cascade');
             $table->integer('item_numero')->nullable();
             $table->string('descricao', 255);
             $table->string('unidade', 50)->nullable();

@@ -104,15 +104,15 @@
             <td>R$ {{ number_format($ad->valor_estimado ?? 0, 2, ',', '.') }}</td>
             <td>
               @if($ad->documento_pdf_path)
-                <a href="{{ asset('storage/'.$ad->documento_pdf_path) }}" target="_blank" class="btn btn-sm btn-outline-primary">Baixar</a>
+                <a href="{{ asset('storage/'.$ad->documento_pdf_path) }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary"><i class="fas fa-file-pdf"></i> Download PDF</a>
               @else
                 —
               @endif
             </td>
             <td class="d-flex gap-1">
-              <form method="POST" action="{{ route('adesoes.gerar_pdf',$ad->id) }}">
+              <form method="POST" action="{{ route('adesoes.gerar_pdf',$ad->id) }}" target="_blank">
                 @csrf
-                <button class="btn btn-sm btn-secondary">Gerar PDF</button>
+                <button class="btn btn-sm btn-secondary"><i class="fas fa-file-pdf me-1"></i>Download PDF</button>
               </form>
               <form method="POST" action="{{ route('adesoes.status',$ad->id) }}" class="ms-1">
                 @csrf

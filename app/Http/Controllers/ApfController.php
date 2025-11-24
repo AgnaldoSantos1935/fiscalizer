@@ -20,7 +20,13 @@ class ApfController extends Controller
         $data = $request->validated();
         $data['projeto_id'] = $projeto->id;
 
-        Apf::create($data);
+        $apf = Apf::create($data);
+
+        // Notificação: PF calculado/adicionado ao projeto
+        notify_event('notificacoes.projetos.pf_calculado', [
+            'titulo' => 'PF calculado',
+            'mensagem' => "APF {$apf->id} adicionada ao projeto {$projeto->id}",
+        ], $apf);
 
         return redirect()
             ->route('projetos.show', $projeto->id)

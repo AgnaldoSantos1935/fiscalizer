@@ -2,10 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use ProjetoSoftwareSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -16,22 +14,45 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Roles e perfis/usuários
+        $this->call(RoleSeeder::class);
+        \App\Models\User::updateOrCreate(
+            ['email' => 'agnaldosantos1935@gmail.com'],
+            [
+                'name' => 'agnaldo santos',
+                'password' => bcrypt('S@n%tos123'),
+                'role_id' => 1,
+            ]
+        );
+        // RBAC: Actions e vínculo Role↔Action
+        $this->call(ActionsSeeder::class);
+        $this->call(RoleActionsSeeder::class);
+        $this->call(UserProfileSeeder::class);
 
-        /* User::factory()->create([
-             'name' => 'Test User',
-             'email' => 'test@example.com',
+        // Hosts de monitoramento
+        $this->call(HostSeeder::class);
 
-         ]);
-         // gerar 30 user_profiles (perfis de pessoas)
-          $this->call(UserProfileSeeder::class);
-           $this->call(ProjetoSoftwareSeeder::class);
-              $this->call([
-         PessoaServidorSeeder::class,
-    ]);*/
+        // Projetos de software
+        $this->call(ProjetoSoftwareSeeder::class);
+
+        // Pessoas/Servidores
+        $this->call(PessoaServidorSeeder::class);
+
+        // Contrato base, empenhos e itens
+        $this->call(ContratoSeeder::class);
+        // Vinculação de fiscais aos contratos
+        $this->call(ContratoFiscalSeeder::class);
+        $this->call(EmpenhoSeeder::class);
+        $this->call(EmpenhoItemSeeder::class);
+
+        // Demandas e requisitos
+        $this->call(DemandaRequisitosSeeder::class);
         $this->call(ProcessoProjetoSeeder::class);
         $this->call(ProcessoMedicaoSeeder::class);
         // Popular tabelas relacionadas ao Termo de Referência
         $this->call(TermoReferenciaSeeder::class);
+
+        // Ordens de Fornecimento (gera ao menos 30 registros)
+        $this->call(OrdemFornecimentoSeeder::class);
     }
 }

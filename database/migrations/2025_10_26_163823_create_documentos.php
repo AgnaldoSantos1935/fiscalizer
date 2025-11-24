@@ -12,6 +12,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('documentos')) {
+            return; // evita criação duplicada
+        }
+
         Schema::create('documentos', function (Blueprint $table) {
             $table->id();
 

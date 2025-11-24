@@ -34,10 +34,8 @@ return new class extends Migration
 
             $table->timestamps();
 
-            // FK opcionais
+            // FK opcionais (somente projeto; sistemas/modulos ainda não possuem tabela)
             $table->foreign('projeto_id')->references('id')->on('projetos')->nullOnDelete();
-            $table->foreign('sistema_id')->references('id')->on('sistemas')->nullOnDelete();
-            $table->foreign('modulo_id')->references('id')->on('modulos')->nullOnDelete();
         });
     }
 

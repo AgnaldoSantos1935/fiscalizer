@@ -24,7 +24,7 @@ return new class extends Migration
             $table->enum('status', ['Aberta', 'Em Analise', 'Em Desenvolvimento', 'Homologada', 'Reprovada', 'Encerrada'])->default('Aberta');
             $table->unsignedBigInteger('item_contrato_id')->nullable();
             $table->foreign('projeto_id')->references('id')->on('projetos_software')->cascadeOnDelete();
-            $table->foreign('item_contrato_id')->references('id')->on('itens_contrato')->nullOnDelete();
+            $table->foreign('item_contrato_id')->references('id')->on('contrato_itens')->onDelete('set null');
             $table->timestamps();
             $table->unique(['projeto_id', 'numero']);
         });

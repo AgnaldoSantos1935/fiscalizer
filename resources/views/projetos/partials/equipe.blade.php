@@ -13,7 +13,7 @@
       <thead class="table-light">
         <tr>
           <th>Nome</th>
-          <th>Papel</th>
+<th>Perfil</th>
           <th class="text-end">Horas Previstas</th>
           <th class="text-end">Horas Realizadas</th>
           <th class="text-center" width="100">Ações</th>

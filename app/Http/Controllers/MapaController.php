@@ -21,7 +21,7 @@ class MapaController extends Controller
             ->map(function ($d) {
                 $s = is_string($d->nome_dre) ? trim($d->nome_dre) : '';
                 // normaliza diferentes traços para hífen ASCII
-                $s = str_replace(["—","–","‑","−"], "-", $s);
+                $s = str_replace(['—', '–', '‑', '−'], '-', $s);
                 // remove espaços ao redor do hífen
                 $s = preg_replace('/\s*-\s*/u', '-', $s);
                 // colapsa múltiplos espaços
@@ -32,9 +32,10 @@ class MapaController extends Controller
                 // key para ordenação acento-insensível
                 $trans = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $s) ?: $s;
                 $key = strtolower(trim($trans));
+
                 return ['id' => $d->id, 'label' => $label, 'key' => $key];
             })
-            ->filter(fn($it) => ! empty($it['label']))
+            ->filter(fn ($it) => ! empty($it['label']))
             ->unique('id')
             ->sortBy('key')
             ->values();
@@ -42,9 +43,17 @@ class MapaController extends Controller
         // Detecta colunas disponíveis na tabela 'escolas' para montar filtros dinâmicos
         $cols = Schema::getColumnListing('escolas');
         $lcMap = [];
-        foreach ($cols as $c) { $lcMap[strtolower($c)] = $c; }
+        foreach ($cols as $c) {
+            $lcMap[strtolower($c)] = $c;
+        }
         $find = function (array $cands) use ($lcMap) {
-            foreach ($cands as $cand) { $k = strtolower($cand); if (isset($lcMap[$k])) return $lcMap[$k]; }
+            foreach ($cands as $cand) {
+                $k = strtolower($cand);
+                if (isset($lcMap[$k])) {
+                    return $lcMap[$k];
+                }
+            }
+
             return null;
         };
 
@@ -62,11 +71,13 @@ class MapaController extends Controller
             // Normaliza nomes de municípios: colapsa espaços, normaliza hífens, trim; gera label e key
             $municipios = collect($municipiosRaw)
                 ->map(function ($m) {
-                    if (! is_string($m)) return null;
+                    if (! is_string($m)) {
+                        return null;
+                    }
 
                     $s = trim($m);
                     // normaliza diferentes traços para hífen ASCII
-                    $s = str_replace(["—","–","‑","−"], "-", $s);
+                    $s = str_replace(['—', '–', '‑', '−'], '-', $s);
                     // remove espaços ao redor do hífen
                     $s = preg_replace('/\s*-\s*/u', '-', $s);
                     // colapsa múltiplos espaços
@@ -77,9 +88,10 @@ class MapaController extends Controller
 
                     // key: lowercase, colapsa espaços/hífens com mesmas regras (sem remover acentos)
                     $key = strtolower($s);
+
                     return ['key' => $key, 'label' => $label];
                 })
-                ->filter(fn($it) => is_array($it) && ! empty($it['label']))
+                ->filter(fn ($it) => is_array($it) && ! empty($it['label']))
                 ->unique('key')
                 ->sortBy('key')
                 ->values();
@@ -96,17 +108,20 @@ class MapaController extends Controller
             // Normaliza valores: colapsa espaços e normaliza hífens; gera label e key
             $dependencias = collect($depsRaw)
                 ->map(function ($d) {
-                    if (! is_string($d)) return null;
+                    if (! is_string($d)) {
+                        return null;
+                    }
                     $s = trim($d);
-                    $s = str_replace(["—","–","‑","−"], "-", $s);
+                    $s = str_replace(['—', '–', '‑', '−'], '-', $s);
                     $s = preg_replace('/\s*-\s*/u', '-', $s);
                     $s = preg_replace('/\s+/u', ' ', $s);
 
                     $label = mb_convert_case($s, MB_CASE_TITLE, 'UTF-8');
                     $key = strtolower($s);
+
                     return ['key' => $key, 'label' => $label];
                 })
-                ->filter(fn($it) => is_array($it) && ! empty($it['label']))
+                ->filter(fn ($it) => is_array($it) && ! empty($it['label']))
                 ->unique('key')
                 ->sortBy('key')
                 ->values();
@@ -182,7 +197,7 @@ class MapaController extends Controller
         if ($municipioFiltro && $municipioCol) {
             // Normaliza filtro recebido (mesmas regras da key gerada)
             $f = trim($municipioFiltro);
-            $f = str_replace(["—","–","‑","−"], "-", $f);
+            $f = str_replace(['—', '–', '‑', '−'], '-', $f);
             $f = preg_replace('/\s*-\s*/u', '-', $f);
             $f = preg_replace('/\s+/u', ' ', $f);
             $f = strtolower($f);
@@ -205,7 +220,7 @@ class MapaController extends Controller
         if ($jurisdicaoFiltro && $dependenciaCol) {
             // Normaliza filtro de jurisdição com mesmas regras de key
             $f = trim($jurisdicaoFiltro);
-            $f = str_replace(["—","–","‑","−"], "-", $f);
+            $f = str_replace(['—', '–', '‑', '−'], '-', $f);
             $f = preg_replace('/\s*-\s*/u', '-', $f);
             $f = preg_replace('/\s+/u', ' ', $f);
             $f = strtolower($f);

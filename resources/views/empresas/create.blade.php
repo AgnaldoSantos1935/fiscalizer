@@ -29,6 +29,8 @@
                   <input type="hidden" name="return" value="{{ request('return') }}">
                 @endif
 
+                <div id="alertArea" class="mb-2"></div>
+
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label for="razao_social" class="form-label fw-semibold small text-secondary">
@@ -88,7 +90,7 @@
 
                     <div class="col-md-3">
                         <label for="cep" class="form-label fw-semibold small text-secondary">CEP</label>
-                        <input type="text" name="cep" id="cep" class="form-control form-control-sm cep-input" value="{{ old('cep') }}">
+                        <input type="text" name="cep" id="cep" class="form-control form-control-sm cep-input" value="{{ old('cep') }}" placeholder="00000-000" maxlength="9">
                     </div>
                     <div class="col-md-5">
                         <label for="logradouro" class="form-label fw-semibold small text-secondary">Logradouro</label>
@@ -153,34 +155,75 @@ form .btn {
 </style>
 @endsection
 @section('js')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.20/dist/sweetalert2.all.min.js"></script>
 <script>
 (function(){
-  function maskCEP(v){
-    var d = (v||'').replace(/\D/g,'').slice(0,8);
-    if(d.length > 5) return d.slice(0,5)+'-'+d.slice(5);
-    return d;
+  const $cep = document.getElementById('cep');
+  const $logradouro = document.getElementById('logradouro');
+  const $bairro = document.getElementById('bairro');
+  const $cidade = document.getElementById('cidade');
+  const $uf = document.getElementById('uf');
+  const $numero = document.getElementById('numero');
+  const $complemento = document.getElementById('complemento');
+
+  function setAlert(type, title, message) {
+    const icons = { success: 'fa-check-circle', error: 'fa-exclamation-triangle', warning: 'fa-exclamation-circle', info: 'fa-info-circle' };
+    const classes = { success: 'alert-success', error: 'alert-danger', warning: 'alert-warning', info: 'alert-info' };
+    const html = `
+      <div class="alert ${classes[type] || classes.info} alert-dismissible fade show" role="alert">
+        <i class="fas ${icons[type] || icons.info} me-1"></i> <strong>${title}:</strong> ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+      </div>`;
+    const area = document.getElementById('alertArea');
+    if (area) area.innerHTML = html;
   }
-  async function viaCEP(cep){
-    var d = (cep||'').replace(/\D/g,'');
-    if(d.length !== 8) return null;
-    const r = await fetch('https://viacep.com.br/ws/'+d+'/json/');
-    const j = await r.json();
-    if(j && !j.erro) return j;
-    return null;
+
+  function maskCEP(v){ const d=(v||'').replace(/\D/g,'').slice(0,8); return d.length>5? d.slice(0,5)+'-'+d.slice(5): d; }
+  function limparEndereco(){
+    if ($logradouro) $logradouro.value = '';
+    if ($bairro) $bairro.value = '';
+    // mantém cidade/UF se já preenchidos
   }
-  document.addEventListener('DOMContentLoaded', function(){
-    var cep = document.getElementById('cep');
-    if(cep){
-      cep.addEventListener('input', function(){ cep.value = maskCEP(cep.value); });
-      cep.addEventListener('blur', async function(){
-        const data = await viaCEP(cep.value);
-        if(data){
-          var $ = s => document.getElementById(s);
-          $('logradouro').value = data.logradouro || '';
-          $('bairro').value = data.bairro || '';
-          $('cidade').value = data.localidade || '';
-          $('uf').value = (data.uf || '').toUpperCase();
+  function consultaCep(rawCep){
+    const d = (rawCep||'').replace(/\D/g,''); if(d.length!==8) return;
+    setAlert('info','Consultando CEP','Buscando endereço no ViaCEP...');
+    fetch(`https://viacep.com.br/ws/${d}/json/`)
+      .then(r=>r.json())
+      .then(data=>{
+        if(data && data.erro){
+          limparEndereco();
+          setAlert('warning','CEP não encontrado','Verifique o CEP informado.');
+          if (typeof Swal !== 'undefined') { Swal.fire({icon:'warning', title:'CEP não encontrado', text:'Verifique o CEP informado.'}); }
+          return;
         }
+        if ($logradouro) $logradouro.value = data.logradouro || '';
+        if ($bairro) $bairro.value = data.bairro || '';
+        if ($cidade) $cidade.value = data.localidade || ($cidade?.value||'');
+        if ($uf) $uf.value = (data.uf || ($uf?.value||'')).toUpperCase();
+        if ($complemento && data.complemento) $complemento.value = data.complemento;
+        setTimeout(()=>{ if ($numero) $numero.focus(); }, 80);
+        setAlert('success','CEP validado','Endereço preenchido automaticamente.');
+      })
+      .catch(()=>{
+        setAlert('error','Erro ao consultar CEP','Serviço ViaCEP indisponível no momento.');
+        if (typeof Swal !== 'undefined') { Swal.fire({icon:'error', title:'Erro ao consultar CEP', text:'Serviço ViaCEP indisponível no momento.'}); }
+      });
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    if($cep){
+      $cep.addEventListener('input', function(){ this.value = maskCEP(this.value); });
+      $cep.addEventListener('keyup', function(){
+        const d = (this.value||'').replace(/\D/g,'');
+        clearTimeout(this.__cepTimer);
+        if (d.length === 8) {
+          this.__cepTimer = setTimeout(()=>consultaCep(d), 250);
+        }
+      });
+      $cep.addEventListener('blur', function(){
+        const d = (this.value||'').replace(/\D/g,'');
+        if (d.length === 8) { consultaCep(d); }
+        else { setAlert('warning','CEP inválido','Informe um CEP com 8 dígitos.'); }
       });
     }
   });

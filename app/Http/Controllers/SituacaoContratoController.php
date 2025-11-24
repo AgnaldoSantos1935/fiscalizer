@@ -20,9 +20,15 @@ class SituacaoContratoController extends Controller
 
     public function listar()
     {
-        $situacoes = SituacaoContrato::select('id', 'nome', 'descricao', 'slug', 'cor', 'motivo')
-            ->orderBy('nome')
-            ->get();
+        $columns = ['id', 'nome', 'descricao', 'slug'];
+        if (\Illuminate\Support\Facades\Schema::hasColumn('situacoes_contratos', 'cor')) {
+            $columns[] = 'cor';
+        }
+        if (\Illuminate\Support\Facades\Schema::hasColumn('situacoes_contratos', 'motivo')) {
+            $columns[] = 'motivo';
+        }
+
+        $situacoes = SituacaoContrato::orderBy('nome')->get($columns);
 
         return response()->json($situacoes);
     }

@@ -153,7 +153,14 @@ $(document).ready(function () {
     // 🔹 Inicializa DataTable (AJAX)
     // =====================================
        let tabela = $('#tabelaHosts').DataTable({
-    ajax: `{{ route('api.hosts') }}`,
+    ajax: {
+        url: `{{ route('api.hosts') }}`,
+        data: function(d){
+            d.nome = $('#filtroNome').val();
+            d.provedor = $('#filtroProvedor').val();
+            d.tipo = $('#filtroTipo').val();
+        }
+    },
     language: {
         url: '{{ asset("js/pt-BR.json") }}'
     },
@@ -231,10 +238,7 @@ $(document).ready(function () {
     // 🔍 Aplicar filtros
     // =====================================
     $('#btnAplicarFiltros').on('click', function () {
-        tabela.column(1).search($('#filtroNome').val());
-        tabela.column(2).search($('#filtroProvedor').val());
-        tabela.column(4).search($('#filtroTipo').val());
-        tabela.draw();
+        tabela.ajax.reload();
     });
 
     // =====================================
@@ -242,7 +246,6 @@ $(document).ready(function () {
     // =====================================
     $('#btnLimpar').on('click', function () {
         $('#formFiltros')[0].reset();
-        tabela.search('').columns().search('');
         tabela.order([1, 'asc']);
         tabela.ajax.reload(null, false);
 

@@ -18,19 +18,34 @@ class HostController extends Controller
         return view('hosts.create');
     }
 
-    public function getHostsJson()
+    public function getHostsJson(Request $request)
     {
-        $hosts = Host::orderBy('nome_conexao')->get([
-            'id',
-            'nome_conexao',
-            'ip_atingivel',
-            'porta',
-            'provedor',
-            'descricao',
-            'tecnologia',
-            'tipo_monitoramento',
-            'status',
-        ]);
+        $query = Host::query();
+
+        // 🔍 Filtros opcionais
+        if ($request->filled('nome')) {
+            $query->where('nome_conexao', 'like', '%' . trim((string) $request->nome) . '%');
+        }
+        if ($request->filled('provedor')) {
+            $query->where('provedor', 'like', '%' . trim((string) $request->provedor) . '%');
+        }
+        if ($request->filled('tipo')) {
+            $query->where('tipo_monitoramento', trim((string) $request->tipo));
+        }
+
+        $hosts = $query
+            ->orderBy('nome_conexao')
+            ->get([
+                'id',
+                'nome_conexao',
+                'ip_atingivel',
+                'porta',
+                'provedor',
+                'descricao',
+                'tecnologia',
+                'tipo_monitoramento',
+                'status',
+            ]);
 
         return response()->json([
             'data' => $hosts,   // <-- DataTables SÓ FUNCIONA com "data"

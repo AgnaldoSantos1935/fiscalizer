@@ -23,7 +23,7 @@ $(document).ready(function () {
         ajax: "{{ route('api.projetos.medicao', $projeto->id) }}",
         language: { url: '{{ asset("js/pt-BR.json") }}' },
         pageLength: 10,
-        dom: 't<"bottom"p>',
+        dom: 't<"bottom"ip>',
         columns: [
             { data: 'descricao', title: 'Descrição' },
             { data: 'quantidade', title: 'Qtd' },

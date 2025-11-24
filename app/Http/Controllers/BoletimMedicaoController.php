@@ -84,6 +84,18 @@ class BoletimMedicaoController extends Controller
             'observacao' => "Gerado automaticamente a partir da medição #{$medicao->id}",
         ]);
 
+        // Notificações: PF e UST calculados para o projeto
+        notify_event('notificacoes.projetos.pf_calculado', [
+            'titulo' => 'PF calculado',
+            'mensagem' => "Projeto {$projeto->id}: total PF {$total_pf}",
+            'valores' => ['pf' => $total_pf, 'ust' => $total_ust, 'valor' => $valor_total],
+        ], $boletim);
+        notify_event('notificacoes.projetos.ust_calculada', [
+            'titulo' => 'UST calculada',
+            'mensagem' => "Projeto {$projeto->id}: total UST {$total_ust}",
+            'valores' => ['pf' => $total_pf, 'ust' => $total_ust, 'valor' => $valor_total],
+        ], $boletim);
+
         return redirect()->route('boletins.show', $boletim->id)
             ->with('success', 'Boletim de medição gerado com sucesso!');
     }

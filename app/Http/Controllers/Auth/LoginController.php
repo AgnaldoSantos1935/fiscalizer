@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Models\UserProfile;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -115,5 +118,46 @@ class LoginController extends Controller
         throw ValidationException::withMessages([
             $this->username() => [trans('auth.failed')],
         ]);
+    }
+
+    /**
+     * Resolve credenciais aceitando e-mails presentes em user_profiles.
+     *
+     * Caso o e-mail informado exista apenas em `user_profiles.email_institucional`
+     * ou `user_profiles.email_pessoal`, mapeia para o e-mail do `users` vinculado.
+     */
+    protected function credentials(Request $request)
+    {
+        $emailInput = trim((string) $request->input('email'));
+        $password = (string) $request->input('password');
+
+        $resolvedEmail = $emailInput;
+
+        // Se não existir usuário com este e-mail, tenta resolver via perfil
+        $existsInUsers = User::where('email', $emailInput)->exists();
+        if (! $existsInUsers) {
+            $profile = null;
+            $query = UserProfile::query();
+            $hasInst = Schema::hasColumn('user_profiles', 'email_institucional');
+            $hasPess = Schema::hasColumn('user_profiles', 'email_pessoal');
+            if ($hasInst) {
+                $query->orWhere('email_institucional', $emailInput);
+            }
+            if ($hasPess) {
+                $query->orWhere('email_pessoal', $emailInput);
+            }
+            if ($hasInst || $hasPess) {
+                $profile = $query->first();
+            }
+
+            if ($profile && $profile->user && $profile->user->email) {
+                $resolvedEmail = $profile->user->email;
+            }
+        }
+
+        return [
+            'email' => $resolvedEmail,
+            'password' => $password,
+        ];
     }
 }

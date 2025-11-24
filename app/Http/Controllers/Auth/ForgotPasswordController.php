@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Password;
 
 class ForgotPasswordController extends Controller
 {
@@ -29,7 +30,17 @@ class ForgotPasswordController extends Controller
 
     protected function sendResetLinkResponse(Request $request, $response)
     {
-        return back()->with('status', trans($response))
-            ->with('cooldown', 60); // opcional: informa tempo de espera
+        // Mensagem amigável em português e redireciona para a tela de login
+        // Usa caminho relativo para preservar host/porta da requisição atual
+        return redirect()->to('/login')
+            ->with('status', 'Enviamos um link de recuperação de senha para o e-mail cadastrado. Verifique sua caixa de entrada e também a pasta de spam.');
+    }
+
+    protected function sendResetLinkFailedResponse(Request $request, $response)
+    {
+        // Mantém comportamento padrão: volta com erro traduzido
+        return back()->withErrors([
+            'email' => trans($response),
+        ]);
     }
 }

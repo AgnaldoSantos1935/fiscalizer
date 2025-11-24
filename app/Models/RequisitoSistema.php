@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class RequisitoSistema extends Model
 {
-    protected $table = 'requsitos_sistema';
+    protected $table = 'requisitos';
 
     protected $fillable = [
         'demanda_id',

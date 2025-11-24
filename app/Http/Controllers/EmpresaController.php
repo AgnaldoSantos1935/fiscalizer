@@ -123,6 +123,48 @@ class EmpresaController extends Controller
         return redirect()->route('empresas.index')->with('success', 'Empresa excluída com sucesso!');
     }
 
+    /**
+     * Endpoint JSON para DataTables na listagem de empresas.
+     */
+    public function data(Request $request)
+    {
+        $query = Empresa::query();
+
+        // Filtros simples
+        if ($texto = trim((string) $request->get('razao'))) {
+            $query->where('razao_social', 'like', "%$texto%");
+        }
+        if ($cnpj = preg_replace('/\D+/', '', (string) $request->get('cnpj'))) {
+            if ($cnpj) {
+                $query->where('cnpj', 'like', "%$cnpj%");
+            }
+        }
+        if ($cidade = trim((string) $request->get('cidade'))) {
+            $query->where('cidade', 'like', "%$cidade%");
+        }
+        if ($uf = strtoupper((string) $request->get('uf'))) {
+            if (strlen($uf) === 2) {
+                $query->where('uf', $uf);
+            }
+        }
+
+        $empresas = $query->orderBy('razao_social')->get();
+
+        $data = $empresas->map(function (Empresa $e) {
+            return [
+                'id' => $e->id,
+                'razao_social' => $e->razao_social,
+                'cnpj' => $e->cnpj,
+                'email' => $e->email ?? '-',
+                'telefone' => $e->telefone ?? '-',
+                'cidade' => $e->cidade ?? '-',
+                'uf' => $e->uf ?? '-',
+            ];
+        });
+
+        return response()->json(['data' => $data]);
+    }
+
     private function isValidCnpj(?string $cnpj): bool
     {
         if (! $cnpj || strlen($cnpj) !== 14) {

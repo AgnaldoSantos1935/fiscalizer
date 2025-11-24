@@ -12,9 +12,11 @@
                 Projeto: {{ $projeto->codigo }} — {{ $projeto->titulo }}
             </h4>
             <div>
+                @can('projetos.editar')
                 <a href="{{ route('projetos.edit', $projeto->id) }}" class="btn btn-outline-secondary btn-sm">
                     <i class="fas fa-pen me-1"></i> Editar
                 </a>
+                @endcan
                 <a href="{{ route('projetos.index') }}" class="btn btn-outline-primary btn-sm ms-1">
                     <i class="fas fa-arrow-left me-1"></i> Voltar
                 </a>

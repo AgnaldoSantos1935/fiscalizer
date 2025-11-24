@@ -13,6 +13,8 @@ class EmpenhoCreateTest extends TestCase
     /** @test */
     public function it_creates_an_empenho_and_redirects_to_contrato()
     {
+        $this->withoutExceptionHandling();
+        $this->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class);
         $empresa = \App\Models\Empresa::create([
             'razao_social' => 'Empresa Teste ' . time(),
             'cnpj' => (string) random_int(10000000000000, 99999999999999),
@@ -36,7 +38,9 @@ class EmpenhoCreateTest extends TestCase
             ],
         ];
 
-        $response = $this->post(route('empenhos.store'), $payload);
+        \file_put_contents(base_path('server_log.txt'), 'empenhos.store URL: ' . route('empenhos.store') . PHP_EOL, FILE_APPEND);
+
+        $response = $this->post('/empenhos', $payload);
 
         $response->assertRedirect(route('contratos.show', $contrato->id));
 

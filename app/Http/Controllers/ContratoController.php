@@ -17,10 +17,10 @@ use Illuminate\Support\Str;
 
 class ContratoController extends Controller
 {
-    public function getJsonContratos()
+    public function getJsonContratos(Request $request)
     {
-        // 🔹 Carrega contratos com todas as relações importantes
-        $contratos = Contrato::with([
+        // 🔹 Base query com relações importantes
+        $query = Contrato::with([
             'contratada:id,razao_social,cnpj',
             'fiscalTecnico:id,nome_completo',
             'suplenteFiscalTecnico:id,nome_completo',
@@ -28,8 +28,31 @@ class ContratoController extends Controller
             'suplenteFiscalAdministrativo:id,nome_completo',
             'gestor:id,nome_completo',
             'situacaoContrato:id,nome,cor,slug',
-        ])
+        ]);
+
+        // 🔍 Filtros opcionais: numero, empresa (razao_social), situacao (slug)
+        if ($request->filled('numero')) {
+            $numero = trim((string) $request->input('numero'));
+            $query->where('numero', 'like', "%{$numero}%");
+        }
+
+        if ($request->filled('empresa')) {
+            $empresa = trim((string) $request->input('empresa'));
+            $query->whereHas('contratada', function ($q) use ($empresa) {
+                $q->where('razao_social', 'like', "%{$empresa}%");
+            });
+        }
+
+        if ($request->filled('situacao')) {
+            $situacao = trim((string) $request->input('situacao'));
+            $query->whereHas('situacaoContrato', function ($q) use ($situacao) {
+                $q->where('slug', $situacao);
+            });
+        }
+
+        $contratos = $query
             ->orderBy('id', 'desc')
+            ->limit(500)
             ->get();
 
         // 🔹 Estrutura de resposta formatada para o DataTables
@@ -125,6 +148,9 @@ class ContratoController extends Controller
             'gestor:id,nome_completo',
             'itens:id,contrato_id,descricao_item,unidade_medida,quantidade,valor_unitario,valor_total,tipo_item',
             'empenhos.pagamentos:id,empenho_id,valor_pagamento,data_pagamento,documento,observacao',
+            'empenhos.solicitacoes:id,empenho_id,status,mes,ano,periodo_referencia,solicitado_at,solicitado_by,aprovado_at,aprovado_by,pdf_path',
+            'empenhos.solicitacoes.solicitante:id,name',
+            'empenhos.solicitacoes.aprovador:id,name',
             'documentos:id,contrato_id,documento_tipo_id,tipo,titulo,descricao,caminho_arquivo,data_upload,nova_data_fim',
             'documentos.documentoTipo:id,nome,slug,permite_nova_data_fim',
         ])->findOrFail($id);
@@ -150,12 +176,35 @@ class ContratoController extends Controller
             'num_processo' => $contrato->num_processo,
             'situacao_contrato' => $contrato->situacaoContrato,
             'itens' => $contrato->itens,
-            'empenhos' => $contrato->empenhos,
+            // Inclui ID da solicitação pendente (se houver) em cada empenho
+            'empenhos' => $contrato->empenhos->map(function ($e) {
+                $pendente = optional($e->solicitacoes)->firstWhere('status', 'pendente');
+                if ($pendente) {
+                    $e->setAttribute('solicitacao_pendente_id', $pendente->id);
+                }
+
+                return $e;
+            })->values(),
             'documentos' => $contrato->documentos->sortByDesc('id')->values(),
             'totais' => [
                 'valor_empenhado' => $contrato->valor_empenhado,
-                'valor_pago' => $contrato->valor_pago,
-                'saldo' => $contrato->saldo_contrato,
+                // Atualiza valor_pago considerando comprovante (pago_at) quando não há registros de Pagamentos
+                'valor_pago' => $contrato->empenhos->sum(function ($e) {
+                    $pagos = $e->pagamentos->sum('valor_pagamento');
+                    if ($pagos > 0) {
+                        return $pagos;
+                    }
+
+                    return $e->pago_at ? ($e->valor_total ?? 0) : 0;
+                }),
+                'saldo' => $contrato->valor_global - $contrato->empenhos->sum(function ($e) {
+                    $pagos = $e->pagamentos->sum('valor_pagamento');
+                    if ($pagos > 0) {
+                        return $pagos;
+                    }
+
+                    return $e->pago_at ? ($e->valor_total ?? 0) : 0;
+                }),
             ],
 
         ]);
@@ -209,6 +258,12 @@ class ContratoController extends Controller
                 $doc->save();
             }
         }
+
+        // Notificação: contrato criado
+        notify_event('notificacoes.contratos.contrato_criado', [
+            'titulo' => 'Contrato criado',
+            'mensagem' => "Contrato {$contrato->numero} criado",
+        ], $contrato);
 
         return redirect()
             ->route('contratos.index')
@@ -325,62 +380,18 @@ class ContratoController extends Controller
                 $data['fiscal_administrativo_id']
             );
         }
-        if (! (Auth::user()?->role_id === 1)) {
-            unset($data['gestor_id']);
-        }
-        if (! (Auth::user()?->role_id === 1)) {
-            unset($data['gestor_id']);
-        }
-        if (! (Auth::user()?->role_id === 1)) {
-            unset($data['gestor_id']);
-        }
-        if (! (Auth::user()?->role_id === 1)) {
-            unset($data['gestor_id']);
-        }
-        if (! (Auth::user()?->role_id === 1)) {
-            unset($data['gestor_id']);
-        }
-        if (! (Auth::user()?->role_id === 1)) {
-            unset($data['gestor_id']);
-        }
-        if (! (Auth::user()?->role_id === 1)) {
-            unset($data['gestor_id']);
-        }
-        if (! (Auth::user()?->role_id === 1)) {
-            unset($data['gestor_id']);
-        }
-        if (! (Auth::user()?->role_id === 1)) {
-            unset($data['gestor_id']);
-        }
-        if (! (Auth::user()?->role_id === 1)) {
-            unset($data['gestor_id']);
-        }
-        if (! (Auth::user()?->role_id === 1)) {
-            unset($data['gestor_id']);
-        }
-        if (! (Auth::user()?->role_id === 1)) {
-            unset($data['gestor_id']);
-        }
-        if (! (Auth::user()?->role_id === 1)) {
-            unset($data['gestor_id']);
-        }
-        if (! (Auth::user()?->role_id === 1)) {
-            unset($data['gestor_id']);
-        }
-        if (! (Auth::user()?->role_id === 1)) {
-            unset($data['gestor_id']);
-        }
-        if (! (Auth::user()?->role_id === 1)) {
-            unset($data['gestor_id']);
-        }
-        if (! (Auth::user()?->role_id === 1)) {
-            unset($data['gestor_id']);
-        }
-        if (! (Auth::user()?->role_id === 1)) {
+        // Apenas quem tem permissão explícita pode alterar o gestor do contrato
+        if (! \Illuminate\Support\Facades\Gate::allows('contratos_gestor_atribuir')) {
             unset($data['gestor_id']);
         }
 
         $contrato->update($data);
+
+        // Notificação: contrato atualizado
+        notify_event('notificacoes.contratos.contrato_atualizado', [
+            'titulo' => 'Contrato atualizado',
+            'mensagem' => "Contrato {$contrato->numero} atualizado",
+        ], $contrato);
 
         return redirect()
             ->route('contratos.edit', $contrato->id)

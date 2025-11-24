@@ -38,8 +38,6 @@ try {
             forceTLS: (import.meta.env.VITE_PUSHER_SCHEME ?? 'https') === 'https',
             enabledTransports: ['ws', 'wss'],
         });
-    } else {
-        console.warn('[Echo] VITE_PUSHER_APP_KEY ausente; Echo não inicializado.');
     }
 } catch (err) {
     console.warn('[Echo] falha ao iniciar:', err);

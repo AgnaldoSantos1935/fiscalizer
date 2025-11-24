@@ -96,21 +96,7 @@
                         <th>UF</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @foreach($empresas as $empresa)
-                    <tr class="hoverable-row">
-                        <td class="text-center">
-                            <input type="radio" name="empresaSelecionada" value="{{ $empresa->id }}">
-                        </td>
-                        <td class="fw-semibold text-dark">{{ $empresa->razao_social }}</td>
-                        <td>{{ $empresa->cnpj }}</td>
-                        <td class="text-muted small">{{ $empresa->email ?? '-' }}</td>
-                        <td class="text-muted small">{{ $empresa->telefone ?? '-' }}</td>
-                        <td>{{ $empresa->cidade ?? '-' }}</td>
-                        <td>{{ $empresa->uf ?? '-' }}</td>
-                    </tr>
-                    @endforeach
-                </tbody>
+                <tbody></tbody>
             </table>
         </div>
     </div>
@@ -137,7 +123,6 @@
 @endsection
 
 @section('css')
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
 <style>
 .nav-link.disabled {
     opacity: 0.5;
@@ -166,18 +151,33 @@ div.dataTables_wrapper {
 @endsection
 
 @section('js')
-<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
-
 <script>
 $(document).ready(function() {
     const tabela = $('#tabelaEmpresas').DataTable({
         language: { url: '{{ asset("js/pt-BR.json") }}' },
         pageLength: 10,
         order: [[1, 'asc']],
-        dom: 't<"bottom"p>'
+        dom: 't<"bottom"ip>',
+        ajax: {
+            url: '{{ route('empresas.data') }}',
+            data: function (d) {
+                d.razao = $('#filtroRazao').val();
+                d.cnpj = $('#filtroCNPJ').val();
+                d.cidade = $('#filtroCidade').val();
+                d.uf = $('#filtroUF').val();
+            }
+        },
+        columns: [
+            { data: 'id', orderable: false, searchable: false, className: 'text-center', width: '45px',
+              render: function(data){ return `<input type="radio" name="empresaSelecionada" value="${data}">`; }
+            },
+            { data: 'razao_social', className: 'fw-semibold text-dark' },
+            { data: 'cnpj' },
+            { data: 'email', className: 'text-muted small' },
+            { data: 'telefone', className: 'text-muted small' },
+            { data: 'cidade' },
+            { data: 'uf' }
+        ]
     });
 
     let empresaSelecionada = null;
@@ -242,34 +242,15 @@ $(document).ready(function() {
 
     // 🔍 Filtros
     $('#btnAplicarFiltros').on('click', function() {
-        const razao = $('#filtroRazao').val().toLowerCase();
-        const cnpj = $('#filtroCNPJ').val().toLowerCase();
-        const cidade = $('#filtroCidade').val().toLowerCase();
-        const uf = $('#filtroUF').val().toLowerCase();
-
-        $('#tabelaEmpresas tbody tr').each(function() {
-            const colRazao = $(this).find('td:nth-child(2)').text().toLowerCase();
-            const colCnpj = $(this).find('td:nth-child(3)').text().toLowerCase();
-            const colCidade = $(this).find('td:nth-child(6)').text().toLowerCase();
-            const colUf = $(this).find('td:nth-child(7)').text().toLowerCase();
-
-            if (
-                (razao === '' || colRazao.includes(razao)) &&
-                (cnpj === '' || colCnpj.includes(cnpj)) &&
-                (cidade === '' || colCidade.includes(cidade)) &&
-                (uf === '' || colUf.includes(uf))
-            ) {
-                $(this).show();
-            } else {
-                $(this).hide();
-            }
-        });
+        tabela.ajax.reload();
     });
 
     // 🔄 Limpar filtros
     $('#btnLimparFiltros').on('click', function() {
-        $('#formFiltros input').val('');
-        $('#tabelaEmpresas tbody tr').show();
+        $('#formFiltros')[0].reset();
+        tabela.ajax.reload();
+        $('#navDetalhes, #navEditar, #navExcluir').addClass('disabled');
+        empresaSelecionada = null;
     });
 });
 </script>

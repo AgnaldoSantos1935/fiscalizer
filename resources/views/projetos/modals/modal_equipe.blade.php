@@ -19,8 +19,8 @@
               </select>
             </div>
             <div class="col-md-3">
-              <label class="form-label fw-semibold">Papel</label>
-              <input type="text" name="papel" class="form-control">
+<label class="form-label fw-semibold">Perfil</label>
+<input type="text" name="perfil" class="form-control">
             </div>
             <div class="col-md-3">
               <label class="form-label fw-semibold">Horas Previstas</label>

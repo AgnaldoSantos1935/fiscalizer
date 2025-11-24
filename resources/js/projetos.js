@@ -116,7 +116,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ajax: `/api/projetos/${projetoId}/equipe`,
     columns: [
       { data: "pessoa.nome_completo" },
-      { data: "papel" },
+      { data: "perfil" },
       { data: "horas_previstas", className: "text-end" },
       { data: "horas_realizadas", className: "text-end" },
       {

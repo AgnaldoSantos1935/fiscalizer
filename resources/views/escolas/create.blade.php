@@ -22,6 +22,8 @@
         <form id="formNovaEscola" method="POST" action="{{ route('escolas.store') }}" class="p-4">
             @csrf
 
+            <div id="alertArea" class="mb-2"></div>
+
             <div class="row g-3">
                 <div class="col-md-4">
                     <label class="form-label fw-semibold small text-secondary">Código</label>
@@ -116,6 +118,80 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('formNovaEscola');
+    const $cep = document.querySelector('[name="cep"]');
+    const $logradouro = document.querySelector('[name="logradouro"]');
+    const $bairro = document.querySelector('[name="bairro"]');
+    const $municipio = document.querySelector('[name="municipio"]');
+    const $uf = document.querySelector('[name="uf"]');
+    const $numero = document.querySelector('[name="numero"]');
+    const $complemento = document.querySelector('[name="complemento"]');
+
+    function setAlert(type, title, message) {
+      const icons = { success: 'fa-check-circle', error: 'fa-exclamation-triangle', warning: 'fa-exclamation-circle', info: 'fa-info-circle' };
+      const classes = { success: 'alert-success', error: 'alert-danger', warning: 'alert-warning', info: 'alert-info' };
+      const html = `
+        <div class="alert ${classes[type] || classes.info} alert-dismissible fade show" role="alert">
+          <i class="fas ${icons[type] || icons.info} me-1"></i> <strong>${title}:</strong> ${message}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+        </div>`;
+      document.getElementById('alertArea').innerHTML = html;
+    }
+
+    function maskCEP(v){
+      const d = (v||'').replace(/\D/g,'').slice(0,8);
+      return d.length>5 ? d.slice(0,5)+'-'+d.slice(5) : d;
+    }
+    function limparEndereco(){
+      if ($logradouro) $logradouro.value = '';
+      if ($bairro) $bairro.value = '';
+      // mantém município/UF se já preenchidos
+    }
+    function consultaCep(rawCep){
+      const d = (rawCep||'').replace(/\D/g,'');
+      if (d.length !== 8) return;
+      setAlert('info','Consultando CEP','Buscando endereço no ViaCEP...');
+      fetch(`https://viacep.com.br/ws/${d}/json/`)
+        .then(r => r.json())
+        .then(data => {
+          if (data && data.erro) {
+            limparEndereco();
+            setAlert('warning','CEP não encontrado','Verifique o CEP informado.');
+            if (typeof Swal !== 'undefined') {
+              Swal.fire({ icon:'warning', title:'CEP não encontrado', text:'Verifique o CEP informado.' });
+            }
+            return;
+          }
+          if ($logradouro) $logradouro.value = data.logradouro || '';
+          if ($bairro) $bairro.value = data.bairro || '';
+          if ($municipio) $municipio.value = data.localidade || $municipio.value;
+          if ($uf) $uf.value = (data.uf || $uf.value || '').toUpperCase();
+          if ($complemento && data.complemento) $complemento.value = data.complemento;
+          setTimeout(() => { if ($numero) $numero.focus(); }, 80);
+          setAlert('success','CEP validado','Endereço preenchido automaticamente.');
+        })
+        .catch(() => {
+          setAlert('error','Erro ao consultar CEP','Serviço ViaCEP indisponível no momento.');
+          if (typeof Swal !== 'undefined') {
+            Swal.fire({ icon:'error', title:'Erro ao consultar CEP', text:'Serviço ViaCEP indisponível no momento.' });
+          }
+        });
+    }
+
+    if ($cep) {
+      $cep.addEventListener('input', function(){ this.value = maskCEP(this.value); });
+      $cep.addEventListener('keyup', function(e){
+        const d = (this.value||'').replace(/\D/g,'');
+        clearTimeout(this.__cepTimer);
+        if (d.length === 8) {
+          this.__cepTimer = setTimeout(() => consultaCep(d), 250);
+        }
+      });
+      $cep.addEventListener('blur', function(){
+        const d = (this.value||'').replace(/\D/g,'');
+        if (d.length === 8) { consultaCep(d); }
+        else { setAlert('warning','CEP inválido','Informe um CEP com 8 dígitos.'); }
+      });
+    }
 
     form.addEventListener('submit', function (e) {
         e.preventDefault();
@@ -150,6 +226,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 confirmButtonText: 'Fechar',
                 confirmButtonColor: '#dc3545'
             });
+            setAlert('error','Erro ao salvar','Não foi possível cadastrar a escola. Verifique os campos e tente novamente.');
             console.error(error);
         });
     });

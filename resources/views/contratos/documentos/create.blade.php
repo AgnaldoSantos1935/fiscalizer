@@ -1,9 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Cadastrar Documento do Contrato')
 
-@section('content')
-@include('layouts.components.breadcrumbs')
-<div class="container">
+@section('breadcrumb')
   <nav aria-label="breadcrumb" class="mb-3">
     <ol class="breadcrumb bg-white px-3 py-2 rounded-3 shadow-sm">
       <li class="breadcrumb-item">
@@ -16,6 +14,9 @@
       </li>
     </ol>
   </nav>
+@endsection
+@section('content_body')
+<div class="container">
 
   <div class="card">
     <div class="card-header d-flex align-items-center justify-content-between">

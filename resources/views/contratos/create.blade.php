@@ -1,8 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Novo Contrato')
 
-@section('content')
-@include('layouts.components.breadcrumbs')
+@section('content_body')
 @section('breadcrumb')
   @include('layouts.components.breadcrumbs', [
     'trail' => [
