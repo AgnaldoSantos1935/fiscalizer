@@ -223,7 +223,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const $t = $(tbl);
         if ($t.hasClass('dt-skip')) return;
         if ($t.hasClass('dataTable')) return;
-        if (!tbl.querySelector('thead')) return;
+        const thead = tbl.querySelector('thead');
+        if (!thead) return;
+        const thCount = thead.querySelectorAll('th').length;
+        const firstRow = tbl.querySelector('tbody tr');
+        const hasSpan = tbl.querySelector('tbody td[colspan], tbody td[rowspan]');
+        if (hasSpan) return;
+        if (firstRow) {
+          const tdCount = firstRow.querySelectorAll('td').length;
+          if (tdCount && thCount && tdCount !== thCount) return;
+        }
         try { $t.DataTable(); } catch(_) {}
       });
     }
