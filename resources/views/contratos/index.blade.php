@@ -101,7 +101,8 @@ use Illuminate\Support\Str;
 
         </div>
     </div>
-</div>
+  </div>
+
 
 <!-- Modal de Itens Contratados -->
 <div class="modal fade" id="modalItensContrato" tabindex="-1" aria-hidden="true">
@@ -112,7 +113,7 @@ use Illuminate\Support\Str;
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <table class="table table-striped" id="tabelaItensContrato">
+        <table class="table table-striped dt-skip" id="tabelaItensContrato">
           <thead>
             <tr>
               <th>Descrição</th>
@@ -281,10 +282,10 @@ fetch(`{{ route('api.situacoes') }}`, { headers: { 'Accept': 'application/json' 
     // Marque um radio e ative "Detalhes"
     // =====================================================
 
-    $('#tabelaContratos').on('change', 'input[name="contratoSelecionado"]', function () {
-        contratoSelecionado = $(this).val();
-        $('#navDetalhes').removeClass('disabled');
-    });
+  $('#tabelaContratos').on('change', 'input[name="contratoSelecionado"]', function () {
+      contratoSelecionado = $(this).val();
+      $('#navDetalhes').removeClass('disabled');
+  });
 
 
     // =====================================================

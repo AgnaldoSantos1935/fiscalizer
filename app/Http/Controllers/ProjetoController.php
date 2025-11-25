@@ -104,7 +104,7 @@ class ProjetoController extends Controller
         $itensContrato = ContratoItem::orderBy('descricao_item')->get();
         $usuarios = User::orderBy('name')->get();
         $dres = DRE::orderBy('nome_dre')->get();
-        $escolas = Escola::orderBy('escola')->get();
+        $escolas = Escola::orderBy('nome')->get();
         $contratos = Contrato::orderBy('id')->get();
 
         $situacoes = $this->situacoes;

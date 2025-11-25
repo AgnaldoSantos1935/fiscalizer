@@ -63,7 +63,7 @@ return [
     |
     */
 
-    'logo' => '<b>Admin</b>LTE',
+    'logo' => '<b>Fisc</b>alizer',
     'logo_img' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
     'logo_img_class' => 'brand-image img-circle elevation-3',
     'logo_img_xl' => null,
@@ -299,14 +299,13 @@ return [
     */
 
     'menu' => [
-        ['header' => 'Painel'],
         [
             'text' => 'Painel',
             'route' => 'home',
             'icon' => 'fas fa-home',
         ],
 
-        ['header' => 'Contratos'],
+
         [
             'text' => 'Contratos',
             'icon' => 'fas fa-file-contract',
@@ -316,7 +315,6 @@ return [
             ],
         ],
 
-        ['header' => 'Medição'],
         [
             'text' => 'Medição',
             'icon' => 'fas fa-calculator',
@@ -326,7 +324,6 @@ return [
             ],
         ],
 
-        ['header' => 'Monitoramento'],
         [
             'text' => 'Monitoramento',
             'icon' => 'fas fa-signal',
@@ -340,7 +337,7 @@ return [
             ],
         ],
 
-        ['header' => 'Cadastros'],
+
         [
             'text' => 'Cadastros',
             'icon' => 'fas fa-address-book',
@@ -351,7 +348,6 @@ return [
             ],
         ],
 
-        ['header' => 'Contratações'],
         [
             'text' => 'Contratações',
             'icon' => 'fas fa-clipboard-list',
@@ -362,10 +358,10 @@ return [
             ],
         ],
 
-        ['header' => 'Projetos'],
+
         [
             'text' => 'Projetos',
-            'icon' => 'fas fa-diagram-project',
+            'icon' => 'fas fa-sitemap',
             'submenu' => [
                 [ 'text' => 'Painel de Projetos', 'route' => 'dashboard.projetos', 'can' => 'view-index-projetos_soft' ],
                 [ 'text' => 'Listar Projetos', 'route' => 'projetos.index', 'can' => 'view-index-projetos_soft' ],
@@ -373,7 +369,6 @@ return [
             ],
         ],
 
-        ['header' => 'Relatórios'],
         [
             'text' => 'Relatórios',
             'icon' => 'fas fa-file-alt',
@@ -383,7 +378,6 @@ return [
             ],
         ],
 
-        ['header' => 'Administração'],
         [
             'text' => 'Administração',
             'icon' => 'fas fa-users-cog',

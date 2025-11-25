@@ -139,10 +139,11 @@ $ultimas = \App\Models\UserNotification::where('user_id', auth()->id())
         console.log("AdminLTE layout carregado com sucesso!");
     });
 </script>
-<script>
+    <script>
   window.AppUserId = @json(auth()->id());
   window.AppIsAuthenticated = @json(auth()->check());
   window.CSRFToken = @json(csrf_token());
+  window.DataTablesLangUrl = @json(asset('js/pt-BR.json'));
     </script>
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
@@ -176,4 +177,3 @@ $ultimas = \App\Models\UserNotification::where('user_id', auth()->id())
         <div>{{ optional($user?->role)->nome ?? '—' }}</div>
     </div>
 @endsection
-

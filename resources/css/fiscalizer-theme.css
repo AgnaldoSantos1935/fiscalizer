@@ -7,14 +7,15 @@
 /* 🎨 PALETA DE CORES */
 /* ========================== */
 :root {
-    --fisc-blue: #122f4e;
-    --fisc-blue-dark: #122f4e;
-    --fisc-blue-deep: #122f4e;
-    --fisc-blue-light: #d4d946;
+    --fisc-blue: #415060;
+    --fisc-blue-dark: #051629;
+    --fisc-blue-deep: #415060;
+    --fisc-orange: #ec9011;
+    --fisc-blue-light: #def227;
     --fisc-white: #ffffff;
-    --fisc-gray-100: #f7f9fc;
-    --fisc-gray-200: #e4e8f0;
-    --fisc-gray-300: #cfd6e5;
+    --fisc-gray-100: #f7f9fc8c;
+    --fisc-gray-200: #e4e8f081;
+    --fisc-gray-300: #7f8187c5;
     --fisc-gray-600: #6b7280;
     --fisc-gray-900: #1f2937;
 }
@@ -36,7 +37,7 @@ a.brand-link{
     transition: width .38s ease;
     overflow-x: hidden;
     position: relative;
-    font-weight: 400;
+    font-weight: 500;
 }
 
 
@@ -81,10 +82,12 @@ a.brand-link{
     background: rgba(255,255,255,0.09) !important;
     color: var(--fisc-white) !important;
     border-left-color: var(--fisc-gray-600);
+    font-weight: 800;
 }
 
 .sidebar-fiscalizer .nav-link:hover .nav-icon {
     opacity: 1;
+    padding: 4px;
     transform: translateX(4px);
     color: var(--fisc-blue-light);
 }
@@ -152,14 +155,33 @@ a.brand-link{
 /* ========================== */
 
 .btn-primary, .btn-fiscalizer {
-    background: var(--fisc-blue);
-    border-color: var(--fisc-blue-dark);
+    background: var(--fisc-orange);
+    color: #ffffff;
+    width: 100px;
+    filter: brightness(120%);
+    border: 2px solid black;
 }
 
 .btn-primary:hover, .btn-fiscalizer:hover {
-    background: var(--fisc-blue-dark);
-    border-color: var(--fisc-blue-deep);
+    background: var(--fisc-white);
+    color: var(--fisc-orange);
+    width: 100px;
+
 }
+
+#tr-submit.btn-primary {
+    background: #007bff;
+    border-color: #007bff;
+}
+
+#tr-submit.btn-primary:hover,
+#tr-submit.btn-primary:focus {
+    background: #007bff;
+    border-color: #007bff;
+}
+
+#tr-submit { cursor: pointer; }
+#tr-submit:disabled { cursor: default; }
 
 .btn-outline-primary {
     color: var(--fisc-blue);
@@ -330,6 +352,8 @@ body.sidebar-collapse .main-header {
     background: #f7f9fc;
     min-height: 100vh;
     padding-bottom: 0px;
+    box-sizing: border-box;
+    overflow-x: hidden;
 }
 /* =========================================================
    📱 SIDEBAR MOBILE GOVBR FISCALIZER

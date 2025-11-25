@@ -5,6 +5,10 @@
 
 // Core do Laravel (bootstrap, CSRF, Axios se quiser)
 import './bootstrap';
+import '@hotwired/turbo';
+import { Application } from '@hotwired/stimulus';
+const Stimulus = Application.start();
+window.Stimulus = Stimulus;
 
 // 🔹 Dependências globais
 
@@ -34,7 +38,7 @@ import { bootFiscalizerAutocomplete } from './modules/fiscalizerAutocomplete';
 // =======================
 // ✨ Inicialização global
 // =======================
-document.addEventListener('DOMContentLoaded', () => {
+const initApp = () => {
   setupToastrDefaults();
   applyMasksDelegation();
   wireCepAutoFill();
@@ -208,13 +212,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   try {
     if (window.$ && $.fn && $.fn.dataTable) {
+      const langUrl = window.DataTablesLangUrl || '/js/pt-BR.json';
       $.extend(true, $.fn.dataTable.defaults, {
         paging: true,
         pageLength: 10,
         lengthChange: true,
         ordering: true,
         searching: false,
-        language: { url: '/js/pt-BR.json' },
+        language: { url: langUrl },
         dom: 't<"bottom"p>',
         responsive: true
       });
@@ -315,7 +320,9 @@ document.addEventListener('DOMContentLoaded', () => {
   } catch (e) {
     console.warn('[Echo] subscribe falhou:', e);
   }
-});
+};
+document.addEventListener('DOMContentLoaded', initApp);
+document.addEventListener('turbo:load', initApp);
 document.addEventListener("DOMContentLoaded", () => {
     const toggle = document.getElementById("sidebarToggle");
     toggle?.addEventListener("click", () => {

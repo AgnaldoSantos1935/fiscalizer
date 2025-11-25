@@ -43,7 +43,7 @@
                 </div>
               @endif
             </div>
-            
+
             <div class="col-sm-6 col-md-4">
               @if($canProjetos)
                 <a href="{{ route('projetos.index') }}" class="text-decoration-none">
@@ -59,7 +59,7 @@
                 </div>
               @endif
             </div>
-            
+
             <div class="col-sm-6 col-md-4">
               @if($canMedicoes)
                 <a href="{{ route('medicoes.index') }}" class="text-decoration-none">
@@ -75,7 +75,7 @@
                 </div>
               @endif
             </div>
-            
+
             <div class="col-sm-6 col-md-4">
               @if($canMapas)
                 <a href="{{ route('mapas.escolas') }}" class="text-decoration-none">
@@ -91,7 +91,7 @@
                 </div>
               @endif
             </div>
-            
+
             <div class="col-sm-6 col-md-4">
               <a href="{{ route('user_profiles.me') }}" class="text-decoration-none">
                 <div class="ui-card p-3 h-100 hover-shadow enabled">
@@ -273,7 +273,7 @@
               </div>
             </div>
           </div>
-          <table class="table table-hover mb-0">
+          <table class="table table-hover dt-skip mb-0">
             <thead class="table-light">
               <tr>
                 <th class="sortable" data-sort="id" data-type="number">ID <span class="sort-ind"></span></th>
@@ -345,7 +345,7 @@
               </div>
             </div>
           </div>
-          <table class="table table-hover mb-0">
+          <table class="table table-hover dt-skip mb-0">
             <thead class="table-light">
               <tr>
                 <th class="sortable" data-sort="id" data-type="number">ID <span class="sort-ind"></span></th>
@@ -409,7 +409,7 @@
               </div>
             </div>
           </div>
-          <table class="table table-hover mb-0">
+          <table class="table table-hover dt-skip mb-0">
             <thead class="table-light">
               <tr>
                 <th class="sortable" data-sort="id" data-type="number">ID <span class="sort-ind"></span></th>
@@ -482,7 +482,7 @@
       </h6>
     </div>
     <div class="card-body bg-white p-0">
-      <table class="table table-hover mb-0">
+      <table class="table table-hover dt-skip mb-0">
         <thead class="table-light">
           <tr>
             <th>Nº</th>
@@ -589,7 +589,7 @@ document.addEventListener("DOMContentLoaded", function() {
     };
 
     new Chart(ctxTopProjetos, chartConfig);
-    
+
     // ====== Utilitários: Filtros, Contadores e Ordenação ======
     function updateCount(rows, countEl) {
       if (!countEl) return;

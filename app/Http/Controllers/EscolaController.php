@@ -50,7 +50,11 @@ class EscolaController extends Controller
             $query->where('codigo_inep', 'like', '%' . trim((string) $request->codigo) . '%');
         }
         if ($request->filled('nome')) {
-            $query->where('escola', 'like', '%' . trim((string) $request->nome) . '%');
+            $nome = '%' . trim((string) $request->nome) . '%';
+            $query->where(function ($q) use ($nome) {
+                $q->where('nome', 'like', $nome)
+                  ->orWhere('escola', 'like', $nome);
+            });
         }
         if ($request->filled('municipio')) {
             $query->where('municipio', 'like', '%' . trim((string) $request->municipio) . '%');
@@ -60,8 +64,8 @@ class EscolaController extends Controller
         }
 
         $escolas = $query
-            ->select('id_escola', 'codigo_inep', 'escola', 'municipio', 'uf', 'dre')
-            ->orderBy('escola')
+            ->selectRaw('id as id_escola, codigo_inep, COALESCE(nome, escola) as escola, municipio, uf, dre')
+            ->orderByRaw('COALESCE(nome, escola) asc')
             ->limit(500)
             ->get();
 

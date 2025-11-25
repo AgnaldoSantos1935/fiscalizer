@@ -45,6 +45,7 @@ use App\Http\Controllers\TermoReferenciaController;
 use App\Http\Controllers\UserProfileController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 
 // Página inicial (redireciona para login ou dashboard)
 
@@ -257,6 +258,15 @@ Route::get('relatorios', [RelatorioController::class, 'index'])->name('relatorio
 Route::get('boletins/{id}/pdf', [BoletimMedicaoController::class, 'exportPdf'])->name('boletins.pdf');
 
 // FIM DE BOLETIM DE MEDIÇÃO
+
+Route::get('hotwire', function () {
+    return view('hotwire.test');
+})->name('hotwire.test');
+
+Route::get('hotwire/partial', function (Request $request) {
+    $count = (int) $request->query('count', 1);
+    return response()->view('hotwire.partial', ['count' => $count]);
+})->name('hotwire.partial');
 // DASHBOARD PROJETOS
 Route::get('/dashboard/projetos', [DashboardController::class, 'index'])->name('dashboard.projetos');
 Route::get('dashboard/antifraude', [AntifraudeDashboardController::class, 'index'])

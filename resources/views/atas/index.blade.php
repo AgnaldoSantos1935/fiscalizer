@@ -25,5 +25,7 @@
   </table>
   <div class="mt-3"><a href="{{ route('atas.index') }}" class="btn btn-outline-secondary">Atualizar</a></div>
   <div class="mt-2 text-muted small">Vigência automática atualiza diariamente.</div>
+
+
 </div>
 @endsection

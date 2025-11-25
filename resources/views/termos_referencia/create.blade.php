@@ -24,7 +24,7 @@
 {{-- ======================================================= --}}
 {{--  ABAS --}}
 {{-- ======================================================= --}}
-<ul class="nav nav-tabs tr-nav large-tabs" role="tablist">
+<ul class="nav nav-pills tr-nav" role="tablist">
     <li class="nav-item"><a class="nav-link active" data-tab="geral">Geral</a></li>
     <li class="nav-item"><a class="nav-link" data-tab="especificacao">Especificação</a></li>
     <li class="nav-item"><a class="nav-link" data-tab="habilitacao">Habilitação</a></li>
@@ -45,7 +45,7 @@
     <div class="row g-3">
         <div class="col-md-6">
             <label class="form-label">Tipo de TR</label>
-            <select name="tipo_tr" class="form-select">
+            <select name="tipo_tr" class="form-select" required>
                 <option value="">Selecione...</option>
                 <option value="bens_comuns">Bens Comuns</option>
                 <option value="servicos_sem_mao_de_obra_sem_prorrogacao">Serviços sem Mão-de-Obra / sem Prorrogação</option>
@@ -55,7 +55,7 @@
 
         <div class="col-md-3">
             <label class="form-label">PAE nº</label>
-            <input type="text" name="pae_numero" class="form-control">
+            <input type="text" name="pae_numero" class="form-control" required>
         </div>
 
         <div class="col-md-3">
@@ -67,7 +67,7 @@
     <div class="row g-3 mt-2">
         <div class="col-md-3">
             <label class="form-label">Data de Emissão</label>
-            <input type="date" name="data_emissao" class="form-control">
+            <input type="date" name="data_emissao" class="form-control" required>
         </div>
 
         <div class="col-md-3">
@@ -97,22 +97,22 @@
 
     <div class="mb-3">
         <label class="form-label fw-semibold">Definição do Objeto</label>
-        <textarea name="objeto" class="form-control tr-editor" rows="6"></textarea>
+        <textarea name="objeto" class="form-control tr-editor" rows="6" required></textarea>
     </div>
 
     <div class="mb-3">
         <label class="form-label fw-semibold">Fundamentação da Contratação</label>
-        <textarea name="justificativa" class="form-control tr-editor" rows="6"></textarea>
+        <textarea name="justificativa" class="form-control tr-editor" rows="6" required></textarea>
     </div>
 
     <div class="mb-3">
         <label class="form-label fw-semibold">Fundamentação Legal</label>
-        <textarea name="fundamentacao_legal_texto" class="form-control tr-editor" rows="4"></textarea>
+        <textarea name="fundamentacao_legal_texto" class="form-control tr-editor" rows="4" required></textarea>
     </div>
 
     <div class="mb-3">
         <label class="form-label fw-semibold">Descrição da Solução</label>
-        <textarea name="escopo" class="form-control tr-editor" rows="6"></textarea>
+        <textarea name="escopo" class="form-control tr-editor" rows="6" required></textarea>
     </div>
 
 </div>
@@ -142,12 +142,12 @@
     <div class="mb-4">
         <h6 class="mb-2 text-primary fw-semibold">7.2 Habilitação Técnica</h6>
         <div class="form-check form-check-inline">
-            <input type="radio" name="habilitacao_tecnica_exigida" value="1" class="form-check-input" id="htSim">
+            <input type="radio" name="habilitacao_tecnica_exigida" value="1" class="form-check-input" id="htSim" required>
             <label for="htSim" class="form-check-label">Sim</label>
         </div>
 
         <div class="form-check form-check-inline">
-            <input type="radio" name="habilitacao_tecnica_exigida" value="0" class="form-check-input" id="htNao">
+            <input type="radio" name="habilitacao_tecnica_exigida" value="0" class="form-check-input" id="htNao" required>
             <label for="htNao" class="form-check-label">Não</label>
         </div>
 
@@ -179,7 +179,7 @@
 
         <div class="col-md-4">
             <label class="form-label fw-semibold">Status</label>
-            <select name="status" class="form-select">
+            <select name="status" class="form-select" required>
                 <option value="rascunho">Rascunho</option>
                 <option value="em_analise">Em análise</option>
                 <option value="finalizado">Finalizado</option>
@@ -235,11 +235,11 @@
     <div class="mb-3">
         <label class="form-label fw-semibold">Forma de Entrega</label>
         <div class="form-check">
-            <input type="radio" name="entrega_forma" value="total" class="form-check-input" id="efTotal">
+            <input type="radio" name="entrega_forma" value="total" class="form-check-input" id="efTotal" required>
             <label for="efTotal" class="form-check-label">Entrega Total</label>
         </div>
         <div class="form-check">
-            <input type="radio" name="entrega_forma" value="parcelada" class="form-check-input" id="efParc">
+            <input type="radio" name="entrega_forma" value="parcelada" class="form-check-input" id="efParc" required>
             <label for="efParc" class="form-check-label">Entregas Parceladas</label>
         </div>
     </div>
@@ -256,7 +256,7 @@
 
     <div class="mb-3">
         <label class="form-label fw-semibold">Penalidades</label>
-        <textarea name="penalidades" class="form-control tr-editor" rows="6"></textarea>
+        <textarea name="penalidades" class="form-control tr-editor" rows="6" required></textarea>
     </div>
 
 </div>
@@ -272,17 +272,17 @@
     <div class="row g-3">
         <div class="col-md-4">
             <label class="form-label">Elaboração</label>
-            <input type="text" name="assin_elaboracao" class="form-control">
+            <input type="text" name="assin_elaboracao" class="form-control" required>
         </div>
 
         <div class="col-md-4">
             <label class="form-label">Supervisor</label>
-            <input type="text" name="assin_supervisor" class="form-control">
+            <input type="text" name="assin_supervisor" class="form-control" required>
         </div>
 
         <div class="col-md-4">
             <label class="form-label">Ordenador de Despesas</label>
-            <input type="text" name="assin_ordenador_despesas" class="form-control">
+            <input type="text" name="assin_ordenador_despesas" class="form-control" required>
         </div>
     </div>
 </div>
@@ -292,8 +292,8 @@
 {{-- ======================================================= --}}
 {{--  BOTÃO FINAL --}}
 {{-- ======================================================= --}}
-<div class="border-top pt-3 mt-4 text-end">
-    <button type="submit" class="btn btn-primary btn-lg px-4">
+<div id="tr-submit-area" class="border-top pt-3 mt-4 text-end d-none">
+    <button id="tr-submit" type="submit" class="btn btn-primary btn-lg px-4" disabled>
         <i class="fas fa-save me-1"></i>Salvar Termo
     </button>
 </div>
@@ -302,3 +302,66 @@
 </div>
 
 @endsection
+
+@push('scripts')
+<script>
+(function(){
+  const form = document.querySelector('form[action*="termos-referencia"]');
+  if(!form) return;
+  const submitArea = document.getElementById('tr-submit-area');
+  const submitBtn = document.getElementById('tr-submit');
+  const requiredSelectors = [
+    '[name="tipo_tr"]',
+    '[name="pae_numero"]',
+    '[name="data_emissao"]',
+    '[name="objeto"]',
+    '[name="justificativa"]',
+    '[name="fundamentacao_legal_texto"]',
+    '[name="escopo"]',
+    '[name="status"]',
+    '[name="penalidades"]',
+    '[name="assin_elaboracao"]',
+    '[name="assin_supervisor"]',
+    '[name="assin_ordenador_despesas"]'
+  ];
+  const radiosHT = Array.from(document.querySelectorAll('input[name="habilitacao_tecnica_exigida"]'));
+  const radiosEntrega = Array.from(document.querySelectorAll('input[name="entrega_forma"]'));
+  const htQual = document.querySelector('[name="habilitacao_tecnica_qual"]');
+  const htWrap = document.getElementById('habilitacao_tecnica_campos');
+  const itensBody = document.getElementById('itens-body');
+  function hasRadioChecked(list){ return list.some(r => r.checked); }
+  function isFilled(el){ return !!(el && String(el.value || '').trim()); }
+  function validate(){
+    let ok = true;
+    requiredSelectors.forEach(sel => {
+      const el = document.querySelector(sel);
+      if(!el) return;
+      const filled = isFilled(el);
+      el.classList.toggle('is-invalid', !filled);
+      if(!filled) ok = false;
+    });
+    const htChecked = hasRadioChecked(radiosHT);
+    if(!htChecked) ok = false;
+    if (htChecked && (document.getElementById('htSim').checked)) {
+      htWrap?.classList.remove('d-none');
+      const need = isFilled(htQual);
+      htQual?.classList.toggle('is-invalid', !need);
+      if(!need) ok = false;
+    } else {
+      htWrap?.classList.add('d-none');
+      htQual?.classList.remove('is-invalid');
+    }
+    const entregaChecked = hasRadioChecked(radiosEntrega);
+    if(!entregaChecked) ok = false;
+    const hasItens = itensBody && itensBody.children.length > 0;
+    if(!hasItens) ok = false;
+    submitArea.classList.toggle('d-none', !ok);
+    submitBtn.disabled = !ok;
+  }
+  form.addEventListener('input', validate);
+  form.addEventListener('change', validate);
+  document.addEventListener('turbo:load', validate);
+  document.addEventListener('DOMContentLoaded', validate);
+})();
+</script>
+@endpush
