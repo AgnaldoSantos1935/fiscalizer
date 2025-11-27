@@ -126,6 +126,17 @@ class AuthServiceProvider extends ServiceProvider
         // Dashboard IA / Base de dados
         Gate::define('view-ia-dashboard', fn ($user) => $allowFiscal($user));
 
+        // Inventário de Unidades (apenas usuários lotados em coordenações regionais)
+        Gate::define('inventario.unidades.gerenciar', function ($user) {
+            try {
+                $profile = \App\Models\UserProfile::where('user_id', $user->id)->first();
+                $lotacao = trim(strtolower($profile->lotacao ?? ''));
+                return $lotacao === 'coordenação regional' || str_contains($lotacao, 'regional');
+            } catch (\Throwable $e) {
+                return false;
+            }
+        });
+
         // ===== Gates dinâmicos baseados em Actions (RBAC) =====
         // Carrega os códigos de actions e define gates que utilizam User->hasAction()
         try {
@@ -148,7 +159,7 @@ class AuthServiceProvider extends ServiceProvider
                 });
             }
         } catch (\Throwable $e) {
-            
+
         }
 
     }

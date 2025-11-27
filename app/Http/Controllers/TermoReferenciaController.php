@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\TermoReferencia;
+use App\Services\NormasRagService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
@@ -54,7 +55,20 @@ class TermoReferenciaController extends Controller
             'assin_elaboracao' => 'nullable|string|max:200',
             'assin_supervisor' => 'nullable|string|max:200',
             'assin_ordenador_despesas' => 'nullable|string|max:200',
+            'auto_fundamentacao' => 'nullable|boolean',
         ]);
+
+        if (!empty($data['auto_fundamentacao'])) {
+            $rag = app(NormasRagService::class);
+            $base = trim(($data['objeto'] ?? '') . ' ' . ($data['especificacao_produto'] ?? ''));
+            if ($base !== '') {
+                $f = $rag->justificar($base, ['idioma' => 'pt-BR']);
+                $cit = collect($f['trechos'] ?? [])->map(function($t){
+                    return ($t['fonte'] ?? '') . ($t['referencia'] ? ', ' . $t['referencia'] : '');
+                })->filter()->implode('; ');
+                $data['fundamentacao_legal_texto'] = trim(($data['fundamentacao_legal_texto'] ?? '') . ' ' . ($f['conclusao'] ?? '') . ($cit ? ' — ' . $cit : ''));
+            }
+        }
 
         $tr = TermoReferencia::create($data);
 
@@ -64,7 +78,12 @@ class TermoReferenciaController extends Controller
 
     public function show(TermoReferencia $tr)
     {
-        return view('termos_referencia.show', compact('tr'));
+        $rag = app(NormasRagService::class);
+        $sugs = [];
+        foreach ($tr->itens as $it) {
+            $sugs[$it->id] = $rag->buscarFundamentacao((string) $it->descricao, 3, ['idioma' => 'pt-BR']);
+        }
+        return view('termos_referencia.show', compact('tr','sugs'));
     }
 
     public function edit(TermoReferencia $tr)
@@ -108,7 +127,20 @@ class TermoReferenciaController extends Controller
             'assin_elaboracao' => 'nullable|string|max:200',
             'assin_supervisor' => 'nullable|string|max:200',
             'assin_ordenador_despesas' => 'nullable|string|max:200',
+            'auto_fundamentacao' => 'nullable|boolean',
         ]);
+
+        if (!empty($data['auto_fundamentacao'])) {
+            $rag = app(NormasRagService::class);
+            $base = trim(($data['objeto'] ?? '') . ' ' . ($data['especificacao_produto'] ?? ''));
+            if ($base !== '') {
+                $f = $rag->justificar($base, ['idioma' => 'pt-BR']);
+                $cit = collect($f['trechos'] ?? [])->map(function($t){
+                    return ($t['fonte'] ?? '') . ($t['referencia'] ? ', ' . $t['referencia'] : '');
+                })->filter()->implode('; ');
+                $data['fundamentacao_legal_texto'] = trim(($data['fundamentacao_legal_texto'] ?? '') . ' ' . ($f['conclusao'] ?? '') . ($cit ? ' — ' . $cit : ''));
+            }
+        }
 
         $tr->update($data);
 

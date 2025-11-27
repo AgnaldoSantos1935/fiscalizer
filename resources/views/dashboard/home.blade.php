@@ -232,6 +232,62 @@
       </div>
 </div>
 
+  <div class="row g-3 mb-4">
+    <div class="col-lg-8">
+      <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+          <h5 class="mb-0 text-secondary fw-semibold">
+            <i class="fas fa-map-marked-alt text-warning me-2"></i>
+            Mapa de Escolas Equipadas
+          </h5>
+          <small class="text-muted" id="mapEscolasInfo">Carregando…</small>
+        </div>
+        <div class="card-body p-0">
+          <div id="dashboardEscolasMap" style="height: 420px"></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card shadow-sm border-0 rounded-4 mb-3">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+          <h6 class="mb-0 text-secondary fw-semibold">
+            <i class="fas fa-lightbulb text-primary me-2"></i>
+            Sugestões Normativas
+          </h6>
+        </div>
+        <div class="card-body">
+          @php $ns = $normasSugestoes ?? []; @endphp
+          @if(is_array($ns) && !empty($ns))
+            <div class="mb-2 small text-muted">{{ $ns['afirmacao'] ?? '' }}</div>
+            <ul class="list-unstyled mb-2">
+              @foreach(($ns['trechos'] ?? []) as $tr)
+                <li class="mb-2">
+                  <div class="fw-semibold">{{ $tr['fonte'] ?? '' }} — {{ $tr['referencia'] ?? '' }}</div>
+                  <div class="text-muted small">{{ $tr['texto'] ?? ($tr['trecho_texto'] ?? '') }}</div>
+                </li>
+              @endforeach
+            </ul>
+            <div class="alert alert-info p-2 mb-0">{{ $ns['conclusao'] ?? '' }}</div>
+          @else
+            <div class="text-muted">Sem sugestões normativas no momento.</div>
+          @endif
+        </div>
+      </div>
+
+      <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+          <h6 class="mb-0 text-secondary fw-semibold">
+            <i class="fas fa-network-wired text-success me-2"></i>
+            Top escolas por conexões
+          </h6>
+        </div>
+        <div class="card-body">
+          <ul id="topEscolasList" class="list-group list-group-flush"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- 🔹 Modais de detalhes -->
   @if($canContratos)
   <div class="modal fade" id="modalContratos" tabindex="-1" aria-labelledby="modalContratosLabel" aria-hidden="true">
@@ -713,9 +769,51 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   });
 </script>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  const el = document.getElementById('dashboardEscolasMap');
+  if (!el) return;
+  const info = document.getElementById('mapEscolasInfo');
+  const map = L.map('dashboardEscolasMap').setView([-3.5, -52.0], 5.8);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(map);
+  let layer;
+  fetch('{{ route('api.escolas') }}', { headers: { 'Accept': 'application/json' } })
+    .then(r => r.json())
+    .then(fc => {
+      const feats = (fc && fc.features) ? fc.features : [];
+      if (info) info.textContent = feats.length + ' escolas';
+      const top = feats
+        .map(f => ({ nome: f.properties?.nome || '-', hosts: Number(f.properties?.hosts_count || 0) }))
+        .sort((a,b) => b.hosts - a.hosts)
+        .slice(0, 10);
+      const list = document.getElementById('topEscolasList');
+      if (list) {
+        list.innerHTML = top.map(t => `<li class="list-group-item d-flex justify-content-between align-items-center"><span>${t.nome}</span><span class="badge bg-success">${t.hosts}</span></li>`).join('');
+      }
+      layer = L.geoJSON(fc, {
+        pointToLayer: (feature, latlng) => {
+          const hc = Number(feature.properties?.hosts_count || 0);
+          if (hc > 0) {
+            const icon = L.divIcon({ className: 'pulse-marker', html: '<span class="pulse-dot"></span>' });
+            return L.marker(latlng, { icon }).bindPopup(`<strong>${feature.properties.nome}</strong><br>Conexões: ${hc}`);
+          }
+          return L.circleMarker(latlng, { radius: 5, color: '#0d6efd', weight: 1, fillColor: '#0d6efd', fillOpacity: 0.9 })
+            .bindPopup(`<strong>${feature.properties.nome}</strong>`);
+        }
+      }).addTo(map);
+      try {
+        const b = layer.getBounds();
+        if (b.isValid()) map.fitBounds(b.pad(0.1));
+      } catch(e) {}
+    })
+    .catch(() => { if (info) info.textContent = 'Erro ao carregar'; });
+});
+</script>
 @endsection
 
 @section('css')
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <style>
   /* Voltar às cores padrão Bootstrap, removendo o cinza forçado */
   .ui-card.enabled { background-color: #ffffff; border: 1px solid #dee2e6; }
@@ -727,5 +825,8 @@ document.addEventListener("DOMContentLoaded", function() {
   .card.metric.disabled { background-color: #ffffff; color: #6c757d; border: 1px solid #dee2e6; }
   thead th.sortable { cursor: pointer; user-select: none; }
   thead th .sort-ind { font-size: 0.8em; color: #6c757d; margin-left: 4px; }
+  .pulse-marker { position: relative; width: 18px; height: 18px; }
+  .pulse-dot { width: 8px; height: 8px; background: #28a745; border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); box-shadow: 0 0 0 rgba(40,167,69, 0.7); animation: pulse 2s infinite; }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(40,167,69, 0.7); } 70% { box-shadow: 0 0 0 12px rgba(40,167,69, 0); } 100% { box-shadow: 0 0 0 0 rgba(40,167,69, 0); } }
 </style>
 @endsection

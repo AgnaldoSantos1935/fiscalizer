@@ -310,8 +310,8 @@ return [
             'text' => 'Contratos',
             'icon' => 'fas fa-file-contract',
             'submenu' => [
-                [ 'text' => 'Listar Contratos', 'route' => 'contratos.index' ],
-                [ 'text' => 'Novo Contrato', 'route' => 'contratos.create' ],
+                ['text' => 'Listar Contratos', 'route' => 'contratos.index'],
+                ['text' => 'Novo Contrato', 'route' => 'contratos.create'],
             ],
         ],
 
@@ -319,8 +319,8 @@ return [
             'text' => 'Medição',
             'icon' => 'fas fa-calculator',
             'submenu' => [
-                [ 'text' => 'Medições', 'route' => 'medicoes.index' ],
-                [ 'text' => 'Boletins de Medição', 'route' => 'boletins.index' ],
+                ['text' => 'Medições', 'route' => 'medicoes.index'],
+                ['text' => 'Boletins de Medição', 'route' => 'boletins.index'],
             ],
         ],
 
@@ -328,13 +328,26 @@ return [
             'text' => 'Monitoramento',
             'icon' => 'fas fa-signal',
             'submenu' => [
-                [ 'text' => 'Infraestrutura', 'route' => 'monitoramentos.index' ],
-                [ 'text' => 'Dashboard', 'route' => 'monitoramentos.dashboard2' ],
-                [ 'text' => 'Heatline', 'route' => 'monitoramentos.heatline' ],
-                [ 'text' => 'Matriz', 'route' => 'monitoramentos.matrix' ],
-                [ 'text' => 'Hosts', 'route' => 'hosts.index', 'can' => 'view-index-host' ],
-                [ 'text' => 'Dashboard Conexões', 'route' => 'host_testes.dashboard' ],
+                ['text' => 'Infraestrutura', 'route' => 'monitoramentos.index'],
+                ['text' => 'Dashboard', 'route' => 'monitoramentos.dashboard2'],
+                ['text' => 'Heatline', 'route' => 'monitoramentos.heatline'],
+                ['text' => 'Matriz', 'route' => 'monitoramentos.matrix'],
+                ['text' => 'Hosts', 'route' => 'hosts.index', 'can' => 'view-index-host'],
+                ['text' => 'Dashboard Conexões', 'route' => 'host_testes.dashboard'],
+                [
+                    'text' => 'Monitoramento dos Agentes',
+                    'route' => 'inventario.monitoramento',
+                    'icon' => 'fas fa-server',
+                    'can' => 'ver-inventario',
+                ],
+                [
+                    'text' => 'Inventário Regional',
+                    'route' => 'inventario.unidades.select',
+                    'icon' => 'fas fa-warehouse',
+                    'can' => 'inventario.unidades.gerenciar',
+                ],
             ],
+
         ],
 
 
@@ -342,9 +355,9 @@ return [
             'text' => 'Cadastros',
             'icon' => 'fas fa-address-book',
             'submenu' => [
-                [ 'text' => 'Empresas', 'route' => 'empresas.index' ],
-                [ 'text' => 'Escolas', 'route' => 'escolas.index', 'can' => 'view-escolas' ],
-                [ 'text' => 'DREs', 'route' => 'dres.index' ],
+                ['text' => 'Empresas', 'route' => 'empresas.index'],
+                ['text' => 'Escolas', 'route' => 'escolas.index', 'can' => 'view-escolas'],
+                ['text' => 'DREs', 'route' => 'dres.index'],
             ],
         ],
 
@@ -352,9 +365,9 @@ return [
             'text' => 'Contratações',
             'icon' => 'fas fa-clipboard-list',
             'submenu' => [
-                [ 'text' => 'Painel', 'route' => 'contratacoes.index' ],
-                [ 'text' => 'Termos de Referência', 'route' => 'contratacoes.termos-referencia.index' ],
-                [ 'text' => 'Novo TR', 'route' => 'contratacoes.termos-referencia.create' ],
+                ['text' => 'Painel', 'route' => 'contratacoes.index'],
+                ['text' => 'Termos de Referência', 'route' => 'contratacoes.termos-referencia.index'],
+                ['text' => 'Novo TR', 'route' => 'contratacoes.termos-referencia.create'],
             ],
         ],
 
@@ -363,9 +376,9 @@ return [
             'text' => 'Projetos',
             'icon' => 'fas fa-sitemap',
             'submenu' => [
-                [ 'text' => 'Painel de Projetos', 'route' => 'dashboard.projetos', 'can' => 'view-index-projetos_soft' ],
-                [ 'text' => 'Listar Projetos', 'route' => 'projetos.index', 'can' => 'view-index-projetos_soft' ],
-                [ 'text' => 'Novo Projeto', 'route' => 'projetos.create', 'can' => 'view-index-projetos_soft' ],
+                ['text' => 'Painel de Projetos', 'route' => 'dashboard.projetos', 'can' => 'view-index-projetos_soft'],
+                ['text' => 'Listar Projetos', 'route' => 'projetos.index', 'can' => 'view-index-projetos_soft'],
+                ['text' => 'Novo Projeto', 'route' => 'projetos.create', 'can' => 'view-index-projetos_soft'],
             ],
         ],
 
@@ -373,8 +386,8 @@ return [
             'text' => 'Relatórios',
             'icon' => 'fas fa-file-alt',
             'submenu' => [
-                [ 'text' => 'Listar Relatórios', 'route' => 'relatorios.index', 'can' => 'view-relatorios' ],
-                [ 'text' => 'Gerar Relatório', 'route' => 'relatorios.gerar', 'can' => 'view-relatorios' ],
+                ['text' => 'Listar Relatórios', 'route' => 'relatorios.index', 'can' => 'view-relatorios'],
+                ['text' => 'Gerar Relatório', 'route' => 'relatorios.gerar', 'can' => 'view-relatorios'],
             ],
         ],
 
@@ -382,10 +395,15 @@ return [
             'text' => 'Administração',
             'icon' => 'fas fa-users-cog',
             'submenu' => [
-                [ 'text' => 'Usuários', 'route' => 'usuarios.index' ],
-                [ 'text' => 'Situações de Contrato', 'route' => 'situacoes.index' ],
-                [ 'text' => 'Permissões (RBAC)', 'route' => 'rbac.roles_actions.index', 'can' => 'system.admin' ],
+                ['text' => 'Usuários', 'route' => 'usuarios.index'],
+                ['text' => 'Situações de Contrato', 'route' => 'situacoes.index'],
+                ['text' => 'Permissões (RBAC)', 'route' => 'rbac.roles_actions.index', 'can' => 'system.admin'],
             ],
+        ],
+        [
+            'text' => 'Testando Scrap',
+            'route' => 'scrap.test',
+            'icon' => 'fas fa-cloud-download-alt',
         ],
     ],
 

@@ -109,6 +109,10 @@
         <label class="form-label fw-semibold">Fundamentação Legal</label>
         <textarea name="fundamentacao_legal_texto" class="form-control tr-editor" rows="4" required></textarea>
     </div>
+    <div class="form-check mb-3">
+        <input type="checkbox" class="form-check-input" id="autoFund" name="auto_fundamentacao" value="1">
+        <label for="autoFund" class="form-check-label">Gerar fundamentação com normas indexadas</label>
+    </div>
 
     <div class="mb-3">
         <label class="form-label fw-semibold">Descrição da Solução</label>

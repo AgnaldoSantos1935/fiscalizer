@@ -17,6 +17,7 @@ class Host extends Model
         'porta',
         'status',
         'local',
+        'unidade_id',
         'itemcontratado',
 
         // ---- NOVOS CAMPOS PARA MONITORAMENTO ----
@@ -31,6 +32,7 @@ class Host extends Model
     protected $casts = [
         'porta' => 'integer',
         'local' => 'integer',
+        'unidade_id' => 'integer',
         'itemcontratado' => 'integer',
         'config_extra' => 'array',   // <-- importante!
     ];
@@ -81,3 +83,7 @@ class Host extends Model
         return $this->hasMany(Indisponibilidade::class, 'host_id');
     }
 }
+    public function unidade()
+    {
+        return $this->belongsTo(Unidade::class);
+    }

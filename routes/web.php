@@ -46,6 +46,8 @@ use App\Http\Controllers\UserProfileController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use App\Http\Controllers\InventarioController as InvController;
+use App\Http\Controllers\TelemetriaDashboardController;
 
 // Página inicial (redireciona para login ou dashboard)
 
@@ -619,4 +621,56 @@ Route::middleware(['auth', 'can.action:system.admin'])
         Route::post('/import', [\App\Http\Controllers\NotificationEventController::class, 'importFromConfig'])->name('import');
         Route::post('/sync', [\App\Http\Controllers\NotificationEventController::class, 'syncActions'])->name('sync');
         Route::get('/users/search', [\App\Http\Controllers\NotificationEventController::class, 'searchUsers'])->name('users.search');
+
+
     });
+
+// Inventário por Unidade (somente perfil regional)
+Route::middleware(['auth','can:inventario.unidades.gerenciar'])->group(function () {
+    Route::get('/inventario/unidades', [\App\Http\Controllers\InventarioController::class, 'selecionarUnidade'])
+        ->name('inventario.unidades.select');
+    Route::post('/inventario/dres/{dre}/acessar', [\App\Http\Controllers\InventarioController::class, 'acessarPorDre'])
+        ->name('inventario.dres.acessar');
+    Route::get('/unidades/{unidade}/inventario', [\App\Http\Controllers\InventarioController::class, 'index'])
+        ->name('unidades.inventario');
+    Route::post('/unidades/{unidade}/inventario', [\App\Http\Controllers\InventarioController::class, 'store'])
+        ->name('unidades.inventario.store');
+    Route::post('/equipamentos/{equipamento}/quebra', [\App\Http\Controllers\InventarioController::class, 'reportarQuebra'])
+        ->name('equipamentos.quebra');
+    Route::post('/unidades/{unidade}/reposicoes', [\App\Http\Controllers\InventarioController::class, 'solicitarReposicao'])
+        ->name('unidades.reposicoes.solicitar');
+    Route::post('/unidades/{unidade}/conexoes', [\App\Http\Controllers\InventarioController::class, 'storeConexao'])
+        ->name('unidades.conexoes.store');
+    Route::get('/unidades/{unidade}/especificacoes', [\App\Http\Controllers\InventarioController::class, 'gerarEspecificacoes'])
+        ->name('unidades.especificacoes');
+});
+
+// Monitoramento dos Agentes (inventário)
+Route::get('/inventario/monitoramento', [\App\Http\Controllers\TelemetriaDashboardController::class, 'index'])
+    ->middleware(['auth','can:ver-inventario'])
+    ->name('inventario.monitoramento');
+Route::middleware(['auth'])->group(function () {
+    Route::post('unidades/{unidade}/normas/upload', [InvController::class, 'uploadNorma'])
+        ->name('unidades.normas.upload');
+
+    Route::post('ocorrencias/{ocorrencia}/cit/receber', [InvController::class, 'citReceberOcorrencia'])
+        ->middleware(['auth','role:CIT,Administrador'])
+        ->name('ocorrencias.cit.receber');
+    Route::post('ocorrencias/{ocorrencia}/cit/avaliar', [InvController::class, 'citAvaliarOcorrencia'])
+        ->middleware(['auth','role:CIT,Administrador'])
+        ->name('ocorrencias.cit.avaliar');
+
+    Route::post('reposicoes/{reposicao}/detec/aprovar', [InvController::class, 'detecAprovarReposicao'])
+        ->middleware(['auth','role:DETEC,Administrador'])
+        ->name('reposicoes.detec.aprovar');
+    Route::post('reposicoes/{reposicao}/detec/entregar', [InvController::class, 'detecRegistrarEntrega'])
+        ->middleware(['auth','role:DETEC,Administrador'])
+        ->name('reposicoes.detec.entregar');
+    Route::post('reposicoes/{reposicao}/detec/baixar/{equipamento}', [InvController::class, 'detecBaixarEquipamento'])
+        ->middleware(['auth','role:DETEC,Administrador'])
+        ->name('reposicoes.detec.baixar');
+});
+// Scrap CSV
+Route::get('scrap/test', [\App\Http\Controllers\ScrapController::class, 'index'])->name('scrap.test');
+Route::post('scrap/fetch', [\App\Http\Controllers\ScrapController::class, 'fetch'])->name('scrap.fetch');
+Route::post('scrap/swagger', [\App\Http\Controllers\ScrapController::class, 'fetchSwagger'])->name('scrap.swagger');

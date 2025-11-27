@@ -173,6 +173,7 @@ class MapaController extends Controller
         // prefixar colunas provenientes da tabela 'escolas' para evitar ambiguidade em joins
         if ($idCol) {
             $selects[] = "escolas.$idCol as id";
+            $selects[] = '(SELECT COUNT(*) FROM hosts h WHERE h.local = escolas.' . $idCol . ') as hosts_count';
         }
         if ($nomeCol) {
             $selects[] = "escolas.$nomeCol as nome";
@@ -296,6 +297,7 @@ class MapaController extends Controller
                     'municipio' => $escola->municipio,
                     'dre' => $escola->dre_nome ?? ($escola->dependencia ?? null),
                     'inep' => $escola->codigo_inep,
+                    'hosts_count' => (int) ($escola->hosts_count ?? 0),
                 ],
             ];
         });

@@ -114,6 +114,10 @@
             </div>
         </div>
         <div class="card-footer bg-white text-end">
+            <div class="form-check d-inline-block me-3 align-middle">
+                <input type="checkbox" class="form-check-input" id="autoFundEdit" name="auto_fundamentacao" value="1">
+                <label for="autoFundEdit" class="form-check-label">Gerar fundamentação com normas indexadas</label>
+            </div>
             <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> Salvar Alterações</button>
         </div>
     </form>

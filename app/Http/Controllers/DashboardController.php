@@ -147,6 +147,16 @@ class DashboardController extends Controller
                 ->get();
         }
 
+        $normasSugestoes = [];
+        try {
+            $rag = app(\App\Services\NormasRagService::class);
+            $normasSugestoes = $rag->justificar('Definir próximos passos de contratação de equipamentos e serviços de tecnologia educacional em conformidade com normas técnicas e legais', [
+                'idioma' => 'pt-BR'
+            ]);
+        } catch (\Throwable $e) {
+            $normasSugestoes = [];
+        }
+
         return view('dashboard.home', compact(
             'totalContratos',
             'totalProjetos',
@@ -162,7 +172,8 @@ class DashboardController extends Controller
             'boletinsRecentes',
             'usuario',
             'notificacoesNaoLidas',
-            'ultimasNotificacoes'
+            'ultimasNotificacoes',
+            'normasSugestoes'
         ));
     }
 

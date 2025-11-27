@@ -54,5 +54,8 @@ class DatabaseSeeder extends Seeder
 
         // Ordens de Fornecimento (gera ao menos 30 registros)
         $this->call(OrdemFornecimentoSeeder::class);
+
+        // Normas técnicas indexadas para demonstração
+        $this->call(NormaTrechoSeeder::class);
     }
 }

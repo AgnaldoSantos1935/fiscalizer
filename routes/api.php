@@ -22,3 +22,8 @@ Route::get('/monitoramentos/latencia-geral', function () {
         'series' => array_reverse($series),
     ]);
 });
+use App\Http\Controllers\Api\InventarioController;
+use App\Http\Controllers\Api\TelemetriaController;
+
+Route::post('/inventario/registrar', [InventarioController::class, 'registrar']);
+Route::post('/inventario/telemetria', [TelemetriaController::class, 'registrar']);

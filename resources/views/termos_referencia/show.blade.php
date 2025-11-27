@@ -145,6 +145,16 @@
                                             </div>
                                         </div>
                                     </form>
+                                    @if(isset($sugs[$item->id]) && count($sugs[$item->id]) > 0)
+                                    <div class="mt-2 small">
+                                        <div class="text-muted">Sugestões normativas</div>
+                                        <ul class="mb-0">
+                                            @foreach($sugs[$item->id] as $s)
+                                                <li>“{{ $s['texto'] }}” <span class="text-muted">— {{ $s['fonte'] }}{{ $s['referencia'] ? ', ' . $s['referencia'] : '' }}</span></li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                    @endif
                                 </td>
                                 <td>{{ $item->unidade ?? '—' }}</td>
                                 <td class="text-end">{{ number_format($item->quantidade, 2, ',', '.') }}</td>
