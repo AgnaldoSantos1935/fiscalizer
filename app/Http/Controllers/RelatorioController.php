@@ -36,6 +36,11 @@ class RelatorioController extends Controller
         return view('relatorios.index', compact('relatorios', 'tipo', 'busca', 'dataInicio', 'dataFim'));
     }
 
+    public function gerar(Request $request)
+    {
+        return view('relatorios.gerar');
+    }
+
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -52,16 +57,54 @@ class RelatorioController extends Controller
         return redirect()->route('relatorios.index')->with('success', 'Relatório salvo com sucesso!');
     }
 
-    public function exportExcel()
+    public function exportExcel(Request $request)
     {
-        $relatorios = Relatorio::all();
+        $tipo = $request->input('tipo');
+        $busca = $request->input('busca');
+        $dataInicio = $request->input('data_inicio');
+        $dataFim = $request->input('data_fim');
+
+        $query = Relatorio::with('user');
+
+        if ($tipo) {
+            $query->where('tipo', $tipo);
+        }
+
+        if ($busca) {
+            $query->where('titulo', 'like', "%$busca%");
+        }
+
+        if ($dataInicio && $dataFim) {
+            $query->whereBetween('created_at', [$dataInicio, $dataFim]);
+        }
+
+        $relatorios = $query->orderBy('created_at', 'desc')->get();
 
         return Excel::download(new \App\Exports\RelatoriosExport($relatorios), 'relatorios.xlsx');
     }
 
-    public function exportPdf()
+    public function exportPdf(Request $request)
     {
-        $relatorios = Relatorio::all();
+        $tipo = $request->input('tipo');
+        $busca = $request->input('busca');
+        $dataInicio = $request->input('data_inicio');
+        $dataFim = $request->input('data_fim');
+
+        $query = Relatorio::with('user');
+
+        if ($tipo) {
+            $query->where('tipo', $tipo);
+        }
+
+        if ($busca) {
+            $query->where('titulo', 'like', "%$busca%");
+        }
+
+        if ($dataInicio && $dataFim) {
+            $query->whereBetween('created_at', [$dataInicio, $dataFim]);
+        }
+
+        $relatorios = $query->orderBy('created_at', 'desc')->get();
         $pdf = PDF::loadView('relatorios.pdf', compact('relatorios'))->setPaper('a4', 'landscape');
 
         return $pdf->download('relatorios.pdf');

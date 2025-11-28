@@ -6,7 +6,7 @@
     <div style="background: #fff; padding: 20px; border-radius: 8px;">
 
         <div style="text-align: center;">
-            <img src="{{ asset('images/brasao-pa.png') }}" width="80" style="margin-bottom: 15px;">
+            <img src="{{ asset('img/logo/fiscalizer-sistema.png') }}" alt="Fiscalizer" width="80" style="margin-bottom: 15px; display:block;">
         </div>
 
         <p>Prezados,</p>

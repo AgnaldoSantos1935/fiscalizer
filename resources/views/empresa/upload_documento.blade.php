@@ -5,7 +5,7 @@
 @include('layouts.components.breadcrumbs')
 <div class="container py-5">
   <div class="text-center mb-4">
-    <img src="/images/brasao-pa.png" alt="Brasão do Pará" width="90">
+    <img src="{{ asset('img/logo/fiscalizer-sistema.svg') }}" alt="Fiscalizer" width="90" style="display:block;">
     <h3 class="mt-3 fw-bold text-primary">Envio de Documento Técnico</h3>
     <p class="text-muted">Demanda Nº {{ $demanda->id }} – {{ $demanda->titulo }}</p>
   </div>

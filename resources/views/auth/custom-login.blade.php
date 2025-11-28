@@ -20,7 +20,7 @@
                 </div>
                 <div class="card-body">
                     <div class="text-center mb-4">
-            <img src="{{ asset('img/logo/fiscalizer-sistema.png') }}" alt="Fiscalizer Sistema" style="max-height: 100px;">
+            <img src="{{ asset('img/logo/fiscalizer-sistema.svg') }}" alt="Fiscalizer Sistema" style="max-height: 100px;">
                     </div>
                     <div class="text-center mb-3">
                         <div class="brand-title">Dados de Usuário</div>

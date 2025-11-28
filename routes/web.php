@@ -46,6 +46,9 @@ use App\Http\Controllers\UserProfileController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Http;
+use Smalot\PdfParser\Parser as PdfParser;
 use App\Http\Controllers\InventarioController as InvController;
 use App\Http\Controllers\TelemetriaDashboardController;
 
@@ -54,6 +57,232 @@ use App\Http\Controllers\TelemetriaDashboardController;
 Route::get('/', function () {
     return view('site.index');
 });
+Route::get('site/imagens', function () {
+    return view('site.imagens');
+})->name('site.imagens');
+// Contato público (envio de e-mail)
+Route::post('site/contato/enviar', function (Request $request) {
+    $data = $request->validate([
+        'nome' => 'required|string|max:150',
+        'email' => 'required|email|max:255',
+        'mensagem' => 'required|string|max:5000',
+    ]);
+
+    $to = config('mail.from.address');
+    $fromName = config('mail.from.name');
+
+    Mail::raw(
+        "Mensagem de contato\n\nNome: {$data['nome']}\nEmail: {$data['email']}\n\n{$data['mensagem']}",
+        function ($m) use ($to, $fromName) {
+            $m->to($to)->subject('Contato — Fiscalizer');
+            if ($fromName && $to) {
+                $m->from($to, $fromName);
+            }
+        }
+    );
+
+    return back()->with('success', 'Mensagem enviada com sucesso!');
+})->name('site.contato.enviar');
+
+// Chatbot público (respostas básicas)
+Route::post('site/chatbot/ask', function (Request $request) {
+    $q = strtolower(trim($request->input('pergunta', '')));
+    $sources = $request->input('sources');
+    $hist = $request->session()->get('chat_hist', []);
+    $kb = $request->session()->get('chat_kb', []);
+    $chunks = $request->session()->get('chat_kb_chunks', []);
+    $embUrl = env('EMBEDDINGS_URL');
+    $reset = (bool) $request->input('reset', false);
+
+    if ($reset) {
+        $hist = [];
+        $request->session()->put('chat_hist', []);
+        return response()->json(['resposta' => null, 'hist' => [], 'ingest_count' => count($kb), 'chunks' => count($chunks), 'sugestoes' => [], 'hist_preview' => []]);
+    }
+
+    // ingestão simples de fontes públicas (HTML/texto e PDF)
+    if (is_array($sources)) {
+        foreach ($sources as $url) {
+            $u = trim((string) $url);
+            if (! $u || ! preg_match('#^https?://#i', $u)) { continue; }
+            try {
+                $resp = Http::timeout(10)->get($u);
+                if ($resp->ok()) {
+                    $ct = strtolower($resp->header('Content-Type', 'application/octet-stream'));
+                    $raw = $resp->body();
+                    $text = $raw;
+                    if (str_contains($ct, 'pdf') || preg_match('/\.pdf(\?|$)/i', $u)) {
+                        try {
+                            $parser = new PdfParser();
+                            $pdf = $parser->parseContent($raw);
+                            $text = $pdf->getText();
+                        } catch (\Throwable $e2) {
+                            $text = 'Falha ao extrair texto do PDF. Fonte: ' . $u;
+                        }
+                    } elseif (str_contains($ct, 'html')) {
+                        $text = strip_tags($raw);
+                    }
+                    $kb[$u] = [
+                        'title' => $u,
+                        'url' => $u,
+                        'text' => mb_substr($text ?? '', 0, 50000),
+                    ];
+                    $plain = (string) $kb[$u]['text'];
+                    $len = mb_strlen($plain);
+                    $size = 1500;
+                    for ($i = 0; $i < $len; $i += $size) {
+                        $chunkText = mb_substr($plain, $i, $size);
+                        $terms = collect(preg_split('/\W+/u', mb_strtolower($chunkText)))->filter(fn($t) => mb_strlen($t) > 2)->values()->all();
+                        $vec = null;
+                        if ($embUrl) {
+                            try {
+                                $er = Http::timeout(8)->post($embUrl, ['text' => $chunkText]);
+                                if ($er->ok()) { $j = $er->json(); if (is_array($j) && isset($j['vector']) && is_array($j['vector'])) { $vec = $j['vector']; } }
+                            } catch (\Throwable $e3) { }
+                        }
+                        $chunks[] = [
+                            'url' => $u,
+                            'text' => $chunkText,
+                            'terms' => $terms,
+                            'vec' => $vec,
+                        ];
+                    }
+                }
+            } catch (\Throwable $e) { }
+        }
+        $request->session()->put('chat_kb', $kb);
+        $request->session()->put('chat_kb_chunks', $chunks);
+    }
+    $base = [
+        'lei14133' => 'A Lei 14.133/2021 estrutura fases e prazos. O Fiscalizer controla etapas, prazos automáticos, registros e relatórios de conformidade.',
+        'lgpd' => 'Aplicamos RBAC, registro de acessos e mínimos necessários. Fluxos e evidências respeitam a LGPD (Lei 13.709).',
+        'lai' => 'Portal de integridade com dados públicos, trilhas e relatórios exportáveis apoiam o cumprimento da LAI.',
+        'govdigital' => 'Compatível com o Marco do Governo Digital (Lei 14.129): APIs, assinaturas eletrônicas e integração gov.br.',
+        'medicoes' => 'Medições e SLAs com evidências anexas, validações e notificações garantem execução e conformidade.',
+        'financeiro' => 'Empenhos e pagamentos com histórico e documentos vinculados para prestação de contas e auditoria.',
+        'planos' => 'Planos Essencial, Profissional e Governo. Integram conformidade, BI e integrações, conforme necessidade.',
+        'sobre' => 'Fiscalizer é uma plataforma integrada de governança de contratos com foco em transparência e conformidade.',
+        'contato' => 'Use o formulário de contato na página ou o chat para dúvidas rápidas.',
+    ];
+
+    $res = 'Sou o assistente do Fiscalizer. Pergunte sobre legislação, módulos, medições, prazos, planos ou contato.';
+    $topic = null;
+    if ($q) {
+        $greet = ['oi','olá','ola','bom dia','boa tarde','boa noite','hey','e aí','eaí'];
+        $thanks = ['obrigado','obrigada','valeu','agradecido','grato'];
+        $bye = ['tchau','até logo','até mais','flw','falou'];
+        if (in_array(trim($q), $greet)) { $res = 'Olá! Posso ajudar com dúvidas sobre contratos, medições, legislação e integrações.'; $topic = 'smalltalk'; }
+        elseif (str_contains($q, 'quem é você') || str_contains($q, 'quem é vc')) { $res = 'Sou o assistente do Fiscalizer, focado em orientar sobre governança de contratos e processos relacionados.'; $topic = 'smalltalk'; }
+        elseif (collect($thanks)->first(fn($t) => str_contains($q, $t))) { $res = 'De nada! Se precisar, posso explicar módulos, prazos ou buscar fundamentos.'; $topic = 'smalltalk'; }
+        elseif (collect($bye)->first(fn($t) => str_contains($q, $t))) { $res = 'Até mais! Quando quiser, retorno com orientações e fontes.'; $topic = 'smalltalk'; }
+        elseif (str_contains($q, '14.133') || str_contains($q, 'nova lei') || str_contains($q, 'licit')) { $res = $base['lei14133']; $topic = 'lei14133'; }
+        elseif (str_contains($q, 'lgpd') || str_contains($q, 'privacidade')) { $res = $base['lgpd']; $topic = 'lgpd'; }
+        elseif (str_contains($q, 'lai') || str_contains($q, 'acesso') || str_contains($q, 'transpar')) { $res = $base['lai']; $topic = 'lai'; }
+        elseif (str_contains($q, 'governo digital') || str_contains($q, '14.129') || str_contains($q, 'api') || str_contains($q, 'gov.br')) { $res = $base['govdigital']; $topic = 'govdigital'; }
+        elseif (str_contains($q, 'medi') || str_contains($q, 'sla') || str_contains($q, 'ordem de serviço') || str_contains($q, 'os')) { $res = $base['medicoes']; $topic = 'medicoes'; }
+        elseif (str_contains($q, 'pagamento') || str_contains($q, 'empenho')) { $res = $base['financeiro']; $topic = 'financeiro'; }
+        elseif (str_contains($q, 'plano') || str_contains($q, 'assinatura') || str_contains($q, 'contratar')) { $res = $base['planos']; $topic = 'planos'; }
+        elseif (str_contains($q, 'sobre') || str_contains($q, 'o que') || str_contains($q, 'utilidade')) { $res = $base['sobre']; $topic = 'sobre'; }
+        elseif (str_contains($q, 'contato') || str_contains($q, 'suporte')) { $res = $base['contato']; $topic = 'contato'; }
+        else {
+            $qTerms = collect(preg_split('/\W+/u', $q))->filter(fn($t) => mb_strlen($t) > 2)->map(fn($t) => mb_strtolower($t))->values()->all();
+            $useEmb = $embUrl ? true : false;
+            $qVec = null;
+            if ($useEmb) {
+                try {
+                    $qr = Http::timeout(8)->post($embUrl, ['text' => $q]);
+                    if ($qr->ok()) { $jq = $qr->json(); if (is_array($jq) && isset($jq['vector']) && is_array($jq['vector'])) { $qVec = $jq['vector']; } }
+                } catch (\Throwable $e4) { $useEmb = false; }
+            }
+            $best = null; $bestScore = -1;
+            if ($useEmb && $qVec) {
+                foreach ($chunks as $ch) {
+                    $v = $ch['vec'] ?? null; if (!is_array($v)) continue;
+                    $dot = 0; $nq = 0; $nv = 0;
+                    foreach ($qVec as $k => $x) { $y = $v[$k] ?? 0; $dot += $x * $y; $nq += $x * $x; $nv += $y * $y; }
+                    $sim = ($nq > 0 && $nv > 0) ? ($dot / (sqrt($nq) * sqrt($nv))) : 0;
+                    if ($sim > $bestScore) { $bestScore = $sim; $best = $ch; }
+                }
+            } else {
+                $N = count($chunks);
+                $df = [];
+                foreach ($chunks as $ch) {
+                    $uniq = array_values(array_unique($ch['terms'] ?? []));
+                    foreach ($uniq as $t) { $df[$t] = ($df[$t] ?? 0) + 1; }
+                }
+                $qCount = [];
+                foreach ($qTerms as $t) { $qCount[$t] = ($qCount[$t] ?? 0) + 1; }
+                $qW = [];
+                foreach ($qCount as $t => $c) { $idf = log((($N ?: 1) + 1) / (($df[$t] ?? 0) + 1)) + 1; $qW[$t] = $c * $idf; }
+                foreach ($chunks as $ch) {
+                    $cCount = [];
+                    foreach ($ch['terms'] as $t) { $cCount[$t] = ($cCount[$t] ?? 0) + 1; }
+                    $cW = [];
+                    foreach ($cCount as $t => $c) { $idf = log((($N ?: 1) + 1) / (($df[$t] ?? 0) + 1)) + 1; $cW[$t] = $c * $idf; }
+                    $dot = 0; $nq = 0; $nc = 0;
+                    foreach ($qW as $t => $wq) { $wc = $cW[$t] ?? 0; $dot += $wq * $wc; $nq += $wq * $wq; }
+                    foreach ($cW as $t => $wc) { $nc += $wc * $wc; }
+                    $sim = ($nq > 0 && $nc > 0) ? ($dot / (sqrt($nq) * sqrt($nc))) : 0;
+                    if ($sim > $bestScore) { $bestScore = $sim; $best = $ch; }
+                }
+            }
+            if ($best) {
+                $snippet = trim(mb_substr((string) $best['text'], 0, 500));
+                $res = 'Claro! Encontrei um trecho relevante:' . "\n\n" . $snippet . "\n\nFonte: " . ((string) ($best['url'] ?? ''));
+                $topic = 'rag';
+            } else {
+                $res = 'Certo, não localizei algo específico. Posso orientar sobre Lei 14.133, LGPD, LAI, governo digital, medições, pagamentos, planos e contato.';
+                $topic = 'generic';
+            }
+        }
+    }
+
+    $rephraseUrl = env('REPHRASE_URL');
+    if ($rephraseUrl) {
+        try {
+            $rr = Http::timeout(6)->post($rephraseUrl, ['text' => $res, 'tone' => 'amigavel', 'locale' => 'pt-BR']);
+            if ($rr->ok()) {
+                $jrr = $rr->json();
+                if (is_array($jrr) && isset($jrr['text']) && is_string($jrr['text'])) { $res = $jrr['text']; }
+            }
+        } catch (\Throwable $e5) { }
+    } else {
+        if (!str_starts_with($res, 'Olá!') && !str_starts_with($res, 'Claro!') && !str_starts_with($res, 'Certo,')) {
+            $res = 'Claro! ' . $res;
+        }
+    }
+
+    $hist[] = ['q' => $q, 'a' => $res, 't' => now()->format('H:i:s')];
+    $hist = array_slice($hist, -20);
+    $request->session()->put('chat_hist', $hist);
+
+    $sug = [];
+    if ($topic === 'lei14133') {
+        $sug = ['Quais são as fases da Lei 14.133?', 'Como o sistema controla prazos?', 'Como registrar evidências de conformidade?'];
+    } elseif ($topic === 'lgpd') {
+        $sug = ['Como funciona RBAC no sistema?', 'Que logs de acesso são gerados?', 'Como tratar consentimentos?'];
+    } elseif ($topic === 'lai') {
+        $sug = ['Que dados ficam públicos?', 'Como exportar relatórios?', 'Como funciona trilha de auditoria?'];
+    } elseif ($topic === 'govdigital') {
+        $sug = ['Integração com gov.br', 'Assinaturas eletrônicas', 'APIs disponíveis'];
+    } elseif ($topic === 'medicoes') {
+        $sug = ['Como validar uma medição?', 'Como configurar SLAs?', 'Como anexar evidências?'];
+    } elseif ($topic === 'financeiro') {
+        $sug = ['Como registrar empenhos?', 'Como conciliar pagamentos?', 'Como emitir relatórios financeiros?'];
+    } elseif ($topic === 'planos') {
+        $sug = ['Diferenças entre planos', 'Como contratar um plano?', 'Quais integrações incluídas?'];
+    } elseif ($topic === 'sobre') {
+        $sug = ['Quais módulos existem?', 'Como acessar o sistema?', 'Como funciona a conformidade?'];
+    } elseif ($topic === 'contato') {
+        $sug = ['Como falar com suporte?', 'Onde enviar feedback?', 'Quais canais oficiais?'];
+    } else {
+        $sug = ['Me fale dos módulos do sistema', 'Como funcionam as medições?', 'Como acessar e usar o sistema?'];
+    }
+
+    $preview = array_slice($hist, -3);
+
+    return response()->json(['resposta' => $res, 'hist' => $hist, 'ingest_count' => count($kb), 'chunks' => count($chunks), 'sugestoes' => $sug, 'hist_preview' => $preview]);
+})->name('site.chatbot.ask');
 // Home visível a qualquer usuário autenticado
 Route::get('home', [DashboardController::class, 'index'])->name('home');
 
@@ -149,7 +378,11 @@ Route::post('empenhos/solicitacoes/{solicitacao}/aprovar', [EmpenhoController::c
     ->name('empenhos.solicitacoes.aprovar');
 Route::resource('hosts', HostController::class);
 Route::resource('dres', DREController::class);
-Route::resource('host_testes', HostTesteController::class)->only(['index', 'show']);
+Route::pattern('host_teste', '[0-9]+');
+Route::resource('host_testes', HostTesteController::class)
+    ->only(['index', 'show'])
+    ->parameters(['host_testes' => 'host_teste'])
+    ->whereNumber('host_teste');
 Route::resource('situacoes', SituacaoContratoController::class);
 Route::resource('projetos.apfs', ApfController::class); // nested: /projetos/{projeto}/apfs
 Route::resource('projetos.fiscalizacoes', FiscalizacaoProjetoController::class)->shallow();
@@ -256,6 +489,9 @@ Route::get('medicoes/{medicao}/telco/mapa', [MedicaoTelcoController::class, 'map
 
 Route::get('relatorios/gerar', [RelatorioController::class, 'gerar'])->name('relatorios.gerar');
 Route::get('relatorios', [RelatorioController::class, 'index'])->name('relatorios.index');
+Route::post('relatorios', [RelatorioController::class, 'store'])->name('relatorios.store');
+Route::get('relatorios/export/excel', [RelatorioController::class, 'exportExcel'])->name('relatorios.export.excel');
+Route::get('relatorios/export/pdf', [RelatorioController::class, 'exportPdf'])->name('relatorios.export.pdf');
 // BOLETIM DE MEDIÇÃO
 Route::get('boletins/{id}/pdf', [BoletimMedicaoController::class, 'exportPdf'])->name('boletins.pdf');
 
