@@ -2,10 +2,13 @@
     "$schema": "https://json.schemastore.org/package.json",
     "private": true,
     "type": "module",
-    "scripts": {
+  "scripts": {
         "build": "vite build",
-        "dev": "vite"
-    },
+        "dev": "vite",
+        "deploy": "powershell -ExecutionPolicy Bypass -File ./scripts/deploy.ps1 -Env production -AppUrl http://localhost/fiscalizer/public -BuildAssets",
+        "deploy:nobuild": "powershell -ExecutionPolicy Bypass -File ./scripts/deploy.ps1 -Env production -AppUrl http://localhost/fiscalizer/public",
+        "deploy:dryrun": "powershell -ExecutionPolicy Bypass -File ./scripts/deploy.ps1 -Env production -AppUrl http://localhost/fiscalizer/public -BuildAssets -DryRun"
+  },
     "devDependencies": {
         "@popperjs/core": "^2.11.6",
         "@tailwindcss/vite": "^4.0.0",

@@ -61,7 +61,7 @@
 
 <footer class="fixed-footer py-2">
   <div class="container d-flex align-items-center justify-content-between">
-    <div class="small">© {{ date('Y') }} Governo do Pará • SEDUC • Fiscalizer</div>
+    <div class="small">© {{ date('Y') }} Governo do Estado de Exemplo • SEDUC-EX • Fiscalizer</div>
     <div class="d-none d-md-flex align-items-center gap-3">
       <a href="#" class="text-decoration-none small">Privacidade</a>
       <a href="#" class="text-decoration-none small">Termos</a>
