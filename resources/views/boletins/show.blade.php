@@ -17,7 +17,7 @@
     <div class="card-body bg-white">
       <div class="row g-3">
         <div class="col-md-4">
-          <p><strong>Projeto:</strong> {{ $boletim->projeto->nome ?? '—' }}</p>
+          <p><strong>Projeto:</strong> {{ $boletim->projeto->titulo ?? '—' }}</p>
           <p><strong>Medição:</strong> {{ $boletim->medicao->mes_referencia ?? '—' }}</p>
         </div>
         <div class="col-md-4">

@@ -15,6 +15,9 @@ class Contrato extends Model
 
     protected $fillable = [
         'numero',
+        'ano',
+        'processo_administrativo',
+        'fundamentacao_legal',
         'objeto',
         'contratada_id',
         'fiscal_tecnico_id',
@@ -31,6 +34,19 @@ class Contrato extends Model
         'tipo',
         'created_by',
         'updated_by',
+
+        'contratante_json',
+        'contratada_representante_json',
+        'vigencia_info_json',
+        'dotacao_orcamentaria_json',
+        'reajuste_json',
+        'garantia_json',
+        'pagamento_json',
+        'fiscalizacao_json',
+        'penalidades_json',
+        'rescisao_json',
+        'lgpd_json',
+        'publicacao_doe_json',
     ];
 
     protected $dates = ['data_inicio', 'data_fim', 'deleted_at'];
@@ -38,10 +54,24 @@ class Contrato extends Model
     protected $casts = [
         'valor_global' => 'decimal:2',
         'valor_mensal' => 'decimal:2',
+        'ano' => 'integer',
         'data_inicio' => 'date',
         'data_fim' => 'date',
         'suplente_fiscal_tecnico_ativo' => 'boolean',
         'suplente_fiscal_administrativo_ativo' => 'boolean',
+
+        'contratante_json' => 'array',
+        'contratada_representante_json' => 'array',
+        'vigencia_info_json' => 'array',
+        'dotacao_orcamentaria_json' => 'array',
+        'reajuste_json' => 'array',
+        'garantia_json' => 'array',
+        'pagamento_json' => 'array',
+        'fiscalizacao_json' => 'array',
+        'penalidades_json' => 'array',
+        'rescisao_json' => 'array',
+        'lgpd_json' => 'array',
+        'publicacao_doe_json' => 'array',
     ];
 
     /**

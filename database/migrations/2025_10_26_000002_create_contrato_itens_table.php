@@ -9,9 +9,8 @@ return new class extends Migration
     public function up(): void
     {
         if (Schema::hasTable('contrato_itens')) {
-            return; // evita criação duplicada
+            return;
         }
-
         Schema::create('contrato_itens', function (Blueprint $table) {
             $table->id();
 
@@ -44,12 +43,6 @@ return new class extends Migration
                 ->onDelete('cascade')
                 ->onUpdate('cascade');
         });
-
-        if (Schema::hasTable('projetos') && Schema::hasColumn('projetos', 'itemcontrato_id')) {
-            Schema::table('projetos', function (Blueprint $table) {
-                $table->foreign('itemcontrato_id')->references('id')->on('contrato_itens')->nullOnDelete();
-            });
-        }
     }
 
     public function down(): void

@@ -68,3 +68,4 @@
   100% { transform: scale(1); }
 }
 
+.auth-bg *, .auth-login * { text-transform: none !important; }

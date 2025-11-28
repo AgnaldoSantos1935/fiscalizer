@@ -21,7 +21,7 @@ class BoletimMedicaoController extends Controller
             $query = BoletimMedicao::with(['medicao', 'projeto']);
 
             return DataTables::of($query)
-                ->addColumn('projeto', fn ($b) => $b->projeto->nome ?? '—')
+                ->addColumn('projeto', fn ($b) => $b->projeto->titulo ?? '—')
                 ->addColumn('mes', fn ($b) => optional($b->medicao)->mes_referencia ?? '—')
                 ->editColumn('valor_total', fn ($b) => 'R$ ' . number_format($b->valor_total, 2, ',', '.'))
                 ->addColumn('acoes', function ($b) {
@@ -47,7 +47,7 @@ class BoletimMedicaoController extends Controller
     public function create()
     {
         $medicoes = Medicao::with('contrato')->latest()->get();
-        $projetos = Projeto::orderBy('nome')->get();
+        $projetos = Projeto::orderBy('titulo')->get();
 
         return view('boletins.create', compact('medicoes', 'projetos'));
     }

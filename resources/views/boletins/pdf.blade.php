@@ -84,7 +84,7 @@
 
 <section>
     <p><strong>Nº do Boletim:</strong> {{ $boletim->id }}</p>
-    <p><strong>Projeto:</strong> {{ $boletim->projeto->nome ?? '—' }}</p>
+    <p><strong>Projeto:</strong> {{ $boletim->projeto->titulo ?? '—' }}</p>
     <p><strong>Medição:</strong> {{ $boletim->medicao->mes_referencia ?? '—' }} |
         <strong>Contrato:</strong> {{ $boletim->medicao->contrato->numero ?? '—' }}</p>
     <p><strong>Data de Emissão:</strong> {{ $boletim->data_emissao->format('d/m/Y') }}</p>

@@ -9,9 +9,8 @@ return new class extends Migration
     public function up(): void
     {
         if (Schema::hasTable('monitoramentos_hosts')) {
-            return; // evita criação duplicada
+            return;
         }
-
         Schema::create('monitoramentos_hosts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('host_id')->constrained('hosts')->onDelete('cascade');
