@@ -3,7 +3,13 @@ Param(
   [switch]$BuildAssets,
   [switch]$DryRun,
   [string]$AppUrl,
-  [switch]$NoMigrate
+  [switch]$NoMigrate,
+  [string]$DbConnection,
+  [string]$DbHost,
+  [string]$DbPort,
+  [string]$DbDatabase,
+  [string]$DbUsername,
+  [string]$DbPassword
 )
 
 $ErrorActionPreference = "Stop"
@@ -32,6 +38,15 @@ if (Test-Path $envPath) {
   $envText = [Regex]::Replace($envText, "(?m)^APP_ENV=.*$", "APP_ENV=" + $Env)
   $envText = [Regex]::Replace($envText, "(?m)^APP_DEBUG=.*$", "APP_DEBUG=false")
   if ($AppUrl) { $envText = [Regex]::Replace($envText, "(?m)^APP_URL=.*$", "APP_URL=" + $AppUrl) }
+  $envText = [Regex]::Replace($envText, "(?m)^CACHE_DRIVER=.*$", "CACHE_DRIVER=file")
+  $envText = [Regex]::Replace($envText, "(?m)^SESSION_DRIVER=.*$", "SESSION_DRIVER=file")
+  $envText = [Regex]::Replace($envText, "(?m)^QUEUE_CONNECTION=.*$", "QUEUE_CONNECTION=sync")
+  if ($DbConnection) { $envText = [Regex]::Replace($envText, "(?m)^DB_CONNECTION=.*$", "DB_CONNECTION=" + $DbConnection) }
+  if ($DbHost) { $envText = [Regex]::Replace($envText, "(?m)^DB_HOST=.*$", "DB_HOST=" + $DbHost) }
+  if ($DbPort) { $envText = [Regex]::Replace($envText, "(?m)^DB_PORT=.*$", "DB_PORT=" + $DbPort) }
+  if ($DbDatabase) { $envText = [Regex]::Replace($envText, "(?m)^DB_DATABASE=.*$", "DB_DATABASE=" + $DbDatabase) }
+  if ($DbUsername) { $envText = [Regex]::Replace($envText, "(?m)^DB_USERNAME=.*$", "DB_USERNAME=" + $DbUsername) }
+  if ($DbPassword) { $envText = [Regex]::Replace($envText, "(?m)^DB_PASSWORD=.*$", "DB_PASSWORD=" + $DbPassword) }
   Set-Content -Path $envPath -Value $envText -Encoding UTF8
 }
 

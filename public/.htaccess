@@ -5,6 +5,11 @@
 
     RewriteEngine On
 
+    # Ensure correct MIME types for static assets
+    AddType application/javascript .js
+    AddType text/javascript .mjs
+    AddType text/css .css
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]

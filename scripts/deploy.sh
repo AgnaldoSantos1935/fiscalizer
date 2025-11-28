@@ -25,6 +25,17 @@ touch .env
 if grep -q '^APP_ENV=' .env; then sed -i "s/^APP_ENV=.*/APP_ENV=${ENV}/" .env; else echo "APP_ENV=${ENV}" >> .env; fi
 if grep -q '^APP_DEBUG=' .env; then sed -i "s/^APP_DEBUG=.*/APP_DEBUG=false/" .env; else echo "APP_DEBUG=false" >> .env; fi
 if grep -q '^APP_URL=' .env; then sed -i "s|^APP_URL=.*|APP_URL=${APP_URL}|" .env; else echo "APP_URL=${APP_URL}" >> .env; fi
+if grep -q '^CACHE_DRIVER=' .env; then sed -i "s/^CACHE_DRIVER=.*/CACHE_DRIVER=file/" .env; else echo "CACHE_DRIVER=file" >> .env; fi
+if grep -q '^SESSION_DRIVER=' .env; then sed -i "s/^SESSION_DRIVER=.*/SESSION_DRIVER=file/" .env; else echo "SESSION_DRIVER=file" >> .env; fi
+if grep -q '^QUEUE_CONNECTION=' .env; then sed -i "s/^QUEUE_CONNECTION=.*/QUEUE_CONNECTION=sync/" .env; else echo "QUEUE_CONNECTION=sync" >> .env; fi
+
+# Optional DB configuration via environment
+if [ -n "${DB_CONNECTION:-}" ]; then if grep -q '^DB_CONNECTION=' .env; then sed -i "s/^DB_CONNECTION=.*/DB_CONNECTION=${DB_CONNECTION}/" .env; else echo "DB_CONNECTION=${DB_CONNECTION}" >> .env; fi; fi
+if [ -n "${DB_HOST:-}" ]; then if grep -q '^DB_HOST=' .env; then sed -i "s/^DB_HOST=.*/DB_HOST=${DB_HOST}/" .env; else echo "DB_HOST=${DB_HOST}" >> .env; fi; fi
+if [ -n "${DB_PORT:-}" ]; then if grep -q '^DB_PORT=' .env; then sed -i "s/^DB_PORT=.*/DB_PORT=${DB_PORT}/" .env; else echo "DB_PORT=${DB_PORT}" >> .env; fi; fi
+if [ -n "${DB_DATABASE:-}" ]; then if grep -q '^DB_DATABASE=' .env; then sed -i "s/^DB_DATABASE=.*/DB_DATABASE=${DB_DATABASE}/" .env; else echo "DB_DATABASE=${DB_DATABASE}" >> .env; fi; fi
+if [ -n "${DB_USERNAME:-}" ]; then if grep -q '^DB_USERNAME=' .env; then sed -i "s/^DB_USERNAME=.*/DB_USERNAME=${DB_USERNAME}/" .env; else echo "DB_USERNAME=${DB_USERNAME}" >> .env; fi; fi
+if [ -n "${DB_PASSWORD:-}" ]; then if grep -q '^DB_PASSWORD=' .env; then sed -i "s/^DB_PASSWORD=.*/DB_PASSWORD=${DB_PASSWORD}" .env; else echo "DB_PASSWORD=${DB_PASSWORD}" >> .env; fi; fi
 
 # Generate key if missing
 if ! grep -q '^APP_KEY=base64:' .env; then
@@ -65,4 +76,3 @@ sudo chown -R www-data:www-data storage bootstrap/cache || true
 sudo chmod -R ug+rwx storage bootstrap/cache || true
 
 log "Done"
-
