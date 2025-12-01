@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\NormaTrecho;
 use App\Services\EmbeddingsService;
+use Illuminate\Database\Seeder;
 
 class NormaTrechoSeeder extends Seeder
 {
@@ -51,4 +51,3 @@ class NormaTrechoSeeder extends Seeder
         }
     }
 }
-

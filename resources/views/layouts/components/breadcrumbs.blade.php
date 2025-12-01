@@ -11,14 +11,15 @@
             </a>
         </li>
 
-        @foreach ($breadcrumbs ?? [] as $item)
+        @php($__items = $breadcrumbs ?? $trail ?? [])
+        @foreach ($__items as $item)
             @if (!$loop->last)
                 <li class="breadcrumb-item">
-                    <a href="{{ $item['url'] }}" class="text-primary">{{ $item['label'] }}</a>
+                    <a href="{{ $item['url'] ?? '#' }}" class="text-primary">{{ $item['label'] ?? '' }}</a>
                 </li>
             @else
                 <li class="breadcrumb-item active text-dark" aria-current="page">
-                    {{ $item['label'] }}
+                    {{ $item['label'] ?? '' }}
                 </li>
             @endif
         @endforeach

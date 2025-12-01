@@ -1,14 +1,13 @@
 @extends('layouts.app')
 
 @section('plugins.Sweetalert2', true)
-@section('title', 'Novo Perfil')
+@section('title', 'Cadastrar Perfil')
 
 @section('content_header')
-    <h1><i class="fas fa-user-plus me-2"></i>Cadastrar Novo Perfil</h1>
+    <h1><i class="fas fa-user-plus me-2"></i>Cadastrar Perfil</h1>
 @stop
 
-@section('content')
-@include('layouts.components.breadcrumbs')
+@section('content_body')
 <div class="card shadow-sm border-0 rounded-4">
     <div class="card-body">
         <!-- Área de notificações inline -->
@@ -186,7 +185,7 @@
         </form>
     </div>
 </div>
-@stop
+@endsection
 
 @section('js')
 <script>

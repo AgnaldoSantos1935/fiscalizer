@@ -1,8 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Notas de Empenho')
 
-@section('content')
-@include('layouts.components.breadcrumbs')
+@section('content_body')
 <div class="container-fluid">
   <!-- 🔹 Filtros -->
   <div class="card shadow-sm border-0 rounded-4 mb-4">
@@ -43,7 +42,7 @@
   <div class="card shadow-sm border-0 rounded-4">
     <div class="card-header bg-white d-flex justify-content-between align-items-center">
       <h4 class="mb-0"><i class="fas fa-file-invoice-dollar text-primary me-2"></i>Notas de Empenho</h4>
-      <a href="{{ route('empenhos.create') }}" class="btn btn-primary btn-sm"><i class="fas fa-plus me-1"></i>Novo Empenho</a>
+
     </div>
 
     <div class="card-body">
@@ -113,7 +112,7 @@
 @section('css')
 @endsection
 
-@section('js')
+@push('js')
 <script>
 $(function() {
   // ===== Util: último dia de um mês do ano (mes: 1–12)
@@ -169,7 +168,7 @@ $(function() {
 
   const tabela = $('#tabelaEmpenhos').DataTable({
     ajax: `{{ route('empenhos.data') }}`,
-    language: { url: '{{ asset("js/pt-BR.json") }}' },
+    language: { url: window.DataTablesLangUrl },
     pageLength: 10,
     order: [[1, 'asc']],
     dom: 't<"bottom"p>',
@@ -312,4 +311,4 @@ $(function() {
   });
 });
 </script>
-@endsection
+@endpush

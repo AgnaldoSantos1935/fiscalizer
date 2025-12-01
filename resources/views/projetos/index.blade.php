@@ -15,8 +15,7 @@
 
 @section('title', 'Projetos')
 
-@section('content')
-@include('layouts.components.breadcrumbs')
+@section('content_body')
 <div class="container-fluid">
     <!-- 🔹 Card de Filtros -->
     <div class="card shadow-sm border-0 rounded-4 mb-4">
@@ -27,7 +26,7 @@
         </div>
 
         <div class="card-body bg-white">
-            <form id="formFiltros" class="row g-3 bg-light p-3 rounded-4 shadow-sm align-items-end mb-3">
+            <form id="formFiltros" class="row g-3 bg-light p-3 rounded-4 shadow-sm align-items-end mb-3" method="GET" action="{{ route('projetos.index') }}">
                 <div class="col-md-4">
                     <label for="filtroBusca" class="form-label fw-semibold text-secondary small">Buscar</label>
                     <input type="text" id="filtroBusca" class="form-control form-control-sm" placeholder="Código, título, sistema...">
@@ -45,12 +44,12 @@
 
                 <div class="col-md-2 d-flex justify-content-end align-items-end">
                     <div class="d-flex w-100">
-                        <button type="button" id="btnAplicarFiltros" class="btn btn-primary btn-sm btn-sep flex-grow-1">
+                        <button type="submit" id="btnAplicarFiltros" class="btn btn-primary btn-sm btn-sep flex-grow-1">
                             <i class="fas fa-filter me-1"></i> Filtrar
                         </button>
-                        <button type="button" id="btnLimpar" class="btn btn-outline-secondary btn-sm btn-sep flex-grow-1">
+                        <a href="{{ route('projetos.index') }}" id="btnLimpar" class="btn btn-outline-secondary btn-sm btn-sep flex-grow-1">
                             <i class="fas fa-undo me-1"></i> Limpar
-                        </button>
+                        </a>
                     </div>
                 </div>
             </form>
@@ -74,13 +73,7 @@
                             <i class="fas fa-eye text-info me-2"></i> Exibir Detalhes
                         </a>
                     </li>
-                    <li class="nav-item">
-                        @can('projetos.criar')
-                        <a href="{{ route('projetos.create') }}" class="nav-link active">
-                            <i class="fas fa-plus-circle me-1"></i> Novo Projeto
-                        </a>
-                        @endcan
-                    </li>
+                    
                 </ul>
             </nav>
 
@@ -99,7 +92,37 @@
             </div>
 
             <!-- 🔹 Tabela -->
-            <table id="tabelaProjetos" class="table table-striped no-inner-borders w-100"></table>
+            <table id="tabelaProjetos" class="table table-striped no-inner-borders w-100">
+                <thead>
+                    <tr>
+                        <th style="width: 45px;" class="text-center"></th>
+                        <th>Código</th>
+                        <th>Título</th>
+                        <th>Sistema/Módulo</th>
+                        <th class="text-end">PF Planejado</th>
+                        <th>Situação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach(($projetos ?? []) as $p)
+                        @php
+                            $sis = $p->sistema ?? '';
+                            $mod = $p->modulo ?? '';
+                            $sm = $sis && $mod ? $sis.' / '.$mod : ($sis ?: ($mod ?: '—'));
+                            $cls = $badgeMap[$p->situacao] ?? 'secondary';
+                        @endphp
+                        <tr>
+                            <td class="text-center"><input type="radio" name="projetoSelecionado" value="{{ $p->id }}"></td>
+                            <td>{{ $p->codigo }}</td>
+                            <td>{{ $p->titulo }}</td>
+                            <td>{{ $sm }}</td>
+                            <td class="text-end fw-semibold">{{ number_format((float) ($p->pf_planejado ?? 0), 2, ',', '.') }}</td>
+                            <td><span class="badge bg-{{ $cls }}">{{ $situacoes[$p->situacao] ?? ($p->situacao ?? '—') }}</span></td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+            <div class="mt-2">{{ $projetos->links() }}</div>
         </div>
     </div>
 </div>
@@ -108,105 +131,19 @@
 @section('css')
 @endsection
 
-@section('js')
+@push('js')
 <script>
-$(function() {
-    const SITUACOES = @json($situacoes);
-    const badgeMap = @json($badgeMap);
-
-    function badgeClass(situacao) {
-        return badgeMap[situacao] ? `badge bg-${badgeMap[situacao]}` : 'badge bg-secondary';
-    }
-
-    // Evita popups padrão do DataTables em erros AJAX
-    $.fn.dataTable.ext.errMode = 'none';
-
-    const tabela = $('#tabelaProjetos').DataTable({
-        ajax: {
-            url: `{{ route('api.projetos') }}`,
-            type: 'GET',
-            dataSrc: 'data',
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader('Accept', 'application/json');
-            },
-            error: function (xhr, status, err) {
-                console.error('Erro ao carregar projetos:', xhr.status, status, err, (xhr.responseText || '').slice(0, 200));
-            }
-        },
-        language: { url: "{{ asset('js/pt-BR.json') }}" },
-        pageLength: 10,
-        order: [[1, 'asc']],
-        dom: 't<"bottom"p>',
-        responsive: true,
-        columns: [
-            {
-                data: null,
-                className: 'text-center',
-                render: (d) => `<input type="radio" name="projetoSelecionado" value="${d.id}">`
-            },
-            { data: 'codigo', defaultContent: '—', title: 'Código' },
-            { data: 'titulo', defaultContent: '—', title: 'Título' },
-            {
-                data: null,
-                title: 'Sistema/Módulo',
-                render: d => {
-                    const sis = d.sistema || '';
-                    const mod = d.modulo || '';
-                    return sis && mod ? `${sis} / ${mod}` : (sis || mod || '—');
-                }
-            },
-            {
-                data: 'pf_planejado',
-                title: 'PF Planejado',
-                className: 'text-end fw-semibold',
-                render: v => (v != null) ? Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '0,00'
-            },
-            {
-                data: 'situacao',
-                title: 'Situação',
-                render: s => `<span class="${badgeClass(s)}">${SITUACOES[s] ?? s ?? '—'}</span>`
-            }
-        ]
-    });
-
-    let projetoSelecionado = null;
-    $('#tabelaProjetos').on('change', 'input[name="projetoSelecionado"]', function () {
-        projetoSelecionado = $(this).val();
-        $('#navDetalhes').removeClass('disabled');
-    });
-
-    $('#navDetalhes').on('click', function (e) {
-        e.preventDefault();
-        if (!projetoSelecionado) return;
-        window.location.href = '{{ url('projetos') }}' + '/' + projetoSelecionado;
-    });
-
-    $('#btnAplicarFiltros').on('click', function (e) {
-        e.preventDefault();
-        const busca = $('#filtroBusca').val().trim();
-        const situacao = $('#filtroSituacao').val().trim().toLowerCase();
-
-        tabela.column(1).search(busca);
-        tabela.column(2).search(busca);
-        tabela.column(3).search(busca);
-        tabela.draw();
-
-        // Filtro de situação (badge HTML)
-        $('#tabelaProjetos tbody tr').each(function () {
-            const badgeText = $(this).find('td:nth-child(6) span').text().trim().toLowerCase();
-            const match = !situacao || badgeText.includes(situacao);
-            $(this).toggle(match);
-        });
-    });
-
-    $('#btnLimpar').on('click', function (e) {
-        e.preventDefault();
-        $('#formFiltros')[0].reset();
-        tabela.search('');
-        tabela.columns().search('');
-        tabela.order([1, 'asc']);
-        tabela.ajax.reload(null, false);
-    });
+$(function(){
+  let projetoSelecionado = null;
+  $('#tabelaProjetos').on('change','input[name="projetoSelecionado"]',function(){
+    projetoSelecionado = $(this).val();
+    $('#navDetalhes').removeClass('disabled');
+  });
+  $('#navDetalhes').on('click',function(e){
+    e.preventDefault();
+    if (!projetoSelecionado) return;
+    window.location.href = '{{ url('projetos') }}' + '/' + projetoSelecionado;
+  });
 });
 </script>
-@endsection
+@endpush

@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasTable('unidade_aquisicao_itens')) {
+        if (! Schema::hasTable('unidade_aquisicao_itens')) {
             Schema::create('unidade_aquisicao_itens', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('unidade_id')->constrained('unidades')->cascadeOnDelete();
@@ -28,4 +28,3 @@ return new class extends Migration
         Schema::dropIfExists('unidade_aquisicao_itens');
     }
 };
-

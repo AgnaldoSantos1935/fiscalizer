@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\DRE;
+use App\Models\Dre;
 use App\Models\Escola;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Yajra\DataTables\Facades\DataTables;
 
 class EscolaController extends Controller
@@ -47,13 +49,21 @@ class EscolaController extends Controller
 
         // 🔍 Filtros opcionais (compatíveis com UI)
         if ($request->filled('codigo')) {
-            $query->where('codigo_inep', 'like', '%' . trim((string) $request->codigo) . '%');
+            $codigo = trim((string) $request->codigo);
+            $driver = DB::connection()->getDriverName();
+            if ($driver === 'pgsql') {
+                $query->whereRaw('CAST(codigo_inep AS TEXT) LIKE ?', ['%' . $codigo . '%']);
+            } else {
+                $query->whereRaw('CAST(codigo_inep AS CHAR) LIKE ?', ['%' . $codigo . '%']);
+            }
         }
         if ($request->filled('nome')) {
             $nome = '%' . trim((string) $request->nome) . '%';
             $query->where(function ($q) use ($nome) {
-                $q->where('nome', 'like', $nome)
-                  ->orWhere('escola', 'like', $nome);
+                $q->orWhere('escola', 'like', $nome);
+                if (Schema::hasColumn('escolas', 'nome')) {
+                    $q->orWhere('nome', 'like', $nome);
+                }
             });
         }
         if ($request->filled('municipio')) {
@@ -63,9 +73,29 @@ class EscolaController extends Controller
             $query->where('uf', strtoupper(trim((string) $request->uf)));
         }
 
+        $select = ['id as id_escola', 'codigo_inep', 'municipio', 'uf'];
+        $hasEscola = Schema::hasColumn('escolas', 'escola');
+        $hasNome = Schema::hasColumn('escolas', 'nome');
+        if ($hasEscola && $hasNome) {
+            $select[] = DB::raw('COALESCE(escola, nome) as escola');
+        } elseif ($hasEscola) {
+            $select[] = 'escola';
+        } elseif ($hasNome) {
+            $select[] = DB::raw('nome as escola');
+        } else {
+            $select[] = DB::raw('NULL as escola');
+        }
+        if (Schema::hasColumn('escolas', 'dre')) {
+            $select[] = 'dre';
+        } else {
+            $select[] = DB::raw('NULL as dre');
+        }
+
+        $orderExpr = $hasEscola && $hasNome ? 'COALESCE(escola, nome)' : ($hasEscola ? 'escola' : ($hasNome ? 'nome' : 'id'));
+
         $escolas = $query
-            ->selectRaw('id as id_escola, codigo_inep, COALESCE(nome, escola) as escola, municipio, uf, dre')
-            ->orderByRaw('COALESCE(nome, escola) asc')
+            ->select($select)
+            ->orderByRaw($orderExpr . ' asc')
             ->limit(500)
             ->get();
 
@@ -87,9 +117,133 @@ class EscolaController extends Controller
      */
     public function create()
     {
-        $dres = DRE::all();
+        $dres = Dre::all();
 
         return view('escolas.create', compact('dres'));
+    }
+
+    /**
+     * Importa escolas via CSV/Texto, incluindo coluna dre.
+     */
+    public function importCsv(Request $request)
+    {
+        $data = $request->validate([
+            'csv_file' => 'required|file|mimes:csv,txt|max:20480',
+        ]);
+
+        $file = $request->file('csv_file');
+        $path = $file->store('escolas/importacoes', 'public');
+        $fullPath = \Storage::disk('public')->path($path);
+
+        $handle = fopen($fullPath, 'r');
+        if (! $handle) {
+            return back()->with('error', 'Falha ao abrir o arquivo CSV.');
+        }
+
+        $firstLine = fgets($handle);
+        $delimiter = $this->detectDelimiter($firstLine);
+        $headers = array_map('trim', str_getcsv($firstLine, $delimiter));
+
+        $rowNum = 1;
+        $created = 0;
+        $updated = 0;
+        $errors = [];
+
+        while (($line = fgets($handle)) !== false) {
+            $rowNum++;
+            $cols = str_getcsv($line, $delimiter);
+            if (count($cols) === 1 && trim($cols[0]) === '') {
+                continue;
+            }
+
+            $row = [];
+            foreach ($headers as $i => $h) {
+                $row[$h] = $cols[$i] ?? null;
+            }
+
+            $codigo = trim((string) ($row['codigo_inep'] ?? ''));
+            $nome = trim((string) ($row['escola'] ?? ($row['nome'] ?? '')));
+            $municipio = trim((string) ($row['municipio'] ?? ($row['cidade'] ?? '')));
+            $uf = strtoupper(trim((string) ($row['uf'] ?? '')));
+            $dreVal = trim((string) ($row['dre'] ?? ($row['codigodre'] ?? ($row['dre_codigo'] ?? ''))));
+
+            $dreCodigo = $this->resolveDreCodigo($dreVal);
+
+            try {
+                $escola = null;
+                if ($codigo) {
+                    $escola = Escola::where('codigo_inep', $codigo)->first();
+                }
+                if (! $escola && $nome) {
+                    $q = Escola::where(function ($q) use ($nome) {
+                        $q->where('escola', $nome)->orWhere('nome', $nome);
+                    });
+                    if ($municipio) {
+                        $q->where('municipio', $municipio);
+                    }
+                    if ($uf) {
+                        $q->where('uf', $uf);
+                    }
+                    $escola = $q->first();
+                }
+
+                $payload = [
+                    'codigo_inep' => $codigo ?: ($escola->codigo_inep ?? null),
+                    'escola' => $nome ?: ($escola->escola ?? $escola->nome ?? null),
+                    'municipio' => $municipio ?: ($escola->municipio ?? null),
+                    'uf' => $uf ?: ($escola->uf ?? null),
+                    'dre' => $dreCodigo,
+                ];
+
+                if ($escola) {
+                    $escola->update($payload);
+                    $updated++;
+                } else {
+                    Escola::create($payload);
+                    $created++;
+                }
+            } catch (\Throwable $e) {
+                $errors[] = ['linha' => $rowNum, 'mensagens' => [$e->getMessage()]];
+            }
+        }
+
+        fclose($handle);
+
+        $summary = "Escolas importadas: {$created} criadas, {$updated} atualizadas, " . count($errors) . ' linhas com erro.';
+
+        return back()->with('success', $summary)->with('escolas_import_result', [
+            'criados' => $created,
+            'atualizados' => $updated,
+            'erros' => $errors,
+        ]);
+    }
+
+    protected function detectDelimiter(string $line): string
+    {
+        $comma = substr_count($line, ',');
+        $semicolon = substr_count($line, ';');
+        $tab = substr_count($line, "\t");
+        if ($tab > max($comma, $semicolon)) {
+            return "\t";
+        }
+
+        return $semicolon > $comma ? ';' : ',';
+    }
+
+    protected function resolveDreCodigo(?string $val): ?string
+    {
+        $s = trim((string) $val);
+        if ($s === '') {
+            return null;
+        }
+        $sNorm = strtoupper($s);
+        $dre = Dre::where('codigodre', $sNorm)->first();
+        if ($dre) {
+            return $dre->codigodre;
+        }
+        $dre2 = Dre::where('nome_dre', 'ilike', $s)->first();
+
+        return $dre2 ? $dre2->codigodre : $sNorm;
     }
 
     /**

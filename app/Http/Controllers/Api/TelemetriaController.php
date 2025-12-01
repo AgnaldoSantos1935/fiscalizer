@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -26,7 +27,7 @@ class TelemetriaController extends Controller
         $unidade = Unidade::where('inventario_token', $data['unidade_token'])->firstOrFail();
 
         AgenteTelemetria::create(array_merge($data, [
-            'unidade_id' => $unidade->id
+            'unidade_id' => $unidade->id,
         ]));
 
         return ['status' => 'ok'];

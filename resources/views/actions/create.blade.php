@@ -1,10 +1,10 @@
 @extends('layouts.app')
 
-@section('title', 'Nova Action')
+@section('title', 'Cadastrar Action')
 
-@section('content')
+@section('content_body')
 <div class="container">
-    <h3 class="mb-4">Nova Action</h3>
+    <h3 class="mb-4">Cadastrar Action</h3>
 
     <form action="{{ route('actions.store') }}" method="POST">
         @csrf
@@ -43,7 +43,7 @@
 
         <div class="d-flex gap-2">
             <a href="{{ route('actions.index') }}" class="btn btn-outline-secondary">Cancelar</a>
-            <button type="submit" class="btn btn-primary">Salvar</button>
+            <button type="submit" class="btn btn-primary">Cadastrar Action</button>
         </div>
     </form>
 </div>

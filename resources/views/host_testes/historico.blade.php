@@ -69,7 +69,7 @@
 @stop
 @section('css')
 @endsection
-@section('js')
+@push('js')
 <script>
 $(document).ready(function() {
     const tabela = $('#tabelaHistorico').DataTable({
@@ -92,7 +92,7 @@ $(document).ready(function() {
         ],
         order: [[8, 'desc']],
 
-        language: { url: '{{ asset("js/pt-BR.json") }}' },
+        language: { url: window.DataTablesLangUrl },
         dom: 't<"bottom"ip>',
         pageLength: 25,
         responsive: true
@@ -104,4 +104,4 @@ $(document).ready(function() {
     });
 });
 </script>
-@stop
+@endpush

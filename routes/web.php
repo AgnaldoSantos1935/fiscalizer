@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\AntifraudeDashboardController;
 use App\Http\Controllers\ApfController;
-use App\Http\Controllers\Api\ProjetoApiController;
 use App\Http\Controllers\AtividadeController;
 use App\Http\Controllers\BoletimMedicaoController;
 use App\Http\Controllers\ContratoConformidadeController;
@@ -15,7 +14,9 @@ use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\DocumentoProjetoController;
 use App\Http\Controllers\DREController;
 use App\Http\Controllers\EmpenhoController;
+use App\Http\Controllers\EmpenhosImportController;
 use App\Http\Controllers\EmpresaController;
+use App\Http\Controllers\EquipamentoController;
 use App\Http\Controllers\EquipeController;
 use App\Http\Controllers\EscolaController;
 use App\Http\Controllers\FiscalizacaoProjetoController;
@@ -25,6 +26,7 @@ use App\Http\Controllers\HostController;
 use App\Http\Controllers\HostDashboardController;
 use App\Http\Controllers\HostMonitorController;
 use App\Http\Controllers\HostTesteController;
+use App\Http\Controllers\InventarioController as InvController;
 use App\Http\Controllers\MapaController;
 use App\Http\Controllers\MedicaoController;
 use App\Http\Controllers\MedicaoDocumentoController;
@@ -43,14 +45,12 @@ use App\Http\Controllers\ServidorController;
 use App\Http\Controllers\SituacaoContratoController;
 use App\Http\Controllers\TermoReferenciaController;
 use App\Http\Controllers\UserProfileController;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Route;
 use Smalot\PdfParser\Parser as PdfParser;
-use App\Http\Controllers\InventarioController as InvController;
-use App\Http\Controllers\TelemetriaDashboardController;
 
 // Página inicial (redireciona para login ou dashboard)
 
@@ -97,6 +97,7 @@ Route::post('site/chatbot/ask', function (Request $request) {
     if ($reset) {
         $hist = [];
         $request->session()->put('chat_hist', []);
+
         return response()->json(['resposta' => null, 'hist' => [], 'ingest_count' => count($kb), 'chunks' => count($chunks), 'sugestoes' => [], 'hist_preview' => []]);
     }
 
@@ -104,7 +105,9 @@ Route::post('site/chatbot/ask', function (Request $request) {
     if (is_array($sources)) {
         foreach ($sources as $url) {
             $u = trim((string) $url);
-            if (! $u || ! preg_match('#^https?://#i', $u)) { continue; }
+            if (! $u || ! preg_match('#^https?://#i', $u)) {
+                continue;
+            }
             try {
                 $resp = Http::timeout(10)->get($u);
                 if ($resp->ok()) {
@@ -113,7 +116,7 @@ Route::post('site/chatbot/ask', function (Request $request) {
                     $text = $raw;
                     if (str_contains($ct, 'pdf') || preg_match('/\.pdf(\?|$)/i', $u)) {
                         try {
-                            $parser = new PdfParser();
+                            $parser = new PdfParser;
                             $pdf = $parser->parseContent($raw);
                             $text = $pdf->getText();
                         } catch (\Throwable $e2) {
@@ -132,13 +135,19 @@ Route::post('site/chatbot/ask', function (Request $request) {
                     $size = 1500;
                     for ($i = 0; $i < $len; $i += $size) {
                         $chunkText = mb_substr($plain, $i, $size);
-                        $terms = collect(preg_split('/\W+/u', mb_strtolower($chunkText)))->filter(fn($t) => mb_strlen($t) > 2)->values()->all();
+                        $terms = collect(preg_split('/\W+/u', mb_strtolower($chunkText)))->filter(fn ($t) => mb_strlen($t) > 2)->values()->all();
                         $vec = null;
                         if ($embUrl) {
                             try {
                                 $er = Http::timeout(8)->post($embUrl, ['text' => $chunkText]);
-                                if ($er->ok()) { $j = $er->json(); if (is_array($j) && isset($j['vector']) && is_array($j['vector'])) { $vec = $j['vector']; } }
-                            } catch (\Throwable $e3) { }
+                                if ($er->ok()) {
+                                    $j = $er->json();
+                                    if (is_array($j) && isset($j['vector']) && is_array($j['vector'])) {
+                                        $vec = $j['vector'];
+                                    }
+                                }
+                            } catch (\Throwable $e3) {
+                            }
                         }
                         $chunks[] = [
                             'url' => $u,
@@ -148,7 +157,8 @@ Route::post('site/chatbot/ask', function (Request $request) {
                         ];
                     }
                 }
-            } catch (\Throwable $e) { }
+            } catch (\Throwable $e) {
+            }
         }
         $request->session()->put('chat_kb', $kb);
         $request->session()->put('chat_kb_chunks', $chunks);
@@ -168,62 +178,132 @@ Route::post('site/chatbot/ask', function (Request $request) {
     $res = 'Sou o assistente do Fiscalizer. Pergunte sobre legislação, módulos, medições, prazos, planos ou contato.';
     $topic = null;
     if ($q) {
-        $greet = ['oi','olá','ola','bom dia','boa tarde','boa noite','hey','e aí','eaí'];
-        $thanks = ['obrigado','obrigada','valeu','agradecido','grato'];
-        $bye = ['tchau','até logo','até mais','flw','falou'];
-        if (in_array(trim($q), $greet)) { $res = 'Olá! Posso ajudar com dúvidas sobre contratos, medições, legislação e integrações.'; $topic = 'smalltalk'; }
-        elseif (str_contains($q, 'quem é você') || str_contains($q, 'quem é vc')) { $res = 'Sou o assistente do Fiscalizer, focado em orientar sobre governança de contratos e processos relacionados.'; $topic = 'smalltalk'; }
-        elseif (collect($thanks)->first(fn($t) => str_contains($q, $t))) { $res = 'De nada! Se precisar, posso explicar módulos, prazos ou buscar fundamentos.'; $topic = 'smalltalk'; }
-        elseif (collect($bye)->first(fn($t) => str_contains($q, $t))) { $res = 'Até mais! Quando quiser, retorno com orientações e fontes.'; $topic = 'smalltalk'; }
-        elseif (str_contains($q, '14.133') || str_contains($q, 'nova lei') || str_contains($q, 'licit')) { $res = $base['lei14133']; $topic = 'lei14133'; }
-        elseif (str_contains($q, 'lgpd') || str_contains($q, 'privacidade')) { $res = $base['lgpd']; $topic = 'lgpd'; }
-        elseif (str_contains($q, 'lai') || str_contains($q, 'acesso') || str_contains($q, 'transpar')) { $res = $base['lai']; $topic = 'lai'; }
-        elseif (str_contains($q, 'governo digital') || str_contains($q, '14.129') || str_contains($q, 'api') || str_contains($q, 'gov.br')) { $res = $base['govdigital']; $topic = 'govdigital'; }
-        elseif (str_contains($q, 'medi') || str_contains($q, 'sla') || str_contains($q, 'ordem de serviço') || str_contains($q, 'os')) { $res = $base['medicoes']; $topic = 'medicoes'; }
-        elseif (str_contains($q, 'pagamento') || str_contains($q, 'empenho')) { $res = $base['financeiro']; $topic = 'financeiro'; }
-        elseif (str_contains($q, 'plano') || str_contains($q, 'assinatura') || str_contains($q, 'contratar')) { $res = $base['planos']; $topic = 'planos'; }
-        elseif (str_contains($q, 'sobre') || str_contains($q, 'o que') || str_contains($q, 'utilidade')) { $res = $base['sobre']; $topic = 'sobre'; }
-        elseif (str_contains($q, 'contato') || str_contains($q, 'suporte')) { $res = $base['contato']; $topic = 'contato'; }
-        else {
-            $qTerms = collect(preg_split('/\W+/u', $q))->filter(fn($t) => mb_strlen($t) > 2)->map(fn($t) => mb_strtolower($t))->values()->all();
+        $greet = ['oi', 'olá', 'ola', 'bom dia', 'boa tarde', 'boa noite', 'hey', 'e aí', 'eaí'];
+        $thanks = ['obrigado', 'obrigada', 'valeu', 'agradecido', 'grato'];
+        $bye = ['tchau', 'até logo', 'até mais', 'flw', 'falou'];
+        if (in_array(trim($q), $greet)) {
+            $res = 'Olá! Posso ajudar com dúvidas sobre contratos, medições, legislação e integrações.';
+            $topic = 'smalltalk';
+        } elseif (str_contains($q, 'quem é você') || str_contains($q, 'quem é vc')) {
+            $res = 'Sou o assistente do Fiscalizer, focado em orientar sobre governança de contratos e processos relacionados.';
+            $topic = 'smalltalk';
+        } elseif (collect($thanks)->first(fn ($t) => str_contains($q, $t))) {
+            $res = 'De nada! Se precisar, posso explicar módulos, prazos ou buscar fundamentos.';
+            $topic = 'smalltalk';
+        } elseif (collect($bye)->first(fn ($t) => str_contains($q, $t))) {
+            $res = 'Até mais! Quando quiser, retorno com orientações e fontes.';
+            $topic = 'smalltalk';
+        } elseif (str_contains($q, '14.133') || str_contains($q, 'nova lei') || str_contains($q, 'licit')) {
+            $res = $base['lei14133'];
+            $topic = 'lei14133';
+        } elseif (str_contains($q, 'lgpd') || str_contains($q, 'privacidade')) {
+            $res = $base['lgpd'];
+            $topic = 'lgpd';
+        } elseif (str_contains($q, 'lai') || str_contains($q, 'acesso') || str_contains($q, 'transpar')) {
+            $res = $base['lai'];
+            $topic = 'lai';
+        } elseif (str_contains($q, 'governo digital') || str_contains($q, '14.129') || str_contains($q, 'api') || str_contains($q, 'gov.br')) {
+            $res = $base['govdigital'];
+            $topic = 'govdigital';
+        } elseif (str_contains($q, 'medi') || str_contains($q, 'sla') || str_contains($q, 'ordem de serviço') || str_contains($q, 'os')) {
+            $res = $base['medicoes'];
+            $topic = 'medicoes';
+        } elseif (str_contains($q, 'pagamento') || str_contains($q, 'empenho')) {
+            $res = $base['financeiro'];
+            $topic = 'financeiro';
+        } elseif (str_contains($q, 'plano') || str_contains($q, 'assinatura') || str_contains($q, 'contratar')) {
+            $res = $base['planos'];
+            $topic = 'planos';
+        } elseif (str_contains($q, 'sobre') || str_contains($q, 'o que') || str_contains($q, 'utilidade')) {
+            $res = $base['sobre'];
+            $topic = 'sobre';
+        } elseif (str_contains($q, 'contato') || str_contains($q, 'suporte')) {
+            $res = $base['contato'];
+            $topic = 'contato';
+        } else {
+            $qTerms = collect(preg_split('/\W+/u', $q))->filter(fn ($t) => mb_strlen($t) > 2)->map(fn ($t) => mb_strtolower($t))->values()->all();
             $useEmb = $embUrl ? true : false;
             $qVec = null;
             if ($useEmb) {
                 try {
                     $qr = Http::timeout(8)->post($embUrl, ['text' => $q]);
-                    if ($qr->ok()) { $jq = $qr->json(); if (is_array($jq) && isset($jq['vector']) && is_array($jq['vector'])) { $qVec = $jq['vector']; } }
-                } catch (\Throwable $e4) { $useEmb = false; }
+                    if ($qr->ok()) {
+                        $jq = $qr->json();
+                        if (is_array($jq) && isset($jq['vector']) && is_array($jq['vector'])) {
+                            $qVec = $jq['vector'];
+                        }
+                    }
+                } catch (\Throwable $e4) {
+                    $useEmb = false;
+                }
             }
-            $best = null; $bestScore = -1;
+            $best = null;
+            $bestScore = -1;
             if ($useEmb && $qVec) {
                 foreach ($chunks as $ch) {
-                    $v = $ch['vec'] ?? null; if (!is_array($v)) continue;
-                    $dot = 0; $nq = 0; $nv = 0;
-                    foreach ($qVec as $k => $x) { $y = $v[$k] ?? 0; $dot += $x * $y; $nq += $x * $x; $nv += $y * $y; }
+                    $v = $ch['vec'] ?? null;
+                    if (! is_array($v)) {
+                        continue;
+                    }
+                    $dot = 0;
+                    $nq = 0;
+                    $nv = 0;
+                    foreach ($qVec as $k => $x) {
+                        $y = $v[$k] ?? 0;
+                        $dot += $x * $y;
+                        $nq += $x * $x;
+                        $nv += $y * $y;
+                    }
                     $sim = ($nq > 0 && $nv > 0) ? ($dot / (sqrt($nq) * sqrt($nv))) : 0;
-                    if ($sim > $bestScore) { $bestScore = $sim; $best = $ch; }
+                    if ($sim > $bestScore) {
+                        $bestScore = $sim;
+                        $best = $ch;
+                    }
                 }
             } else {
                 $N = count($chunks);
                 $df = [];
                 foreach ($chunks as $ch) {
                     $uniq = array_values(array_unique($ch['terms'] ?? []));
-                    foreach ($uniq as $t) { $df[$t] = ($df[$t] ?? 0) + 1; }
+                    foreach ($uniq as $t) {
+                        $df[$t] = ($df[$t] ?? 0) + 1;
+                    }
                 }
                 $qCount = [];
-                foreach ($qTerms as $t) { $qCount[$t] = ($qCount[$t] ?? 0) + 1; }
+                foreach ($qTerms as $t) {
+                    $qCount[$t] = ($qCount[$t] ?? 0) + 1;
+                }
                 $qW = [];
-                foreach ($qCount as $t => $c) { $idf = log((($N ?: 1) + 1) / (($df[$t] ?? 0) + 1)) + 1; $qW[$t] = $c * $idf; }
+                foreach ($qCount as $t => $c) {
+                    $idf = log((($N ?: 1) + 1) / (($df[$t] ?? 0) + 1)) + 1;
+                    $qW[$t] = $c * $idf;
+                }
                 foreach ($chunks as $ch) {
                     $cCount = [];
-                    foreach ($ch['terms'] as $t) { $cCount[$t] = ($cCount[$t] ?? 0) + 1; }
+                    foreach ($ch['terms'] as $t) {
+                        $cCount[$t] = ($cCount[$t] ?? 0) + 1;
+                    }
                     $cW = [];
-                    foreach ($cCount as $t => $c) { $idf = log((($N ?: 1) + 1) / (($df[$t] ?? 0) + 1)) + 1; $cW[$t] = $c * $idf; }
-                    $dot = 0; $nq = 0; $nc = 0;
-                    foreach ($qW as $t => $wq) { $wc = $cW[$t] ?? 0; $dot += $wq * $wc; $nq += $wq * $wq; }
-                    foreach ($cW as $t => $wc) { $nc += $wc * $wc; }
+                    foreach ($cCount as $t => $c) {
+                        $idf = log((($N ?: 1) + 1) / (($df[$t] ?? 0) + 1)) + 1;
+                        $cW[$t] = $c * $idf;
+                    }
+                    $dot = 0;
+                    $nq = 0;
+                    $nc = 0;
+                    foreach ($qW as $t => $wq) {
+                        $wc = $cW[$t] ?? 0;
+                        $dot += $wq * $wc;
+                        $nq += $wq * $wq;
+                    }
+                    foreach ($cW as $t => $wc) {
+                        $nc += $wc * $wc;
+                    }
                     $sim = ($nq > 0 && $nc > 0) ? ($dot / (sqrt($nq) * sqrt($nc))) : 0;
-                    if ($sim > $bestScore) { $bestScore = $sim; $best = $ch; }
+                    if ($sim > $bestScore) {
+                        $bestScore = $sim;
+                        $best = $ch;
+                    }
                 }
             }
             if ($best) {
@@ -243,11 +323,14 @@ Route::post('site/chatbot/ask', function (Request $request) {
             $rr = Http::timeout(6)->post($rephraseUrl, ['text' => $res, 'tone' => 'amigavel', 'locale' => 'pt-BR']);
             if ($rr->ok()) {
                 $jrr = $rr->json();
-                if (is_array($jrr) && isset($jrr['text']) && is_string($jrr['text'])) { $res = $jrr['text']; }
+                if (is_array($jrr) && isset($jrr['text']) && is_string($jrr['text'])) {
+                    $res = $jrr['text'];
+                }
             }
-        } catch (\Throwable $e5) { }
+        } catch (\Throwable $e5) {
+        }
     } else {
-        if (!str_starts_with($res, 'Olá!') && !str_starts_with($res, 'Claro!') && !str_starts_with($res, 'Certo,')) {
+        if (! str_starts_with($res, 'Olá!') && ! str_starts_with($res, 'Claro!') && ! str_starts_with($res, 'Certo,')) {
             $res = 'Claro! ' . $res;
         }
     }
@@ -301,24 +384,29 @@ Route::middleware(['auth', 'password.expiration'])->group(function () {
 
 // 🔹 Rotas RESTful (CRUD completo)
 Route::resource('escolas', EscolaController::class);
+Route::post('escolas/import', [EscolaController::class, 'importCsv'])->name('escolas.import');
 Route::resource('empresas', EmpresaController::class);
 // Endpoint JSON para DataTables (Empresas)
-Route::get('empresas/data', [EmpresaController::class, 'data'])->name('empresas.data');
+// removido: endpoint DataTables (empresas)
 // Verificação de CNPJ (AJAX/GET)
 Route::get('empresas/verificar', [EmpresaController::class, 'verificar'])->name('empresas.verificar');
 Route::resource('hosts', HostController::class);
 Route::resource('contratos', ContratoController::class);
 Route::resource('medicoes', MedicaoController::class);
 // Endpoint JSON para DataTables (Medições)
-Route::get('medicoes/data', [MedicaoController::class, 'data'])->name('medicoes.data');
+// removido: endpoint DataTables (medições)
 Route::resource('funcoes-sistema', FuncaoSistemaController::class);
 Route::resource('documentos', DocumentoController::class);
-Route::get('documentos/data', [DocumentoController::class, 'data'])->name('documentos.data');
+// removido: endpoint DataTables (documentos)
 // Visualizador de PDFs e streaming inline
 Route::get('documentos/{documento}/visualizar', [DocumentoController::class, 'visualizar'])->name('documentos.visualizar');
 Route::get('documentos/{documento}/stream', [DocumentoController::class, 'stream'])->name('documentos.stream');
 Route::get('documentos/{documento}/download', [DocumentoController::class, 'download'])->name('documentos.download');
 Route::get('documentos/{documento}/print', [DocumentoController::class, 'print'])->name('documentos.print');
+
+// Visualização padrão por caminho (sem registro de Documento)
+Route::get('arquivos/visualizar', [DocumentoController::class, 'visualizarPath'])->name('arquivos.visualizar');
+Route::get('arquivos/stream', [DocumentoController::class, 'streamPath'])->name('arquivos.stream');
 
 // Atalho para abrir PDF do contrato
 Route::get('contratos/{contrato}/pdf', [ContratoController::class, 'pdf'])->name('contratos.pdf');
@@ -330,7 +418,7 @@ Route::resource('ocorrencias-fiscalizacao', OcorrenciaFiscalizacaoController::cl
 Route::resource('ocorrencias', OcorrenciaController::class);
 Route::resource('projetos', ProjetoController::class);
 // API para DataTables da tela de Projetos
-Route::get('/api/projetos', [ProjetoController::class, 'getJsonProjetos'])->name('api.projetos');
+// removido: endpoint DataTables (projetos)
 Route::resource('user_profiles', UserProfileController::class)
     ->middleware('can:view-index-user_profiles');
 Route::resource('usuarios', UserProfileController::class)
@@ -503,6 +591,7 @@ Route::get('hotwire', function () {
 
 Route::get('hotwire/partial', function (Request $request) {
     $count = (int) $request->query('count', 1);
+
     return response()->view('hotwire.partial', ['count' => $count]);
 })->name('hotwire.partial');
 // DASHBOARD PROJETOS
@@ -669,6 +758,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/notificacoes/data', [NotificationController::class, 'data'])
         ->name('notificacoes.data');
 
+    Route::get('/notificacoes/unread-count', [NotificationController::class, 'count'])
+        ->name('notificacoes.count');
+
     // Envia uma notificação de teste para o usuário autenticado
     Route::post('/notificacoes/teste', [NotificationController::class, 'teste'])
         ->name('notificacoes.teste');
@@ -765,14 +857,10 @@ if (class_exists(\App\Http\Controllers\Api\NocStatsController::class)) {
 }
 
 Route::prefix('projetos/{projeto}')->group(function () {
-    Route::get('apf', [ProjetoApiController::class, 'apf'])->name('api.projetos.apf');
-    Route::get('atividades', [ProjetoApiController::class, 'atividades'])->name('api.projetos.atividades');
-    Route::get('medicao', [ProjetoApiController::class, 'medicao'])->name('api.projetos.medicao');
-    Route::get('boletins', [ProjetoApiController::class, 'boletins'])->name('api.projetos.boletins');
+    // removido: api.projetos.* para DataTables
 
     // Dashboard
-    Route::get('dashboard/pf-ust', [ProjetoApiController::class, 'dashboardPfUst'])->name('api.projetos.dashboard.pf_ust');
-    Route::get('dashboard/esforco', [ProjetoApiController::class, 'dashboardEsforco'])->name('api.projetos.dashboard.esforco');
+    // removido: api.projetos.dashboard.*
 });
 
 // Rota API para DataTables / AJAX
@@ -788,8 +876,7 @@ Route::get('/api/contratos', [App\Http\Controllers\ContratoController::class, 'g
     ->name('api.contratos');
 Route::get('/api/contratos/detalhes/{id}', [App\Http\Controllers\ContratoController::class, 'detalhesContrato'])
     ->name('api.contratos.detalhes');
-Route::get('/api/situacoes', [App\Http\Controllers\SituacaoContratoController::class, 'listar'])
-    ->name('api.situacoes');
+// removido: Route::get('/api/situacoes', ...)
 Route::get('/api/escolas', [MapaController::class, 'escolasGeoJson'])->name('api.escolas');
 Route::get('/api/contratos/{id}/itens', [HostController::class, 'getItensPorContrato'])
     ->name('api.contratos.itens');
@@ -802,7 +889,7 @@ Route::get('contratos/{id}/itens', [ContratoController::class, 'getItens'])
 Route::get('/escolas/{id}/detalhes', [EscolaController::class, 'detalhes'])
     ->name('escolas.detalhes');
 // DataTables (lista de servidores)
-Route::get('/api/servidores', [ServidorController::class, 'index'])->name('api.servidores.index');
+// removido: api.servidores.index
 // FINAL DE ROTAS DE API AJAX
 // JasperReports demo
 // Removido demo JasperReports
@@ -814,6 +901,23 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/ia-dashboard', function () {
             return view('fiscalizer-ia');
         })->name('fiscalizer-ia.index');
+        // Tela de listagem (index) + detalhes (show)
+        Route::get('/equipamentos', [EquipamentoController::class, 'index'])->name('equipamentos.index');
+        Route::get('/equipamentos/create', [EquipamentoController::class, 'create'])->name('equipamentos.create');
+        Route::post('/equipamentos', [EquipamentoController::class, 'store'])->name('equipamentos.store');
+        Route::post('/equipamentos/import', [EquipamentoController::class, 'importCsv'])->name('equipamentos.import');
+        Route::get('/equipamentos/{equipamento}/edit', [EquipamentoController::class, 'edit'])->name('equipamentos.edit');
+        Route::put('/equipamentos/{equipamento}', [EquipamentoController::class, 'update'])->name('equipamentos.update');
+        Route::delete('/equipamentos/{equipamento}', [EquipamentoController::class, 'destroy'])->name('equipamentos.destroy');
+        Route::get('/equipamentos/{equipamento}', [EquipamentoController::class, 'show'])->name('equipamentos.show');
+
+        // Dashboard de equipamentos
+        Route::get('/equipamentos-dashboard', [EquipamentoController::class, 'dashboard'])
+            ->name('equipamentos.dashboard');
+
+        // API para DataTable (index)
+        // removido: endpoint DataTables (equipamentos)
+
     });
 
     // Ordens de Fornecimento
@@ -858,11 +962,10 @@ Route::middleware(['auth', 'can.action:system.admin'])
         Route::post('/sync', [\App\Http\Controllers\NotificationEventController::class, 'syncActions'])->name('sync');
         Route::get('/users/search', [\App\Http\Controllers\NotificationEventController::class, 'searchUsers'])->name('users.search');
 
-
     });
 
 // Inventário por Unidade (somente perfil regional)
-Route::middleware(['auth','can:inventario.unidades.gerenciar'])->group(function () {
+Route::middleware(['auth', 'can:inventario.unidades.gerenciar'])->group(function () {
     Route::get('/inventario/unidades', [\App\Http\Controllers\InventarioController::class, 'selecionarUnidade'])
         ->name('inventario.unidades.select');
     Route::post('/inventario/dres/{dre}/acessar', [\App\Http\Controllers\InventarioController::class, 'acessarPorDre'])
@@ -883,30 +986,34 @@ Route::middleware(['auth','can:inventario.unidades.gerenciar'])->group(function 
 
 // Monitoramento dos Agentes (inventário)
 Route::get('/inventario/monitoramento', [\App\Http\Controllers\TelemetriaDashboardController::class, 'index'])
-    ->middleware(['auth','can:ver-inventario'])
+    ->middleware(['auth', 'can:ver-inventario'])
     ->name('inventario.monitoramento');
 Route::middleware(['auth'])->group(function () {
     Route::post('unidades/{unidade}/normas/upload', [InvController::class, 'uploadNorma'])
         ->name('unidades.normas.upload');
 
     Route::post('ocorrencias/{ocorrencia}/cit/receber', [InvController::class, 'citReceberOcorrencia'])
-        ->middleware(['auth','role:CIT,Administrador'])
+        ->middleware(['auth', 'role:CIT,Administrador'])
         ->name('ocorrencias.cit.receber');
     Route::post('ocorrencias/{ocorrencia}/cit/avaliar', [InvController::class, 'citAvaliarOcorrencia'])
-        ->middleware(['auth','role:CIT,Administrador'])
+        ->middleware(['auth', 'role:CIT,Administrador'])
         ->name('ocorrencias.cit.avaliar');
 
     Route::post('reposicoes/{reposicao}/detec/aprovar', [InvController::class, 'detecAprovarReposicao'])
-        ->middleware(['auth','role:DETEC,Administrador'])
+        ->middleware(['auth', 'role:DETEC,Administrador'])
         ->name('reposicoes.detec.aprovar');
     Route::post('reposicoes/{reposicao}/detec/entregar', [InvController::class, 'detecRegistrarEntrega'])
-        ->middleware(['auth','role:DETEC,Administrador'])
+        ->middleware(['auth', 'role:DETEC,Administrador'])
         ->name('reposicoes.detec.entregar');
     Route::post('reposicoes/{reposicao}/detec/baixar/{equipamento}', [InvController::class, 'detecBaixarEquipamento'])
-        ->middleware(['auth','role:DETEC,Administrador'])
+        ->middleware(['auth', 'role:DETEC,Administrador'])
         ->name('reposicoes.detec.baixar');
 });
 // Scrap CSV
 Route::get('scrap/test', [\App\Http\Controllers\ScrapController::class, 'index'])->name('scrap.test');
 Route::post('scrap/fetch', [\App\Http\Controllers\ScrapController::class, 'fetch'])->name('scrap.fetch');
 Route::post('scrap/swagger', [\App\Http\Controllers\ScrapController::class, 'fetchSwagger'])->name('scrap.swagger');
+Route::prefix('fiscalizer/empenhos')->group(function () {
+    Route::post('/upload', [EmpenhosImportController::class, 'uploadCsv'])->name('empenhos.upload');
+    Route::get('/importar', [EmpenhosImportController::class, 'iniciarImportacaoAutomatica'])->name('empenhos.importar');
+});

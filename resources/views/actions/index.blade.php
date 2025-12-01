@@ -2,13 +2,11 @@
 
 @section('title', 'Actions - RBAC')
 
-@section('content')
+@section('content_body')
 <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h3 class="mb-0">Gerenciar Actions</h3>
-        <a href="{{ route('actions.create') }}" class="btn btn-primary">
-            <i class="fas fa-plus-circle me-1"></i> Nova Action
-        </a>
+
     </div>
 
     @if(session('success'))

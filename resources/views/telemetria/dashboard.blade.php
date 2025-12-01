@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+@include('layouts.components.breadcrumbs')
 
 <div class="row">
     <div class="col-md-3">

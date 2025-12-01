@@ -53,11 +53,12 @@
         </div>
     </div>
 
-    {{-- Aqui você pode incluir as abas com partials:
-        @include('projetos.partials.apf')
-        @include('projetos.partials.atividades')
-        @include('projetos.partials.medicoes')
-        @include('projetos.partials.boletins')
-    --}}
+    @include('projetos.partials.apf')
+    @include('projetos.partials.atividades')
+    @include('projetos.partials.medicoes')
+    @include('projetos.partials.boletins')
+    @include('projetos.partials.requisitos')
+    @include('projetos.partials.equipe')
+    @include('projetos.partials.cronograma')
 </div>
 @endsection

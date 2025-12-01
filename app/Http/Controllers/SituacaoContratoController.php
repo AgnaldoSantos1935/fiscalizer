@@ -11,26 +11,32 @@ class SituacaoContratoController extends Controller
     /**
      * 🔹 Lista todas as situações
      */
-    public function index()
+    public function index(Request $request)
     {
-        $situacoes = SituacaoContrato::orderBy('id', 'asc')->get();
+        $query = SituacaoContrato::query();
+
+        if ($request->filled('nome')) {
+            $query->where('nome', 'like', '%' . $request->input('nome') . '%');
+        }
+        if ($request->filled('slug')) {
+            $query->where('slug', 'like', '%' . $request->input('slug') . '%');
+        }
+        if ($request->filled('cor') && \Illuminate\Support\Facades\Schema::hasColumn('situacoes_contratos', 'cor')) {
+            $query->where('cor', 'like', '%' . $request->input('cor') . '%');
+        }
+        if ($request->filled('motivo') && \Illuminate\Support\Facades\Schema::hasColumn('situacoes_contratos', 'motivo')) {
+            $query->where('motivo', 'like', '%' . $request->input('motivo') . '%');
+        }
+
+        $situacoes = $query->orderBy('nome')->paginate(20)->appends($request->query());
 
         return view('situacoes.index', compact('situacoes'));
     }
 
-    public function listar()
+    public function listar(Request $request)
     {
-        $columns = ['id', 'nome', 'descricao', 'slug'];
-        if (\Illuminate\Support\Facades\Schema::hasColumn('situacoes_contratos', 'cor')) {
-            $columns[] = 'cor';
-        }
-        if (\Illuminate\Support\Facades\Schema::hasColumn('situacoes_contratos', 'motivo')) {
-            $columns[] = 'motivo';
-        }
-
-        $situacoes = SituacaoContrato::orderBy('nome')->get($columns);
-
-        return response()->json($situacoes);
+        // Mantido por compatibilidade, porém index agora atende os filtros.
+        return $this->index($request);
     }
 
     /**

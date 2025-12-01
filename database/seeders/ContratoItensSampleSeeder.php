@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Contrato;
-use App\Models\ContratoItem;
+use Illuminate\Database\Seeder;
 
 class ContratoItensSampleSeeder extends Seeder
 {
@@ -60,4 +59,3 @@ class ContratoItensSampleSeeder extends Seeder
         }
     }
 }
-

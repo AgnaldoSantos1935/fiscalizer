@@ -10,10 +10,10 @@ return new class extends Migration
     {
         if (Schema::hasTable('equipamentos')) {
             Schema::table('equipamentos', function (Blueprint $table) {
-                if (!Schema::hasColumn('equipamentos', 'tipo')) {
+                if (! Schema::hasColumn('equipamentos', 'tipo')) {
                     $table->string('tipo')->nullable();
                 }
-                if (!Schema::hasColumn('equipamentos', 'especificacoes')) {
+                if (! Schema::hasColumn('equipamentos', 'especificacoes')) {
                     $table->json('especificacoes')->nullable();
                 }
             });
@@ -34,4 +34,3 @@ return new class extends Migration
         }
     }
 };
-

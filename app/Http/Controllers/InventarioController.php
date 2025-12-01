@@ -1,11 +1,12 @@
 <?php
+
 namespace App\Http\Controllers;
 
-use App\Models\Unidade;
-use App\Models\Equipamento;
 use App\Models\ContratoItem;
-use App\Models\Host;
 use App\Models\Dre;
+use App\Models\Equipamento;
+use App\Models\Host;
+use App\Models\Unidade;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -13,7 +14,7 @@ class InventarioController extends Controller
 {
     public function selecionarUnidade()
     {
-        $dres = Dre::orderBy('nome_dre')->get(['id','nome_dre','municipio_sede']);
+        $dres = Dre::orderBy('nome_dre')->get(['id', 'nome_dre', 'municipio_sede']);
 
         return view('unidades.select', compact('dres'));
     }
@@ -31,12 +32,12 @@ class InventarioController extends Controller
     public function index(Request $r, Unidade $unidade)
     {
         $tipo = trim(strtolower($unidade->tipo ?? ''));
-        if ($tipo !== 'regional' && !str_contains($tipo, 'regional')) {
+        if ($tipo !== 'regional' && ! str_contains($tipo, 'regional')) {
             abort(403, 'Acesso permitido somente para unidades regionais.');
         }
         $equipamentos = Equipamento::where('unidade_id', $unidade->id)->get();
         $hosts = Host::where('unidade_id', $unidade->id)->orderBy('nome_conexao')->get();
-        $itens = ContratoItem::orderBy('descricao_item')->get(['id','descricao_item']);
+        $itens = ContratoItem::orderBy('descricao_item')->get(['id', 'descricao_item']);
 
         $dre = Dre::where('nome_dre', $unidade->nome)->first();
         $municipio = $r->get('municipio');
@@ -44,11 +45,13 @@ class InventarioController extends Controller
         $municipios = collect();
         if ($dre) {
             $escolas = \App\Models\Escola::where('dre', $dre->codigodre)
-                ->when($municipio, function ($q) use ($municipio) { $q->where('municipio', $municipio); })
+                ->when($municipio, function ($q) use ($municipio) {
+                    $q->where('municipio', $municipio);
+                })
                 ->orderBy('municipio')
                 ->orderBy('escola')
                 ->limit(500)
-                ->get(['id','escola','municipio','telefone']);
+                ->get(['id', 'escola', 'municipio', 'telefone']);
             $municipios = \App\Models\Escola::where('dre', $dre->codigodre)
                 ->select('municipio')
                 ->distinct()
@@ -65,7 +68,7 @@ class InventarioController extends Controller
             ->limit(50)
             ->get();
 
-        return view('unidades.inventario', compact('unidade','equipamentos','hosts','itens','dre','escolas','municipios','municipio','ocorrencias','reposicoes'));
+        return view('unidades.inventario', compact('unidade', 'equipamentos', 'hosts', 'itens', 'dre', 'escolas', 'municipios', 'municipio', 'ocorrencias', 'reposicoes'));
     }
 
     public function store(Request $r, Unidade $unidade)
@@ -96,9 +99,15 @@ class InventarioController extends Controller
             $item = \App\Models\ContratoItem::find($data['contrato_item_id']);
             $desc = $item?->descricao_item ?? '';
             // parsing simples
-            if (preg_match('/i[3579]|ryzen\s*\d+/i', $desc, $m)) { $especificacoes['cpu'] = $m[0]; }
-            if (preg_match('/(\d+)\s*GB/i', $desc, $m)) { $especificacoes['ram_gb'] = (int) $m[1]; }
-            if (preg_match('/(SSD|HDD)[^\d]*(\d+)\s*GB/i', $desc, $m)) { $especificacoes['armazenamento'] = $m[2] . ' GB ' . $m[1]; }
+            if (preg_match('/i[3579]|ryzen\s*\d+/i', $desc, $m)) {
+                $especificacoes['cpu'] = $m[0];
+            }
+            if (preg_match('/(\d+)\s*GB/i', $desc, $m)) {
+                $especificacoes['ram_gb'] = (int) $m[1];
+            }
+            if (preg_match('/(SSD|HDD)[^\d]*(\d+)\s*GB/i', $desc, $m)) {
+                $especificacoes['armazenamento'] = $m[2] . ' GB ' . $m[1];
+            }
             $origemStr = 'contrato_item:' . $item->id;
         } elseif ($data['origem'] === 'local' && ($data['descricao_local'] ?? null)) {
             $idLocal = \DB::table('unidade_aquisicao_itens')->insertGetId([
@@ -130,7 +139,7 @@ class InventarioController extends Controller
             'origem_inventario' => $origemStr,
         ]);
 
-        return redirect()->route('unidades.inventario', $unidade->id)->with('success','Equipamento incluído.');
+        return redirect()->route('unidades.inventario', $unidade->id)->with('success', 'Equipamento incluído.');
     }
 
     public function reportarQuebra(Request $r, Equipamento $equipamento)
@@ -144,7 +153,7 @@ class InventarioController extends Controller
             'reportado_by' => auth()->id(),
         ]);
 
-        return back()->with('success','Quebra registrada.');
+        return back()->with('success', 'Quebra registrada.');
     }
 
     public function solicitarReposicao(Request $r, Unidade $unidade)
@@ -174,7 +183,7 @@ class InventarioController extends Controller
             'observacoes' => $data['motivo'] ?? null,
         ]);
 
-        return back()->with('success','Reposição solicitada.');
+        return back()->with('success', 'Reposição solicitada.');
     }
 
     public function citReceberOcorrencia(Request $r, \App\Models\EquipamentoOcorrencia $ocorrencia)
@@ -185,7 +194,7 @@ class InventarioController extends Controller
             'analise_status' => 'em_analise',
         ]);
 
-        return back()->with('success','Ocorrência recebida pelo CIT.');
+        return back()->with('success', 'Ocorrência recebida pelo CIT.');
     }
 
     public function citAvaliarOcorrencia(Request $r, \App\Models\EquipamentoOcorrencia $ocorrencia)
@@ -201,7 +210,7 @@ class InventarioController extends Controller
             'status' => 'em_analise',
         ]);
 
-        return back()->with('success','Ocorrência avaliada pelo CIT.');
+        return back()->with('success', 'Ocorrência avaliada pelo CIT.');
     }
 
     public function detecAprovarReposicao(Request $r, \App\Models\ReposicaoSolicitacao $reposicao)
@@ -225,7 +234,7 @@ class InventarioController extends Controller
             'usuario_id' => auth()->id(),
         ]);
 
-        return back()->with('success','Reposição aprovada pela DETEC.');
+        return back()->with('success', 'Reposição aprovada pela DETEC.');
     }
 
     public function detecRegistrarEntrega(Request $r, \App\Models\ReposicaoSolicitacao $reposicao)
@@ -248,7 +257,7 @@ class InventarioController extends Controller
             'usuario_id' => auth()->id(),
         ]);
 
-        return back()->with('success','Entrega registrada.');
+        return back()->with('success', 'Entrega registrada.');
     }
 
     public function detecBaixarEquipamento(Request $r, Equipamento $equipamento, \App\Models\ReposicaoSolicitacao $reposicao)
@@ -271,7 +280,7 @@ class InventarioController extends Controller
             'usuario_id' => auth()->id(),
         ]);
 
-        return back()->with('success','Baixa do equipamento registrada.');
+        return back()->with('success', 'Baixa do equipamento registrada.');
     }
 
     public function storeConexao(Request $r, Unidade $unidade)
@@ -295,13 +304,13 @@ class InventarioController extends Controller
             'itemcontratado' => $data['contrato_item_id'] ?? null,
         ]);
 
-        return redirect()->route('unidades.inventario', $unidade->id)->with('success','Conexão cadastrada.');
+        return redirect()->route('unidades.inventario', $unidade->id)->with('success', 'Conexão cadastrada.');
     }
 
     public function gerarEspecificacoes(Request $r, Unidade $unidade)
     {
         $tipo = trim(strtolower($unidade->tipo ?? ''));
-        if ($tipo !== 'regional' && !str_contains($tipo, 'regional')) {
+        if ($tipo !== 'regional' && ! str_contains($tipo, 'regional')) {
             abort(403);
         }
 
@@ -317,9 +326,9 @@ class InventarioController extends Controller
         $escolas = collect();
         if ($dre) {
             $escolas = \App\Models\Escola::where('dre', $dre->codigodre)
-                ->when($municipio, fn($q) => $q->where('municipio', $municipio))
+                ->when($municipio, fn ($q) => $q->where('municipio', $municipio))
                 ->orderBy('escola')
-                ->get(['id','escola','municipio']);
+                ->get(['id', 'escola', 'municipio']);
         }
 
         $items = [];
@@ -387,8 +396,12 @@ class InventarioController extends Controller
         $filtrosBase = [
             'idioma' => $r->get('idioma', 'pt-BR'),
         ];
-        if ($r->filled('fonte')) { $filtrosBase['fonte'] = $r->get('fonte'); }
-        if ($r->filled('tags')) { $filtrosBase['tags'] = (array) $r->get('tags'); }
+        if ($r->filled('fonte')) {
+            $filtrosBase['fonte'] = $r->get('fonte');
+        }
+        if ($r->filled('tags')) {
+            $filtrosBase['tags'] = (array) $r->get('tags');
+        }
         $fund1 = $rag->justificar('Utilizar cabo Cat6 para garantir desempenho gigabit.', $filtrosBase);
         $fund2 = $rag->justificar('Justifique porque a escola precisa de AP Wi‑Fi 6 (802.11ax).', $filtrosBase);
         $spec['fundamentacao'] = [
@@ -400,9 +413,13 @@ class InventarioController extends Controller
             $rq = trim($r->get('rag_q'));
             $rf = $r->get('rag_fonte');
             $rt = (array) $r->get('rag_tags');
-            $filtros = [ 'idioma' => $r->get('idioma', 'pt-BR') ];
-            if (!empty($rf)) { $filtros['fonte'] = $rf; }
-            if (!empty($rt)) { $filtros['tags'] = $rt; }
+            $filtros = ['idioma' => $r->get('idioma', 'pt-BR')];
+            if (! empty($rf)) {
+                $filtros['fonte'] = $rf;
+            }
+            if (! empty($rt)) {
+                $filtros['tags'] = $rt;
+            }
             $spec['rag_busca'] = [
                 'consulta' => $rq,
                 'resultados' => $rag->buscarFundamentacao($rq, 8, $filtros),
@@ -420,6 +437,7 @@ class InventarioController extends Controller
         $totalComp = max(1, (int) $totais['computadores']);
         $dash = $byMunicipio->map(function ($v) use ($totalComp) {
             $pct = round(($v['computadores'] / $totalComp) * 100);
+
             return array_merge($v, ['pct' => $pct]);
         });
         $spec['dashboard'] = [
@@ -431,7 +449,7 @@ class InventarioController extends Controller
             return response()->json($spec);
         }
 
-        return view('unidades.especificacoes', compact('unidade','dre','municipio','params','spec'));
+        return view('unidades.especificacoes', compact('unidade', 'dre', 'municipio', 'params', 'spec'));
     }
 
     public function uploadNorma(Request $r, Unidade $unidade)

@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\User;
 use App\Models\Role;
+use App\Models\User;
+use Illuminate\Database\Seeder;
 
 class AdminUserSeeder extends Seeder
 {
@@ -19,4 +19,3 @@ class AdminUserSeeder extends Seeder
         $user->save();
     }
 }
-

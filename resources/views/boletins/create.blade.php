@@ -1,12 +1,12 @@
 @extends('layouts.app')
-@section('title','Gerar Boletim de Medição')
+@section('title','Cadastrar Boletim de Medição')
 
 @section('content')
 @include('layouts.components.breadcrumbs')
 <div class="container-fluid">
   <div class="card rounded-4 border-0 shadow-sm">
     <div class="card-header bg-white">
-      <h5 class="mb-0"><i class="fas fa-file-signature me-2 text-primary"></i>Novo Boletim</h5>
+      <h5 class="mb-0"><i class="fas fa-file-signature me-2 text-primary"></i>Cadastrar Boletim</h5>
     </div>
     <form method="POST" action="{{ route('boletins.store') }}">
       @csrf

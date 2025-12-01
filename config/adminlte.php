@@ -305,13 +305,11 @@ return [
             'icon' => 'fas fa-home',
         ],
 
-
         [
             'text' => 'Contratos',
             'icon' => 'fas fa-file-contract',
             'submenu' => [
-                ['text' => 'Listar Contratos', 'route' => 'contratos.index'],
-                ['text' => 'Novo Contrato', 'route' => 'contratos.create'],
+                ['text' => 'Listar Contratos', 'route' => 'contratos.index', 'icon' => 'fas fa-file'],
             ],
         ],
 
@@ -319,8 +317,8 @@ return [
             'text' => 'Medição',
             'icon' => 'fas fa-calculator',
             'submenu' => [
-                ['text' => 'Medições', 'route' => 'medicoes.index'],
-                ['text' => 'Boletins de Medição', 'route' => 'boletins.index'],
+                ['text' => 'Medições', 'route' => 'medicoes.index', 'icon' => 'fas fa-file'],
+                ['text' => 'Boletins de Medição', 'route' => 'boletins.index', 'icon' => 'fas fa-file'],
             ],
         ],
 
@@ -328,12 +326,12 @@ return [
             'text' => 'Monitoramento',
             'icon' => 'fas fa-signal',
             'submenu' => [
-                ['text' => 'Infraestrutura', 'route' => 'monitoramentos.index'],
-                ['text' => 'Dashboard', 'route' => 'monitoramentos.dashboard2'],
-                ['text' => 'Heatline', 'route' => 'monitoramentos.heatline'],
-                ['text' => 'Matriz', 'route' => 'monitoramentos.matrix'],
-                ['text' => 'Hosts', 'route' => 'hosts.index', 'can' => 'view-index-host'],
-                ['text' => 'Dashboard Conexões', 'route' => 'host_testes.dashboard'],
+                ['text' => 'Infraestrutura', 'route' => 'monitoramentos.index', 'icon' => 'fas fa-file'],
+                ['text' => 'Dashboard', 'route' => 'monitoramentos.dashboard2', 'icon' => 'fas fa-file'],
+                ['text' => 'Heatline', 'route' => 'monitoramentos.heatline', 'icon' => 'fas fa-file'],
+                ['text' => 'Matriz', 'route' => 'monitoramentos.matrix', 'icon' => 'fas fa-file'],
+                ['text' => 'Hosts', 'route' => 'hosts.index', 'can' => 'view-index-host', 'icon' => 'fas fa-file'],
+                ['text' => 'Dashboard Conexões', 'route' => 'host_testes.dashboard', 'icon' => 'fas fa-file'],
                 [
                     'text' => 'Monitoramento dos Agentes',
                     'route' => 'inventario.monitoramento',
@@ -350,14 +348,41 @@ return [
 
         ],
 
-
         [
             'text' => 'Cadastros',
             'icon' => 'fas fa-address-book',
             'submenu' => [
-                ['text' => 'Empresas', 'route' => 'empresas.index'],
-                ['text' => 'Escolas', 'route' => 'escolas.index', 'can' => 'view-escolas'],
-                ['text' => 'DREs', 'route' => 'dres.index'],
+                ['text' => 'Cadastrar Empresa', 'route' => 'empresas.create', 'icon' => 'fas fa-file'],
+                ['text' => 'Cadastrar Escola', 'route' => 'escolas.create', 'can' => 'view-escolas', 'icon' => 'fas fa-file'],
+                ['text' => 'Cadastrar DRE', 'route' => 'dres.create', 'icon' => 'fas fa-file'],
+                ['text' => 'Cadastrar Equipamento', 'route' => 'equipamentos.create', 'icon' => 'fas fa-file'],
+                ['text' => 'Cadastrar Contrato', 'route' => 'contratos.create', 'icon' => 'fas fa-file'],
+                ['text' => 'Cadastrar Termo de Referência', 'route' => 'contratacoes.termos-referencia.create', 'icon' => 'fas fa-file'],
+                ['text' => 'Cadastrar Projeto', 'route' => 'projetos.create', 'can' => 'view-index-projetos_soft', 'icon' => 'fas fa-file'],
+            ],
+        ],
+
+        [
+            'text' => 'Empresas',
+            'icon' => 'fas fa-building',
+            'submenu' => [
+                ['text' => 'Listar Empresas', 'route' => 'empresas.index', 'icon' => 'fas fa-file'],
+            ],
+        ],
+
+        [
+            'text' => 'Escolas',
+            'icon' => 'fas fa-school',
+            'submenu' => [
+                ['text' => 'Listar Escolas', 'route' => 'escolas.index', 'can' => 'view-escolas', 'icon' => 'fas fa-file'],
+            ],
+        ],
+
+        [
+            'text' => 'DRE',
+            'icon' => 'fas fa-landmark',
+            'submenu' => [
+                ['text' => 'Listar DREs', 'route' => 'dres.index', 'icon' => 'fas fa-file'],
             ],
         ],
 
@@ -365,20 +390,25 @@ return [
             'text' => 'Contratações',
             'icon' => 'fas fa-clipboard-list',
             'submenu' => [
-                ['text' => 'Painel', 'route' => 'contratacoes.index'],
-                ['text' => 'Termos de Referência', 'route' => 'contratacoes.termos-referencia.index'],
-                ['text' => 'Novo TR', 'route' => 'contratacoes.termos-referencia.create'],
+                ['text' => 'Painel', 'route' => 'contratacoes.index', 'icon' => 'fas fa-file'],
+                ['text' => 'Termos de Referência', 'route' => 'contratacoes.termos-referencia.index', 'icon' => 'fas fa-file'],
             ],
         ],
-
 
         [
             'text' => 'Projetos',
             'icon' => 'fas fa-sitemap',
             'submenu' => [
-                ['text' => 'Painel de Projetos', 'route' => 'dashboard.projetos', 'can' => 'view-index-projetos_soft'],
-                ['text' => 'Listar Projetos', 'route' => 'projetos.index', 'can' => 'view-index-projetos_soft'],
-                ['text' => 'Novo Projeto', 'route' => 'projetos.create', 'can' => 'view-index-projetos_soft'],
+                ['text' => 'Painel de Projetos', 'route' => 'dashboard.projetos', 'can' => 'view-index-projetos_soft', 'icon' => 'fas fa-file'],
+                ['text' => 'Listar Projetos', 'route' => 'projetos.index', 'can' => 'view-index-projetos_soft', 'icon' => 'fas fa-file'],
+            ],
+        ],
+        [
+            'text' => 'Inventário',
+            'icon' => 'fas fa-tv',
+            'submenu' => [
+                ['text' => 'Equipamentos', 'route' => 'equipamentos.index', 'can' => 'view-index-equipamentos', 'icon' => 'fas fa-file'],
+
             ],
         ],
 
@@ -386,8 +416,8 @@ return [
             'text' => 'Relatórios',
             'icon' => 'fas fa-file-alt',
             'submenu' => [
-                ['text' => 'Listar Relatórios', 'route' => 'relatorios.index', 'can' => 'view-relatorios'],
-                ['text' => 'Gerar Relatório', 'route' => 'relatorios.gerar', 'can' => 'view-relatorios'],
+                ['text' => 'Listar Relatórios', 'route' => 'relatorios.index', 'can' => 'view-relatorios', 'icon' => 'fas fa-file'],
+                ['text' => 'Gerar Relatório', 'route' => 'relatorios.gerar', 'can' => 'view-relatorios', 'icon' => 'fas fa-file'],
             ],
         ],
 
@@ -395,9 +425,9 @@ return [
             'text' => 'Administração',
             'icon' => 'fas fa-users-cog',
             'submenu' => [
-                ['text' => 'Usuários', 'route' => 'usuarios.index'],
-                ['text' => 'Situações de Contrato', 'route' => 'situacoes.index'],
-                ['text' => 'Permissões (RBAC)', 'route' => 'rbac.roles_actions.index', 'can' => 'system.admin'],
+                ['text' => 'Usuários', 'route' => 'usuarios.index', 'icon' => 'fas fa-file'],
+                ['text' => 'Situações de Contrato', 'route' => 'situacoes.index', 'icon' => 'fas fa-file'],
+                ['text' => 'Permissões (RBAC)', 'route' => 'rbac.roles_actions.index', 'can' => 'system.admin', 'icon' => 'fas fa-file'],
             ],
         ],
         [

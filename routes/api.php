@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\Api\HostApiController;
 use App\Http\Controllers\Api\ContratoImportController;
+use App\Http\Controllers\Api\HostApiController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/hosts/status', [HostApiController::class, 'status']);

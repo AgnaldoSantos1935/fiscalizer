@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('subtitle', 'Novo Evento')
+@section('subtitle', 'Cadastrar Evento')
 @section('content_header_title', 'Notificações')
-@section('content_header_subtitle', 'Criar evento')
+@section('content_header_subtitle', 'Cadastrar evento')
 
 @section('content_body')
 <div class="card shadow-sm">
@@ -109,7 +109,7 @@
                 <input class="form-check-input" type="checkbox" name="enabled" id="enabled" checked>
                 <label class="form-check-label" for="enabled">Ativo</label>
             </div>
-            <button type="submit" class="btn btn-primary">Salvar</button>
+            <button type="submit" class="btn btn-primary">Cadastrar Evento</button>
             <a href="{{ route('admin.notificacoes.index') }}" class="btn btn-secondary">Cancelar</a>
             @isset($actions)
             <datalist id="actionsList">

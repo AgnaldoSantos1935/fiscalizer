@@ -173,8 +173,7 @@ const initApp = () => {
     document.body.classList.toggle('theme-dark', !!dark);
     const icon = document.getElementById('toggleThemeIcon');
     if (icon) {
-      icon.classList.toggle('fa-moon', !dark);
-      icon.classList.toggle('fa-sun', !!dark);
+      icon.classList.add('fa-sun');
     }
     try {
       const C = window.Chart;
@@ -194,6 +193,17 @@ const initApp = () => {
   };
   const savedTheme = localStorage.getItem('theme-dark') === 'true';
   applyTheme(savedTheme);
+  const applyA11y = (on) => {
+    document.body.classList.toggle('a11y-mode', !!on);
+    const icon = document.getElementById('toggleA11yIcon');
+    if (icon) {
+      icon.classList.toggle('fa-universal-access', !on);
+      icon.classList.toggle('fa-low-vision', !!on);
+    }
+    window.dispatchEvent(new CustomEvent('a11y:change', { detail: { enabled: !!on } }));
+  };
+  const savedA11y = localStorage.getItem('a11y-mode') === 'true';
+  applyA11y(savedA11y);
   window.Theme = {
     onChange: function (fn) {
       window.addEventListener('theme:change', function (e) { try { fn(!!(e.detail && e.detail.dark)); } catch(_) {} });
@@ -209,9 +219,26 @@ const initApp = () => {
       localStorage.setItem('theme-dark', next ? 'true' : 'false');
     });
   }
+  const a11yBtn = document.getElementById('toggleA11y');
+  if (a11yBtn) {
+    a11yBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      const next = !document.body.classList.contains('a11y-mode');
+      applyA11y(next);
+      localStorage.setItem('a11y-mode', next ? 'true' : 'false');
+    });
+  }
 
-  try {
-    if (window.$ && $.fn && $.fn.dataTable) {
+  const whenDataTablesReady = function (fn) {
+    const check = function () {
+      const ready = !!(window.jQuery && $.fn && ($.fn.DataTable || $.fn.dataTable));
+      if (ready) { try { fn(); } catch (_) {} } else { setTimeout(check, 50); }
+    };
+    check();
+  };
+
+  whenDataTablesReady(function () {
+    try {
       const langUrl = window.DataTablesLangUrl || '/js/pt-BR.json';
       $.extend(true, $.fn.dataTable.defaults, {
         paging: true,
@@ -221,27 +248,11 @@ const initApp = () => {
         searching: false,
         language: { url: langUrl },
         dom: 't<"bottom"p>',
-        responsive: true
+        responsive: true,
+        retrieve: true
       });
-      const autoTables = Array.from(document.querySelectorAll('table.table'));
-      autoTables.forEach(function(tbl){
-        const $t = $(tbl);
-        if ($t.hasClass('dt-skip')) return;
-        if ($t.hasClass('dataTable')) return;
-        const thead = tbl.querySelector('thead');
-        if (!thead) return;
-        const thCount = thead.querySelectorAll('th').length;
-        const firstRow = tbl.querySelector('tbody tr');
-        const hasSpan = tbl.querySelector('tbody td[colspan], tbody td[rowspan]');
-        if (hasSpan) return;
-        if (firstRow) {
-          const tdCount = firstRow.querySelectorAll('td').length;
-          if (tdCount && thCount && tdCount !== thCount) return;
-        }
-        try { $t.DataTable(); } catch(_) {}
-      });
-    }
-  } catch (_) {}
+    } catch (_) {}
+  });
 
   // --- Push (fallback seguro) ---
   window.subscribePush = async function subscribePush() {

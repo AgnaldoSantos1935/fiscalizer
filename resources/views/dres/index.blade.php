@@ -2,8 +2,7 @@
 
 @section('title', 'Diretorias Regionais de Educação')
 
-@section('content')
-@include('layouts.components.breadcrumbs')
+@section('content_body')
 <div class="container-fluid">
 
     <!-- 🔹 Card de Filtros -->
@@ -15,34 +14,54 @@
         </div>
 
         <div class="card-body bg-white">
-            <form id="formFiltros" class="row g-3 mb-3 bg-light p-3 rounded-4 shadow-sm">
+            <form id="formFiltros" class="row g-3 mb-3 bg-light p-3 rounded-4 shadow-sm" method="GET" action="{{ route('dres.index') }}">
                 <div class="col-md-2">
                     <label for="filtroCodigo" class="form-label fw-semibold text-secondary small">Código DRE</label>
-                    <input type="text" id="filtroCodigo" class="form-control form-control-sm" placeholder="Ex: 01, 05, 12...">
+                    <input type="text" id="filtroCodigo" name="codigo" value="{{ request('codigo') }}" class="form-control form-control-sm" placeholder="Ex: 01, 05, 12...">
                 </div>
 
                 <div class="col-md-4">
                     <label for="filtroNome" class="form-label fw-semibold text-secondary small">Nome da DRE</label>
-                    <input type="text" id="filtroNome" class="form-control form-control-sm" placeholder="Digite parte do nome">
+                    <input type="text" id="filtroNome" name="nome" value="{{ request('nome') }}" class="form-control form-control-sm" placeholder="Digite parte do nome">
                 </div>
 
                 <div class="col-md-3">
                     <label for="filtroMunicipio" class="form-label fw-semibold text-secondary small">Município Sede</label>
-                    <input type="text" id="filtroMunicipio" class="form-control form-control-sm" placeholder="Belém, Santarém...">
+                    <select id="filtroMunicipio" name="municipio" class="form-select form-select-sm">
+                        <option value="">Todos</option>
+                        @foreach(($municipios ?? []) as $m)
+                            <option value="{{ $m }}" @selected(request('municipio')===$m)>{{ $m }}</option>
+                        @endforeach
+                    </select>
                 </div>
 
                 <div class="col-md-3">
                     <label for="filtroEmail" class="form-label fw-semibold text-secondary small">E-mail Institucional</label>
-                    <input type="text" id="filtroEmail" class="form-control form-control-sm" placeholder="@seduc.pa.gov.br">
+                    <input type="text" id="filtroEmail" name="email" value="{{ request('email') }}" class="form-control form-control-sm" placeholder="@seduc.pa.gov.br">
+                </div>
+
+                <div class="col-md-2">
+                    <label for="filtroUF" class="form-label fw-semibold text-secondary small">UF</label>
+                    <select id="filtroUF" name="uf" class="form-select form-select-sm">
+                        <option value="">Todas</option>
+                        @foreach(($ufs ?? []) as $uf)
+                            <option value="{{ $uf }}" @selected(request('uf')===$uf)>{{ $uf }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label for="filtroCEP" class="form-label fw-semibold text-secondary small">CEP</label>
+                    <input type="text" id="filtroCEP" name="cep" value="{{ request('cep') }}" class="form-control form-control-sm" placeholder="00000-000" maxlength="9">
                 </div>
 
                 <div class="col-12 text-end mt-2">
-                    <button type="button" id="btnAplicarFiltros" class="btn btn-primary btn-sm px-3 me-2">
+                    <button type="submit" id="btnAplicarFiltros" class="btn btn-primary btn-sm px-3 me-2">
                         <i class="fas fa-filter me-1"></i> Aplicar
                     </button>
-                    <button type="button" id="btnLimparFiltros" class="btn btn-outline-secondary btn-sm px-3">
+                    <a href="{{ route('dres.index') }}" id="btnLimparFiltros" class="btn btn-outline-secondary btn-sm px-3">
                         <i class="fas fa-undo me-1"></i> Limpar
-                    </button>
+                    </a>
                 </div>
             </form>
         </div>
@@ -78,13 +97,7 @@
                         </li>
                     </ul>
 
-                    <ul class="navbar-nav ms-auto">
-                        <li class="nav-item">
-                            <a href="{{ route('dres.create') }}" class="btn btn-primary btn-sm px-3">
-                                <i class="fas fa-plus-circle me-1"></i> Nova DRE
-                            </a>
-                        </li>
-                    </ul>
+
                 </div>
             </nav>
 
@@ -96,6 +109,8 @@
                         <th>Código</th>
                         <th>Nome</th>
                         <th>Município Sede</th>
+                        <th>UF</th>
+                        <th>CEP</th>
                         <th>Email</th>
                         <th>Telefone</th>
                     </tr>
@@ -109,12 +124,15 @@
                         <td>{{ $dre->codigodre }}</td>
                         <td class="fw-semibold text-dark">{{ $dre->nome_dre }}</td>
                         <td>{{ $dre->municipio_sede }}</td>
+                        <td><span class="badge bg-secondary">{{ $dre->uf ?? '—' }}</span></td>
+                        <td><span class="badge bg-light text-secondary">{{ $dre->cep ?? '—' }}</span></td>
                         <td class="text-muted small">{{ $dre->email }}</td>
                         <td class="text-muted small">{{ $dre->telefone }}</td>
                     </tr>
                     @endforeach
                 </tbody>
             </table>
+            <div class="mt-2">{{ $dres->links() }}</div>
         </div>
     </div>
 </div>
@@ -140,8 +158,6 @@
 @endsection
 
 @section('css')
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
-<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap4.min.css">
 <style>
 .table-borderless tbody tr:hover {
     background-color: #f8f9fa;
@@ -163,57 +179,18 @@
 #formFiltros .btn {
     border-radius: 20px;
 }
-/* Bordas externas apenas */
-table.dataTable {
-  border: 1px solid #dee2e6 !important;
-  border-collapse: collapse !important;
-  width: 100% !important;
-}
-
-table.dataTable th,
-table.dataTable td {
-  border: none !important;
-  vertical-align: middle !important;
-  white-space: nowrap !important;
-}
-
-table.dataTable thead th {
-  background-color: #f8f9fa !important;
-  font-weight: 600;
-  color: #495057;
-}
-
-/* Scroll horizontal suave no modo responsivo */
-div.dataTables_wrapper {
-  width: 100%;
-  overflow-x: auto;
-}
-
-/* Ajuste de layout do botão de exportação */
-.dt-buttons {
-  margin-bottom: 0.5rem;
-}
-
-/* Garante prioridade de exibição do modal sobre DataTables */
+/* Garante prioridade de exibição do modal */
 .modal-backdrop.show { z-index: 1040 !important; }
 .modal { z-index: 1050 !important; }
 </style>
 @endsection
 
-@section('js')
- 
+@push('js')
+
 
 
 <script>
-$(document).ready(function() {
-    // Inicializa DataTable
-    const tabela = $('#tabelaDres').DataTable({
-        language: { url: '{{ asset("js/pt-BR.json") }}' },
-        pageLength: 10,
-        order: [[1, 'asc']],
-        dom: 't<"bottom"ip>'
-    });
-
+$(function(){
     let dreSelecionada = null;
 
     // Seleção via radio
@@ -239,6 +216,8 @@ $(document).ready(function() {
                     <tr><th>Município</th><td>${d.municipio_sede}</td></tr>
                     <tr><th>Email</th><td>${d.email ?? '-'}</td></tr>
                     <tr><th>Telefone</th><td>${d.telefone ?? '-'}</td></tr>
+                    <tr><th>UF</th><td>${d.uf ?? '-'}</td></tr>
+                    <tr><th>CEP</th><td>${d.cep ?? '-'}</td></tr>
                     <tr><th>Endereço</th><td>${enderecoTxt}</td></tr>
                 `);
                 const modalDetalhes = new bootstrap.Modal(document.getElementById('modalDetalhesDre'));
@@ -282,37 +261,10 @@ $(document).ready(function() {
         }
     });
 
-    // 🔍 Filtros
-    $('#btnAplicarFiltros').on('click', function() {
-        const codigo = $('#filtroCodigo').val().toLowerCase();
-        const nome = $('#filtroNome').val().toLowerCase();
-        const municipio = $('#filtroMunicipio').val().toLowerCase();
-        const email = $('#filtroEmail').val().toLowerCase();
-
-        $('#tabelaDres tbody tr').each(function() {
-            const colCodigo = $(this).find('td:nth-child(2)').text().toLowerCase();
-            const colNome = $(this).find('td:nth-child(3)').text().toLowerCase();
-            const colMunicipio = $(this).find('td:nth-child(4)').text().toLowerCase();
-            const colEmail = $(this).find('td:nth-child(5)').text().toLowerCase();
-
-            if (
-                (codigo === '' || colCodigo.includes(codigo)) &&
-                (nome === '' || colNome.includes(nome)) &&
-                (municipio === '' || colMunicipio.includes(municipio)) &&
-                (email === '' || colEmail.includes(email))
-            ) {
-                $(this).show();
-            } else {
-                $(this).hide();
-            }
-        });
-    });
-
-    // 🔄 Limpar filtros
-    $('#btnLimparFiltros').on('click', function() {
-        $('#formFiltros input').val('');
-        $('#tabelaDres tbody tr').show();
+    $('#filtroCEP').on('input', function(){
+        const v = (this.value||'').replace(/\D/g,'').slice(0,8);
+        this.value = v.length>5? v.slice(0,5)+'-'+v.slice(5): v;
     });
 });
 </script>
-@endsection
+@endpush

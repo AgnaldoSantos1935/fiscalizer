@@ -1,8 +1,7 @@
 @extends('layouts.app')
-@section('title','Novo Documento')
+@section('title','Cadastrar Documento')
 
-@section('content')
-@include('layouts.components.breadcrumbs')
+@section('content_body')
 <div class="container-fluid">
   <div class="card rounded-4 border-0 shadow-sm">
     <div class="card-header bg-white">
@@ -35,7 +34,7 @@
       </div>
       <div class="card-footer bg-white d-flex gap-2">
         <a href="{{ route('documentos.index') }}" class="btn btn-outline-secondary">Cancelar</a>
-        <button class="btn btn-primary"><i class="fas fa-save me-1"></i>Salvar</button>
+        <button class="btn btn-primary"><i class="fas fa-save me-1"></i>Cadastrar Documento</button>
       </div>
     </form>
   </div>

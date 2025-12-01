@@ -13,6 +13,7 @@ class Escola extends Model
 
     protected $fillable = [
         'id',
+        'codigo',
         'restricao_atendimento',
         'escola',
         'codigo_inep',
@@ -56,9 +57,9 @@ class Escola extends Model
     /**
      * Exemplo de relacionamento (caso exista tabela DREs).
      */
-    public function dreRelacionada()
+    public function dre()
     {
-        return $this->belongsTo(DRE::class, 'dre', 'codigodre');
+        return $this->belongsTo(Dre::class, 'dre', 'codigodre');
     }
 
     public function hosts()

@@ -6,45 +6,45 @@
 
         <a href="{{ route('medicao.itens.create', $projeto->id) }}"
            class="btn btn-primary btn-sm">
-            <i class="fas fa-plus-circle me-1"></i> Novo Item
+            <i class="fas fa-plus-circle me-1"></i> Cadastrar Item
         </a>
     </div>
 
     <div class="card-body bg-white">
-        <table id="tabelaMedicao" class="table table-striped w-100"></table>
+        <table class="table table-striped w-100">
+            <thead class="table-light">
+                <tr>
+                    <th>Descrição</th>
+                    <th>PF</th>
+                    <th>UST</h>
+                    <th class="text-end">Valor Total</th>
+                    <th class="text-center" width="130">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(($medicaoItens ?? []) as $mi)
+                    <tr>
+                        <td>{{ $mi->descricao ?? '—' }}</td>
+                        <td>{{ $mi->pontos_funcao ?? 0 }}</td>
+                        <td>{{ $mi->ust ?? 0 }}</td>
+                        <td class="text-end">R$ {{ number_format((float) ($mi->valor_total ?? 0), 2, ',', '.') }}</td>
+                        <td class="text-center">
+                            <a href="{{ url('medicao/itens') }}/{{ $mi->id }}/edit" class="btn btn-warning btn-sm me-1">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <form action="{{ url('medicao/itens') }}/{{ $mi->id }}" method="POST" class="d-inline" onsubmit="return confirm('Excluir item?');">
+                                @csrf
+                                @method('DELETE')
+                                <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
     </div>
 </div>
 
-@section('js')
-<script>
-$(document).ready(function () {
-
-    $('#tabelaMedicao').DataTable({
-        ajax: "{{ route('api.projetos.medicao', $projeto->id) }}",
-        language: { url: '{{ asset("js/pt-BR.json") }}' },
-        pageLength: 10,
-        dom: 't<"bottom"ip>',
-        columns: [
-            { data: 'descricao', title: 'Descrição' },
-            { data: 'quantidade', title: 'Qtd' },
-            { data: 'valor_unitario', title: 'Valor Unit.', render: v => 'R$ ' + parseFloat(v).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) },
-            { data: 'total', title: 'Total', render: v => 'R$ ' + parseFloat(v).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) },
-            {
-                data: null,
-                title: 'Ações',
-                width: '130px',
-                render: (d) => `
-                    <a href="/medicao/itens/${d.id}/edit" class="btn btn-warning btn-sm me-1">
-                        <i class="fas fa-edit"></i>
-                    </a>
-                    <button class="btn btn-danger btn-sm" onclick="excluirMedicao(${d.id})">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                `
-            }
-        ]
-    });
-
-});
-</script>
-@endsection
+@push('js')
+<script>$(function(){ /* sem DataTables */ });</script>
+@endpush

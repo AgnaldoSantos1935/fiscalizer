@@ -374,7 +374,7 @@ class EmpenhoController extends Controller
         // Registra como documento do contrato
         Documento::create([
             'contrato_id' => $empenho->contrato_id,
-            'tipo' => 'pretensao_empenho',
+            'tipo' => 'OUTROS',
             'titulo' => 'Pretensão de Empenho — Nº ' . $empenho->numero . ' — ' . $mes . '/' . $ano,
             'descricao' => 'PDF gerado após aprovação da solicitação de pretensão de empenho.',
             'caminho_arquivo' => $path,

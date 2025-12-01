@@ -16,6 +16,7 @@ class ContratoItem extends Model
         'descricao_item',
         'unidade_medida',
         'quantidade',
+        'meses',
         'valor_unitario',
         'valor_total',
         'tipo_item',
@@ -26,6 +27,7 @@ class ContratoItem extends Model
 
     protected $casts = [
         'quantidade' => 'decimal:2',
+        'meses' => 'integer',
         'valor_unitario' => 'decimal:2',
         'valor_total' => 'decimal:2',
     ];
@@ -40,7 +42,8 @@ class ContratoItem extends Model
     protected static function booted()
     {
         static::saving(function ($item) {
-            $item->valor_total = $item->quantidade * $item->valor_unitario;
+            $meses = $item->meses ?? 1;
+            $item->valor_total = ($item->quantidade ?? 0) * ($item->valor_unitario ?? 0) * (is_numeric($meses) ? (int) $meses : 1);
         });
     }
 }

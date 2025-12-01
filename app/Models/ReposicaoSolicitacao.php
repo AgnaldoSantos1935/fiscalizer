@@ -9,9 +9,9 @@ class ReposicaoSolicitacao extends Model
     protected $table = 'reposicao_solicitacoes';
 
     protected $fillable = [
-        'unidade_id','equipamento_id','contrato_item_id','quantidade','status','motivo',
-        'cit_decisao','cit_observacoes','cit_usuario_id','detec_usuario_id',
-        'aprovada_em','entregue_em','baixado_em',
+        'unidade_id', 'equipamento_id', 'contrato_item_id', 'quantidade', 'status', 'motivo',
+        'cit_decisao', 'cit_observacoes', 'cit_usuario_id', 'detec_usuario_id',
+        'aprovada_em', 'entregue_em', 'baixado_em',
     ];
 
     protected $casts = [
@@ -35,4 +35,3 @@ class ReposicaoSolicitacao extends Model
         return $this->belongsTo(ContratoItem::class);
     }
 }
-

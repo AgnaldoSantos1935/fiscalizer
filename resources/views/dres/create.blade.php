@@ -2,20 +2,19 @@
 
 @section('title', 'Cadastrar DRE')
 
-@section('content')
-@include('layouts.components.breadcrumbs')
+@section('content_body')
 @section('breadcrumb')
   @include('layouts.components.breadcrumbs', [
     'trail' => [
       ['label' => 'DREs', 'icon' => 'fas fa-university', 'url' => route('dres.index')],
-      ['label' => 'Nova DRE']
+      ['label' => 'Cadastrar DRE']
     ]
   ])
 @endsection
 <div class="container-fluid">
     <div class="card shadow-lg border-0 rounded-4">
         <div class="card-header bg-primary text-white d-flex align-items-center justify-content-between rounded-top-4">
-            <h4 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Nova DRE</h4>
+            <h4 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Cadastrar DRE</h4>
             <a href="{{ route('dres.index') }}" class="btn btn-light btn-sm text-primary">
                 <i class="fas fa-arrow-left me-1"></i>Voltar
             </a>
@@ -50,6 +49,10 @@
                         <label class="form-label fw-semibold">CEP</label>
                         <input type="text" name="cep" class="form-control cep-input" placeholder="00000-000" maxlength="9">
                     </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">UF</label>
+                        <input type="text" name="uf" class="form-control" maxlength="2" placeholder="UF" title="Informe a UF com 2 letras">
+                    </div>
                     <div class="col-md-5">
                         <label class="form-label fw-semibold">Logradouro</label>
                         <input type="text" name="logradouro" class="form-control">
@@ -78,7 +81,7 @@
 
                 <div class="mt-4 d-flex justify-content-end gap-2">
                     <a href="{{ route('dres.index') }}" class="btn btn-outline-secondary"><i class="fas fa-times me-1"></i> Cancelar</a>
-                    <button type="submit" class="btn btn-success px-4 py-2 rounded-3"><i class="fas fa-save me-1"></i>Salvar</button>
+                    <button type="submit" class="btn btn-success px-4 py-2 rounded-3"><i class="fas fa-save me-1"></i>Cadastrar DRE</button>
                 </div>
             </form>
         </div>
@@ -92,6 +95,7 @@
   const $logradouro = document.querySelector('[name="logradouro"]');
   const $bairro = document.querySelector('[name="bairro"]');
   const $municipio = document.querySelector('[name="municipio_sede"]');
+  const $uf = document.querySelector('[name="uf"]');
   const $numero = document.querySelector('[name="numero"]');
   const $complemento = document.querySelector('[name="complemento"]');
 
@@ -128,6 +132,7 @@
         if ($logradouro) $logradouro.value = data.logradouro || '';
         if ($bairro) $bairro.value = data.bairro || '';
         if ($municipio) $municipio.value = data.localidade || $municipio.value;
+        if ($uf) $uf.value = (data.uf || $uf.value || '').toUpperCase();
         if ($complemento && data.complemento) $complemento.value = data.complemento;
         setTimeout(()=>{ if ($numero) $numero.focus(); }, 80);
         setAlert('success','CEP validado','Endereço preenchido automaticamente.');
@@ -152,6 +157,9 @@
       if (d.length === 8) { consultaCep(d); }
       else { setAlert('warning','CEP inválido','Informe um CEP com 8 dígitos.'); }
     });
+  }
+  if ($uf) {
+    $uf.addEventListener('input', function(){ this.value = (this.value||'').toUpperCase().slice(0,2); });
   }
 })();
 </script>

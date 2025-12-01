@@ -7,10 +7,10 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="mb-0">Visualizar Documento</h2>
     <div>
-      <a href="{{ route('documentos.download', $documento) }}" class="btn btn-outline-success me-2">
+      <a href="{{ $download_url ?? route('documentos.download', $documento) }}" class="btn btn-outline-success me-2">
         <i class="fas fa-download"></i> Download
       </a>
-      <a href="{{ route('documentos.stream', $documento) }}" target="_blank" class="btn btn-outline-primary">
+      <a href="{{ $stream_url ?? route('documentos.stream', $documento) }}" target="_blank" class="btn btn-outline-primary">
         Abrir em nova aba
       </a>
       <a href="{{ $return_to }}" class="btn btn-secondary">Voltar</a>
@@ -22,7 +22,7 @@
       <div class="ratio ratio-16x9">
         <iframe
           id="pdfFrame"
-          src="{{ route('documentos.stream', $documento) }}"
+          src="{{ $stream_url ?? route('documentos.stream', $documento) }}"
           title="Visualizador de PDF"
           class="border-0 w-100 h-100"
           allow="fullscreen"

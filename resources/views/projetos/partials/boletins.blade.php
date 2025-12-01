@@ -11,41 +11,35 @@
     </div>
 
     <div class="card-body bg-white">
-        <table id="tabelaBoletins" class="table table-striped w-100"></table>
+        <table class="table table-striped w-100">
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>PF</th>
+                    <th>UST</th>
+                    <th class="text-end">Valor</th>
+                    <th>Emissão</th>
+                    <th class="text-center" width="150">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(($boletins ?? []) as $b)
+                    <tr>
+                        <td>{{ $b->id }}</td>
+                        <td>{{ $b->total_pf ?? 0 }}</td>
+                        <td>{{ $b->total_ust ?? 0 }}</td>
+                        <td class="text-end">R$ {{ number_format((float) ($b->valor_total ?? 0), 2, ',', '.') }}</td>
+                        <td>{{ optional($b->data_emissao)->format('d/m/Y') ?? '—' }}</td>
+                        <td class="text-center">
+                            <a href="{{ url('boletins') }}/{{ $b->id }}" class="btn btn-info btn-sm me-1"><i class="fas fa-eye"></i></a>
+                            <a href="{{ url('boletins') }}/{{ $b->id }}/pdf" class="btn btn-secondary btn-sm me-1"><i class="fas fa-file-pdf"></i></a>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
     </div>
 </div>
-
-@section('js')
-<script>
-$(document).ready(function () {
-
-    $('#tabelaBoletins').DataTable({
-        ajax: "{{ route('api.projetos.boletins', $projeto->id) }}",
-        language: { url: '{{ asset("js/pt-BR.json") }}' },
-        pageLength: 10,
-        dom: 't<"bottom"ip>',
-        columns: [
-            { data: 'id', title: 'ID' },
-            { data: 'total_pf', title: 'PF' },
-            { data: 'total_ust', title: 'UST' },
-            { data: 'valor_total', title: 'Valor', render: v => 'R$ ' + parseFloat(v).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) },
-            { data: 'data_emissao', title: 'Emissão' },
-            {
-                data: null,
-                title: 'Ações',
-                width: '150px',
-                render: (d) => `
-                    <a href="/boletins/${d.id}" class="btn btn-info btn-sm me-1">
-                        <i class="fas fa-eye"></i>
-                    </a>
-                    <a href="/boletins/${d.id}/pdf" class="btn btn-secondary btn-sm me-1">
-                        <i class="fas fa-file-pdf"></i>
-                    </a>
-                `
-            }
-        ]
-    });
-
-});
-</script>
-@endsection
+@push('js')
+<script>$(function(){ /* sem DataTables */ });</script>
+@endpush

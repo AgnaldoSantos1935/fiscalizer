@@ -5,8 +5,7 @@
 
 @section('title', 'Hosts Monitorados')
 
-@section('content')
-@include('layouts.components.breadcrumbs')
+@section('content_body')
 <div class="container-fluid">
 
     <!-- 🔹 Card de Filtros -->
@@ -78,11 +77,7 @@
                             <i class="fas fa-eye text-info me-2"></i> Exibir Detalhes
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="{{ route('hosts.create') }}" class="nav-link active">
-                            <i class="fas fa-plus-circle me-1"></i> Novo Host
-                        </a>
-                    </li>
+
                 </ul>
             </nav>
 
@@ -117,10 +112,9 @@
 @endsection
 
 @section('css')
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 @endsection
 
-@section('js')
+@push('js')
 
 
 <script>
@@ -161,9 +155,7 @@ $(document).ready(function () {
             d.tipo = $('#filtroTipo').val();
         }
     },
-    language: {
-        url: '{{ asset("js/pt-BR.json") }}'
-    },
+    language: { url: window.DataTablesLangUrl },
 
     pageLength: 10,
     order: [[1, 'asc']],
@@ -271,4 +263,4 @@ $(document).ready(function () {
 
 });
 </script>
-@endsection
+@endpush

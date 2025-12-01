@@ -1,8 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Detalhes da Empresa')
 
-@section('content')
-@include('layouts.components.breadcrumbs')
+@section('content_body')
 <div class="container-fluid">
 
     <!-- 🔹 Cabeçalho -->

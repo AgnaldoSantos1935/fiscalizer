@@ -9,8 +9,8 @@ class EquipamentoOcorrencia extends Model
     protected $table = 'equipamento_ocorrencias';
 
     protected $fillable = [
-        'equipamento_id','tipo','descricao','fotos','status',
-        'reportado_by','recebida_por','avaliada_por','analise_status','analise_observacoes',
+        'equipamento_id', 'tipo', 'descricao', 'fotos', 'status',
+        'reportado_by', 'recebida_por', 'avaliada_por', 'analise_status', 'analise_observacoes',
     ];
 
     protected $casts = [
@@ -22,4 +22,3 @@ class EquipamentoOcorrencia extends Model
         return $this->belongsTo(Equipamento::class);
     }
 }
-

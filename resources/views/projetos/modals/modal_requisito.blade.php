@@ -2,7 +2,7 @@
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content rounded-4 shadow-lg">
       <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title"><i class="fas fa-list me-2"></i>Novo Requisito</h5>
+        <h5 class="modal-title"><i class="fas fa-list me-2"></i>Cadastrar Requisito</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <form id="formRequisito" method="POST" action="{{ route('requisitos.store') }}">
@@ -37,7 +37,7 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="submit" class="btn btn-success"><i class="fas fa-save me-1"></i>Salvar</button>
+          <button type="submit" class="btn btn-success"><i class="fas fa-save me-1"></i>Cadastrar Requisito</button>
         </div>
       </form>
     </div>

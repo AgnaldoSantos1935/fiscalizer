@@ -11,41 +11,39 @@
     </div>
 
     <div class="card-body">
-        <table id="tabelaAtividades" class="table table-striped w-100"></table>
+        <table class="table table-striped w-100">
+            <thead class="table-light">
+                <tr>
+                    <th>Data</th>
+                    <th>Etapa</th>
+                    <th>Analista</th>
+                    <th class="text-end">Horas</th>
+                    <th>Descrição</th>
+                    <th class="text-center" width="120">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(($atividades ?? []) as $a)
+                    <tr>
+                        <td class="text-center">{{ optional($a->data)->format('d/m/Y') ?? '—' }}</td>
+                        <td>{{ $a->etapa ?? '—' }}</td>
+                        <td>{{ $a->analista ?? '—' }}</td>
+                        <td class="text-end">{{ number_format((float) ($a->horas ?? 0), 2, ',', '.') }}</td>
+                        <td>{{ $a->descricao ?? '—' }}</td>
+                        <td class="text-center">
+                            <a href="{{ url('atividades') }}/{{ $a->id }}/edit" class="btn btn-warning btn-sm me-1"><i class="fas fa-edit"></i></a>
+                            <form action="{{ url('atividades') }}/{{ $a->id }}" method="POST" class="d-inline" onsubmit="return confirm('Excluir atividade?');">
+                                @csrf
+                                @method('DELETE')
+                                <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
     </div>
 </div>
-
-@section('js')
-<script>
-$(document).ready(function () {
-
-    $('#tabelaAtividades').DataTable({
-        ajax: "{{ route('api.projetos.atividades', $projeto->id) }}",
-        language: { url: '{{ asset("js/pt-BR.json") }}' },
-        pageLength: 10,
-        dom: 't<"bottom"ip>',
-        columns: [
-            { data: 'data', title: 'Data', render: d => d ?? '—' },
-            { data: 'etapa', title: 'Etapa' },
-            { data: 'analista', title: 'Analista' },
-            { data: 'horas', title: 'Horas' },
-            { data: 'descricao', title: 'Descrição' },
-            {
-                data: null,
-                title: 'Ações',
-                width: '120px',
-                render: (d) => `
-                    <a href="/atividades/${d.id}/edit" class="btn btn-warning btn-sm me-1">
-                        <i class="fas fa-edit"></i>
-                    </a>
-                    <button class="btn btn-danger btn-sm" onclick="excluirAtividade(${d.id})">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                `
-            }
-        ]
-    });
-
-});
-</script>
-@endsection
+@push('js')
+<script>$(function(){ /* sem DataTables */ });</script>
+@endpush

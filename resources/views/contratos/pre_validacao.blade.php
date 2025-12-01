@@ -6,8 +6,8 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h3 class="mb-0">Revisão de Informações Extraídas</h3>
             <div>
-                <a href="{{ \Illuminate\Support\Facades\Storage::url($arquivo_path) }}" target="_blank" rel="noopener" class="btn btn-outline-primary">
-<i class="fas fa-file-pdf"></i> Download PDF
+                <a href="{{ route('arquivos.visualizar', ['path' => $arquivo_path, 'return_to' => url()->current()]) }}" class="btn btn-outline-primary">
+<i class="fas fa-eye"></i> Abrir PDF
                 </a>
             </div>
         </div>
@@ -17,7 +17,7 @@
                 <h5 class="mb-3">Visualização do PDF</h5>
                 <div class="w-100" style="height: 70vh;">
                     <iframe
-                        src="{{ \Illuminate\Support\Facades\Storage::url($arquivo_path) }}"
+                        src="{{ route('arquivos.stream', ['path' => $arquivo_path]) }}"
                         class="w-100"
                         style="height: 100%;"
                         frameborder="0"

@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Symfony\Component\Yaml\Yaml;
-use Illuminate\Support\Facades\Cache;
 
 class ScrapController extends Controller
 {
@@ -39,10 +39,13 @@ class ScrapController extends Controller
                             $targetUrl = $jsonLink;
                         } else {
                             $fallback = $this->guessOpenApiJson($url);
-                            if ($fallback) $targetUrl = $fallback;
+                            if ($fallback) {
+                                $targetUrl = $fallback;
+                            }
                         }
                     }
-                } catch (\Throwable $e) {}
+                } catch (\Throwable $e) {
+                }
             }
             try {
                 $resp = Http::timeout(30)->get($targetUrl);
@@ -58,7 +61,11 @@ class ScrapController extends Controller
 
         $spec = null;
         $asJson = null;
-        try { $asJson = json_decode($specText, true, 512, JSON_THROW_ON_ERROR); } catch (\Throwable $e) { $asJson = null; }
+        try {
+            $asJson = json_decode($specText, true, 512, JSON_THROW_ON_ERROR);
+        } catch (\Throwable $e) {
+            $asJson = null;
+        }
         if (is_array($asJson)) {
             $spec = $asJson;
         } else {
@@ -118,16 +125,21 @@ class ScrapController extends Controller
                 $candidates[] = $m2[1];
             }
         }
-        if (empty($candidates)) return null;
+        if (empty($candidates)) {
+            return null;
+        }
         $href = $candidates[0];
         $p = parse_url($baseUrl);
         $scheme = $p['scheme'] ?? 'https';
         $host = $p['host'] ?? '';
         $basePath = rtrim(dirname($p['path'] ?? '/'), '/');
-        if (preg_match('/^https?:\/\//i', $href)) return $href;
+        if (preg_match('/^https?:\/\//i', $href)) {
+            return $href;
+        }
         if (str_starts_with($href, '/')) {
             return $scheme . '://' . $host . $href;
         }
+
         return $scheme . '://' . $host . $basePath . '/' . $href;
     }
 
@@ -143,19 +155,44 @@ class ScrapController extends Controller
             '/v3/api-docs',
             '/swagger/v1/swagger.json',
             '/swagger.json',
-            '/openapi.json'
+            '/openapi.json',
         ];
         foreach ($cands as $c) {
             $u = $scheme . '://' . $host . $c;
-            try { $r = Http::timeout(8)->head($u); if ($r->ok()) return $u; } catch (\Throwable $e) { }
+            try {
+                $r = Http::timeout(8)->head($u);
+                if ($r->ok()) {
+                    return $u;
+                }
+            } catch (\Throwable $e) {
+            }
             $u2 = $scheme . '://' . $host . $basePath . $c;
-            try { $r2 = Http::timeout(8)->head($u2); if ($r2->ok()) return $u2; } catch (\Throwable $e) { }
+            try {
+                $r2 = Http::timeout(8)->head($u2);
+                if ($r2->ok()) {
+                    return $u2;
+                }
+            } catch (\Throwable $e) {
+            }
             $u3 = $scheme . '://' . $host . $parentPath . $c;
-            try { $r3 = Http::timeout(8)->head($u3); if ($r3->ok()) return $u3; } catch (\Throwable $e) { }
+            try {
+                $r3 = Http::timeout(8)->head($u3);
+                if ($r3->ok()) {
+                    return $u3;
+                }
+            } catch (\Throwable $e) {
+            }
             // Caso especial para base "/dados-abertos"
             $u4 = $scheme . '://' . $host . '/dados-abertos' . $c;
-            try { $r4 = Http::timeout(8)->head($u4); if ($r4->ok()) return $u4; } catch (\Throwable $e) { }
+            try {
+                $r4 = Http::timeout(8)->head($u4);
+                if ($r4->ok()) {
+                    return $u4;
+                }
+            } catch (\Throwable $e) {
+            }
         }
+
         return null;
     }
 
@@ -205,7 +242,8 @@ class ScrapController extends Controller
                                 $targetUrl = $csvLink;
                             }
                         }
-                    } catch (\Throwable $e) {}
+                    } catch (\Throwable $e) {
+                    }
                 }
 
                 try {
@@ -233,7 +271,7 @@ class ScrapController extends Controller
         $data = [];
         $headers = [];
         if ($hasHeader) {
-            $headers = array_map(fn($h) => trim((string) $h), $rows[0]);
+            $headers = array_map(fn ($h) => trim((string) $h), $rows[0]);
             for ($i = 1; $i < count($rows); $i++) {
                 $row = $rows[$i];
                 $item = [];
@@ -251,8 +289,10 @@ class ScrapController extends Controller
             }
         } else {
             $maxCols = 0;
-            foreach ($rows as $r) { $maxCols = max($maxCols, count($r)); }
-            $headers = array_map(fn($idx) => 'col_' . $idx, range(0, $maxCols - 1));
+            foreach ($rows as $r) {
+                $maxCols = max($maxCols, count($r));
+            }
+            $headers = array_map(fn ($idx) => 'col_' . $idx, range(0, $maxCols - 1));
             foreach ($rows as $i => $row) {
                 $item = [];
                 foreach ($headers as $idx => $h) {
@@ -305,13 +345,19 @@ class ScrapController extends Controller
             if (preg_match('/export|exportar|csv/i', $text)) {
                 // tentar achar um link na mesma região
                 preg_match('/data-href=\"([^\"]+)\"/i', $html, $d);
-                if (!empty($d[1])) $candidates[] = $d[1];
+                if (! empty($d[1])) {
+                    $candidates[] = $d[1];
+                }
             }
         }
-        if (empty($candidates)) return null;
+        if (empty($candidates)) {
+            return null;
+        }
         $href = $candidates[0];
         // Resolve relativo
-        if (preg_match('/^https?:\/\//i', $href)) return $href;
+        if (preg_match('/^https?:\/\//i', $href)) {
+            return $href;
+        }
         $p = parse_url($baseUrl);
         $scheme = $p['scheme'] ?? 'https';
         $host = $p['host'] ?? '';
@@ -319,6 +365,7 @@ class ScrapController extends Controller
         if (str_starts_with($href, '/')) {
             return $scheme . '://' . $host . $href;
         }
+
         return $scheme . '://' . $host . $basePath . '/' . $href;
     }
 }

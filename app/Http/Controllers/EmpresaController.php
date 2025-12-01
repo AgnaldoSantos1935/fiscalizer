@@ -7,9 +7,28 @@ use Illuminate\Http\Request;
 
 class EmpresaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $empresas = Empresa::all();
+        $query = Empresa::query();
+
+        if ($texto = trim((string) $request->get('razao'))) {
+            $query->where('razao_social', 'like', "%{$texto}%");
+        }
+        if ($cnpj = preg_replace('/\D+/', '', (string) $request->get('cnpj'))) {
+            if ($cnpj) {
+                $query->where('cnpj', 'like', "%{$cnpj}%");
+            }
+        }
+        if ($cidade = trim((string) $request->get('cidade'))) {
+            $query->where('cidade', 'like', "%{$cidade}%");
+        }
+        if ($uf = strtoupper((string) $request->get('uf'))) {
+            if (strlen($uf) === 2) {
+                $query->where('uf', $uf);
+            }
+        }
+
+        $empresas = $query->orderBy('razao_social')->paginate(20)->appends($request->query());
 
         return view('empresas.index', compact('empresas'));
     }
@@ -50,7 +69,14 @@ class EmpresaController extends Controller
         if (! empty($payload['uf'])) {
             $payload['uf'] = strtoupper($payload['uf']);
         }
-        $empresa = Empresa::create($payload);
+        try {
+            $empresa = Empresa::create($payload);
+        } catch (\Throwable $e) {
+            if ($request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => 'Erro ao cadastrar empresa: ' . $e->getMessage()], 500);
+            }
+            return back()->withInput()->with('error', 'Erro ao cadastrar empresa: ' . $e->getMessage());
+        }
 
         if ($request->expectsJson()) {
             return response()->json(['success' => true, 'data' => $empresa]);
@@ -107,7 +133,11 @@ class EmpresaController extends Controller
             $payload['uf'] = strtoupper($payload['uf']);
         }
 
-        $empresa->update($payload);
+        try {
+            $empresa->update($payload);
+        } catch (\Throwable $e) {
+            return back()->withInput()->with('error', 'Erro ao atualizar empresa: ' . $e->getMessage());
+        }
 
         return redirect()->route('empresas.index')->with('success', 'Dados atualizados com sucesso!');
     }

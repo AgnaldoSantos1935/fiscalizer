@@ -71,6 +71,31 @@ class Projeto extends Model
         return $this->hasMany(BoletimMedicao::class);
     }
 
+    public function medicaoItens()
+    {
+        return $this->hasMany(MedicaoItem::class);
+    }
+
+    public function equipe()
+    {
+        return $this->hasMany(EquipeProjeto::class);
+    }
+
+    public function cronograma()
+    {
+        return $this->hasMany(CronogramaProjeto::class);
+    }
+
+    public function requisitos()
+    {
+        return $this->hasManyThrough(
+            RequisitoSistema::class,
+            Demanda::class,
+            'projeto_id',
+            'demanda_id'
+        );
+    }
+
     public function processoInstancia()
     {
         return $this->morphOne(\App\Models\ProcessoInstancia::class, 'referencia');

@@ -11,39 +11,35 @@
     </div>
 
     <div class="card-body bg-white">
-        <table id="tabelaApf" class="table table-striped w-100"></table>
+        <table class="table table-striped w-100">
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Total PF</th>
+                    <th>Observação</th>
+                    <th class="text-center" width="140">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(($apfs ?? []) as $apf)
+                    <tr>
+                        <td>{{ $apf->id }}</td>
+                        <td>{{ $apf->total_pf ?? 0 }}</td>
+                        <td>{{ $apf->observacao ?? '—' }}</td>
+                        <td class="text-center">
+                            <a href="{{ url('projetos/'.$projeto->id.'/apf/'.$apf->id.'/edit') }}" class="btn btn-warning btn-sm me-1"><i class="fas fa-edit"></i></a>
+                            <form action="{{ url('projetos/'.$projeto->id.'/apf/'.$apf->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Excluir APF?');">
+                                @csrf
+                                @method('DELETE')
+                                <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
     </div>
 </div>
-
-@section('js')
-<script>
-$(document).ready(function () {
-
-    $('#tabelaApf').DataTable({
-        ajax: "{{ route('api.projetos.apf', $projeto->id) }}",
-        language: { url: '{{ asset("js/pt-BR.json") }}' },
-        pageLength: 10,
-        dom: 't<"bottom"ip>',
-        columns: [
-            { data: 'id', title: 'ID' },
-            { data: 'total_pf', title: 'Total PF' },
-            { data: 'observacao', title: 'Observação' },
-            {
-                data: null,
-                title: 'Ações',
-                render: d => `
-                    <a href="/projetos/{{ $projeto->id }}/apf/${d.id}/edit"
-                       class="btn btn-warning btn-sm me-1">
-                       <i class="fas fa-edit"></i>
-                    </a>
-                    <button class="btn btn-danger btn-sm" onclick="excluirApf(${d.id})">
-                       <i class="fas fa-trash"></i>
-                    </button>
-                `
-            },
-        ]
-    });
-
-});
-</script>
-@endsection
+@push('js')
+<script>$(function(){ /* sem DataTables */ });</script>
+@endpush

@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title','Nova Ata')
+@section('title','Cadastrar Ata')
 @section('content')
 @include('layouts.components.breadcrumbs')
 <div class="container-fluid">
@@ -7,7 +7,7 @@
     @include('layouts.components.breadcrumbs', [
       'trail' => [
         ['label' => 'Atas', 'icon' => 'fas fa-file-alt', 'url' => route('atas.index')],
-        ['label' => 'Nova Ata']
+        ['label' => 'Cadastrar Ata']
       ]
     ])
   @endsection
@@ -37,7 +37,7 @@
       <div class="col-md-3"><label class="form-label">Saldo Global</label><input type="text" name="saldo_global" class="form-control money-br-input"></div>
     </div>
     <div class="mt-3 d-flex gap-2 justify-content-end">
-      <button class="btn btn-primary"><i class="fas fa-save me-1"></i> Salvar</button>
+      <button class="btn btn-primary"><i class="fas fa-save me-1"></i> Cadastrar Ata</button>
       <a href="{{ route('atas.index') }}" class="btn btn-outline-secondary"><i class="fas fa-times me-1"></i> Cancelar</a>
     </div>
   </form>

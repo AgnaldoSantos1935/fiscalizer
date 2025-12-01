@@ -24,4 +24,3 @@ class NormaTrecho extends Model
         'embedding' => 'array',
     ];
 }
-

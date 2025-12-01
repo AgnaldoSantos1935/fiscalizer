@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('usuario_id')->nullable()->constrained('users')->nullOnDelete();
             $table->text('observacoes')->nullable();
             $table->timestamps();
-            $table->index(['unidade_id','equipamento_id']);
+            $table->index(['unidade_id', 'equipamento_id']);
         });
     }
 
@@ -27,4 +27,3 @@ return new class extends Migration
         Schema::dropIfExists('equipamento_reposicao_historicos');
     }
 };
-

@@ -4,6 +4,8 @@ use Illuminate\Support\Str;
 @endphp
 
 @section('title', 'Contratos')
+@section('content_header_title','Contratos')
+@section('content_header_subtitle','Listagem')
 
 @section('content_body')
 <div class="container-fluid">
@@ -17,7 +19,7 @@ use Illuminate\Support\Str;
 
         <div class="card-body bg-white">
 
-<form id="formFiltros" class="row g-3 bg-light p-3 rounded-4 shadow-sm align-items-end mb-3">
+<form id="formFiltros" class="row g-3 bg-light p-3 rounded-4 shadow-sm align-items-end mb-3" method="GET" action="{{ route('contratos.index') }}">
   <div class="col-md-3">
 
 
@@ -38,17 +40,20 @@ use Illuminate\Support\Str;
     <label for="filtroSituacao" class="form-label ui-form-label small">Situação</label>
     <select id="filtroSituacao" name="situacao" class="ui-select">
   <option value="">Todas</option>
+  @foreach(($situacoes ?? []) as $s)
+    <option value="{{ $s->slug }}" @selected(request('situacao')===$s->slug)>{{ $s->nome }}</option>
+  @endforeach
 </select>
   </div>
 
 <div class="col-md-2 d-flex justify-content-end align-items-end">
   <div class="d-flex w-100">
-    <button type="button" id="btnAplicarFiltros" class="btn btn-sm ui-btn btn-sep flex-grow-1">
+    <button type="submit" id="btnAplicarFiltros" class="btn btn-sm ui-btn btn-sep flex-grow-1">
       <i class="fas fa-filter me-1"></i> Filtrar
     </button>
-    <button type="button" id="btnLimpar" class="btn btn-sm ui-btn outline btn-sep flex-grow-1">
+    <a href="{{ route('contratos.index') }}" id="btnLimpar" class="btn btn-sm ui-btn outline btn-sep flex-grow-1">
       <i class="fas fa-undo me-1"></i> Limpar
-    </button>
+    </a>
   </div>
 </div>
 
@@ -76,13 +81,7 @@ use Illuminate\Support\Str;
           <i class="fas fa-eye text-info me-2"></i> Exibir Detalhes
         </a>
       </li>
-      <li class="nav-item">
-        @can('contratos.create')
-        <a href="{{ route('contratos.create') }}" class="nav-link active" aria-current="page">
-          <i class="fas fa-plus-circle me-1"></i> Novo Contrato
-        </a>
-        @endcan
-      </li>
+
     </ul>
 
 </nav>
@@ -91,14 +90,84 @@ use Illuminate\Support\Str;
 <div id="legendaSituacoes" class="mb-3 d-flex flex-wrap align-items-center gap-2 small text-secondary">
   <i class="fas fa-info-circle me-2 text-primary"></i>
   <span> Legenda de Situações: </span>
-  <div id="listaLegendas" class="d-flex flex-wrap gap-2 ms-2"></div>
+  <div id="listaLegendas" class="d-flex flex-wrap gap-2 ms-2">
+    @foreach(($situacoes ?? []) as $s)
+      @php
+        $map = [
+          'azul' => 'primary',
+          'verde' => 'success',
+          'amarelo' => 'warning',
+          'vermelho' => 'danger',
+          'cinza' => 'secondary',
+          'preto' => 'dark',
+          'branco' => 'light',
+          'ciano' => 'info',
+          'roxo' => 'secondary',
+          'laranja' => 'warning',
+        ];
+        $slugColor = strtolower(preg_replace('/[^a-z]/','', Str::ascii($s->cor ?? '')));
+        $clsBase = $map[$slugColor] ?? 'secondary';
+        $needsDark = in_array($clsBase, ['warning','light']);
+        $cls = 'badge bg-'.$clsBase.($needsDark ? ' text-dark' : '');
+        $descricao = $s->descricao ?? 'Sem descrição.';
+      @endphp
+      <span class="{{ $cls }} px-3 py-2 shadow-sm d-flex align-items-center gap-1" title="{{ $descricao }}">
+        <i class="fas fa-tag"></i> {{ $s->nome }}
+      </span>
+    @endforeach
+  </div>
 </div>
 <!---->
             <!-- 🔹 Tabela -->
-      <table id="tabelaContratos" class="table table-striped table-hover align-middle w-100"></table>
-
-
-
+      <table id="tabelaContratos" class="table table-striped table-hover align-middle w-100">
+        <thead>
+          <tr>
+            <th style="width: 40px"></th>
+            <th>Número</th>
+            <th>Objeto</th>
+            <th>Empresa</th>
+            <th class="text-end">Valor Global</th>
+            <th>Data Início</th>
+            <th>Situação</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach(($contratos ?? []) as $c)
+            <tr>
+              <td class="text-center">
+                <input type="radio" name="contratoSelecionado" value="{{ $c->id }}">
+              </td>
+              <td>{{ $c->numero }}</td>
+              <td>{{ Str::limit($c->objeto, 80) }}</td>
+              <td>{{ optional($c->contratada)->razao_social ?? '—' }}</td>
+              <td class="text-end">R$ {{ number_format((float) ($c->valor_global ?? 0), 2, ',', '.') }}</td>
+              <td>{{ optional($c->data_inicio)->format('d/m/Y') ?? '—' }}</td>
+              <td>
+                @php
+                  $s = $c->situacaoContrato;
+                  $map = [
+                    'azul' => 'primary',
+                    'verde' => 'success',
+                    'amarelo' => 'warning',
+                    'vermelho' => 'danger',
+                    'cinza' => 'secondary',
+                    'preto' => 'dark',
+                    'branco' => 'light',
+                    'ciano' => 'info',
+                    'roxo' => 'secondary',
+                    'laranja' => 'warning',
+                  ];
+                  $slugColor = strtolower(preg_replace('/[^a-z]/','', Str::ascii(optional($s)->cor ?? '')));
+                  $clsBase = $map[$slugColor] ?? 'secondary';
+                  $needsDark = in_array($clsBase, ['warning','light']);
+                  $cls = 'badge bg-'.$clsBase.($needsDark ? ' text-dark' : '');
+                @endphp
+                <span class="{{ $cls }}">{{ optional($s)->nome ?? '—' }}</span>
+              </td>
+            </tr>
+          @endforeach
+        </tbody>
+      </table>
         </div>
     </div>
   </div>
@@ -157,225 +226,22 @@ use Illuminate\Support\Str;
 @endsection
 
 @push('css')
+
 @endpush
 
-@push('scripts')
+@push('js')
 <script>
-$(document).ready(function () {
-
-// 🔹 Monta o filtro e a legenda com cores, ícones e tooltips
-fetch(`{{ route('api.situacoes') }}`, { headers: { 'Accept': 'application/json' } })
-  .then(async (resp) => {
-      const ct = resp.headers.get('content-type') || '';
-      if (!resp.ok || !ct.includes('application/json')) {
-          const text = await resp.text();
-          throw new Error(`Resposta inválida da API de situações (status ${resp.status}). Conteúdo: ${text.slice(0, 200)}`);
-      }
-      return resp.json();
-  })
-  .then(situacoes => {
-      const select = $('#filtroSituacao');
-      const legenda = $('#listaLegendas');
-
-      select.empty().append('<option value="">Todas</option>');
-      legenda.empty();
-
-      situacoes.forEach(s => {
-          // define cor + ícone
-          const map = legendMapFromColor(s.cor);
-          const descricao = s.descricao ? s.descricao.replace(/"/g, '&quot;') : 'Sem descrição.';
-
-          // adiciona no filtro
-          select.append(`<option value="${s.slug}">${s.nome}</option>`);
-
-          // adiciona badge com ícone + tooltip
-          legenda.append(`
-              <span class="${map.cls} px-3 py-2 shadow-sm d-flex align-items-center gap-1"
-                    data-bs-toggle="tooltip"
-                    data-bs-placement="top"
-                    title="${descricao}">
-                  <i class="fas ${map.icon}"></i> ${s.nome}
-              </span>
-          `);
-      });
-
-      // inicializa tooltips (compatível com Bootstrap 5 e fallback jQuery/BS4)
-      const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-      if (window.bootstrap && typeof bootstrap.Tooltip === 'function') {
-          tooltipTriggerList.map(el => new bootstrap.Tooltip(el));
-      } else if (typeof $ !== 'undefined' && $.fn && $.fn.tooltip) {
-          $('[data-bs-toggle="tooltip"]').tooltip();
-      }
-  })
-  .catch(err => {
-      console.error('Erro ao carregar situações:', err);
-      // mantém seleção padrão e evita quebrar a página
-      const select = $('#filtroSituacao');
-      if (select.find('option').length === 0) {
-          select.append('<option value="">Todas</option>');
-      }
+$(function(){
+  let contratoSelecionado = null;
+  $('#tabelaContratos').on('change', 'input[name="contratoSelecionado"]', function(){
+    contratoSelecionado = $(this).val();
+    $('#navDetalhes').removeClass('disabled');
   });
-
-    // ==============================
-    // 🔹 Inicializa DataTable via AJAX
-    // ==============================
-    // Evita popups padrão do DataTables em erros AJAX
-    $.fn.dataTable.ext.errMode = 'none';
-
-    const tabela = $('#tabelaContratos').DataTable({
-        ajax: {
-            url: `{{ route('api.contratos') }}`,
-            type: 'GET',
-            dataSrc: 'data',
-            data: function (d) {
-                // Envia filtros para o endpoint
-                d.numero = $('#filtroNumero').val();
-                d.empresa = $('#filtroEmpresa').val();
-                d.situacao = $('#filtroSituacao').val();
-            },
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader('Accept', 'application/json');
-            },
-            error: function (xhr, status, err) {
-                console.error('Erro ao carregar contratos:', xhr.status, status, err, (xhr.responseText || '').slice(0, 200));
-            }
-        },
-        language: { url: "{{ asset('js/pt-BR.json') }}" },
-        pageLength: 10,
-        order: [[1, 'asc']],
-        dom: 't<"bottom"ip>',
-        responsive: true,
-        columns: [
-            {
-                data: null,
-                className: 'text-center',
-                render: (d) => `<input type="radio" name="contratoSelecionado" value="${d.id}">`
-            },
-            { data: 'numero', defaultContent: '—' },
-            { data: 'objeto', render: (d) => d ? d.substring(0, 80) + (d.length > 80 ? '…' : '') : '—' },
-            { data: 'contratada.razao_social', defaultContent: '—' },
-            {
-                data: 'valor_global',
-                className: 'text-end',
-                render: (v) => v ? 'R$ ' + parseFloat(v).toLocaleString('pt-BR', {minimumFractionDigits: 2}) : '—'
-            },
-            {
-                data: 'data_inicio',
-                render: (d) => d ? new Date(d).toLocaleDateString('pt-BR') : '—'
-            },
-          {
-  data: 'situacao_contrato',
-  render: function (s) {
-    if (!s) return '-';
-    const cls = badgeClassFromColor(s.cor);
-    return `<span class="${cls}">${s.nome}</span>`;
-  }
-}
-        ]
-    });
-
-    let contratoSelecionado = null;
-
-
-
-    // =====================================================
-    // Marque um radio e ative "Detalhes"
-    // =====================================================
-
-  $('#tabelaContratos').on('change', 'input[name="contratoSelecionado"]', function () {
-      contratoSelecionado = $(this).val();
-      $('#navDetalhes').removeClass('disabled');
+  $('#navDetalhes').on('click', function(e){
+    e.preventDefault();
+    if (!contratoSelecionado) return;
+    window.location.href = '{{ route('contratos.index') }}' + '/' + contratoSelecionado;
   });
-
-
-    // =====================================================
-    // 🔹 Botão "Detalhes" → redireciona para a view do contrato
-    // =====================================================
-    $('#navDetalhes').on('click', function (e) {
-        e.preventDefault();
-        if (!contratoSelecionado) return;
-        window.location.href = '{{ url("contratos") }}/' + contratoSelecionado;
-    });
-
-    // ===================================
-    // 📦 Abrir modal de itens do contrato
-    // ===================================
-    const detalhesBaseUrl = "{{ url('/api/contratos/detalhes')}}";
-
-    // Removidos: ações por linha (Detalhes/Itens); usar apenas "Exibir Detalhes" do topo
-
-    // ===================================
-    // 🔍 Aplicar filtros (funciona igual à versão antiga)
-    // ===================================
-    $('#btnAplicarFiltros').on('click', function (e) {
-        e.preventDefault();
-        // Recarrega via AJAX com filtros server-side
-        tabela.ajax.reload();
-    });
-
-    // ===========================================
-    // 🔄 Limpar filtros → reseta e recarrega AJAX
-    // ===========================================
-    $('#btnLimpar').on('click', function (e) {
-        e.preventDefault();
-        $('#formFiltros')[0].reset();
-
-        tabela.order([1, 'asc']);
-        tabela.ajax.reload(null, false);
-
-        $('input[name="contratoSelecionado"]').prop('checked', false);
-        contratoSelecionado = null;
-        $('#navDetalhes').addClass('disabled');
-    });
-
-
-    function badgeClassFromColor(cor) {
-  if (!cor) return 'badge bg-secondary';
-  const slug = cor.normalize('NFD')
-                  .replace(/\p{Diacritic}/gu, '')
-                  .toLowerCase()
-                  .replace(/[^a-z]/g, '');
-  const map = {
-    azul: 'primary',
-    verde: 'success',
-    amarelo: 'warning',
-    vermelho: 'danger',
-    cinza: 'secondary',
-    preto: 'dark',
-    branco: 'light',
-    ciano: 'info',
-    roxo: 'secondary',
-    laranja: 'warning',
-  };
-  const cls = map[slug] || 'secondary';
-  const needsDark = cls === 'warning' || cls === 'light';
-  return `badge bg-${cls}${needsDark ? ' text-dark' : ''}`;
-}
-
-// Mapeia classes e ícones para a legenda (separado da função acima)
-function legendMapFromColor(cor) {
-  const baseClass = badgeClassFromColor(cor);
-  // Ícones genéricos por "tipo" de cor
-  const colorToIcon = {
-    primary: 'fa-info-circle',
-    success: 'fa-check',
-    warning: 'fa-exclamation-triangle',
-    danger: 'fa-times-circle',
-    secondary: 'fa-tag',
-    dark: 'fa-minus-circle',
-    light: 'fa-circle',
-    info: 'fa-info'
-  };
-
-  // extrai o sufixo da classe gerada: bg-<color>
-  const match = baseClass.match(/bg-(primary|success|warning|danger|secondary|dark|light|info)/);
-  const colorKey = match ? match[1] : 'secondary';
-  const icon = colorToIcon[colorKey] || 'fa-tag';
-
-  return { cls: baseClass, icon };
-}
-
-
 });
 </script>
 @endpush

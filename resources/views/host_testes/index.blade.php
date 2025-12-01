@@ -31,7 +31,7 @@
 @stop
 @section('css')
 @endsection
-@section('js')
+@push('js')
 
 <script>
 $(function() {
@@ -51,10 +51,10 @@ $(function() {
             { data: 'created_at', name: 'created_at' },
             { data: 'acoes', name: 'acoes', orderable: false, searchable: false },
         ],
-        language: { url: '{{ asset("js/pt-BR.json") }}' },
+        language: { url: window.DataTablesLangUrl },
         dom: 't<"bottom"ip>',
         order: [[0, 'desc']]
     });
 });
 </script>
-@stop
+@endpush

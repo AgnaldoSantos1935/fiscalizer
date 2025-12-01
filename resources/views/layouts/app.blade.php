@@ -52,8 +52,8 @@ $ultimas = \App\Models\UserNotification::where('user_id', auth()->id())
 
 
     <li class="nav-item">
-        <a class="nav-link" href="#" id="toggleTheme" aria-label="Alternar tema">
-            <i class="fas fa-moon text-white" id="toggleThemeIcon"></i>
+        <a class="nav-link" href="#" id="toggleA11y" aria-label="Acessibilidade">
+            <i class="fas fa-universal-access fa-2x" id="toggleA11yIcon"></i>
         </a>
     </li>
     @include('layouts.components.notificacoes')
@@ -72,9 +72,8 @@ $ultimas = \App\Models\UserNotification::where('user_id', auth()->id())
     @else
         @include('layouts.components.breadcrumbs')
     @endif
-    <div class="app-content-scroll">
+
         @yield('content_body')
-    </div>
     {{-- TOASTS Bootstrap --}}
 <div class="position-fixed bottom-0 end-0 p-4 ui-toast-stack">
 
@@ -101,15 +100,18 @@ $ultimas = \App\Models\UserNotification::where('user_id', auth()->id())
 </div>
 
 
-    {{-- Mensagem de sucesso (sessão flash) --}}
+    {{-- Mensagens de sucesso/erro (sessão flash) --}}
     @if (session('success'))
         <div class="alert alert-success mt-3">
             <i class="fas fa-check-circle me-1"></i> {{ session('success') }}
         </div>
     @endif
+    @if (session('error'))
+        <div class="alert alert-danger mt-3">
+            <i class="fas fa-times-circle me-1"></i> {{ session('error') }}
+        </div>
+    @endif
 
-    {{-- Stack para scripts adicionais --}}
-    @stack('scripts')
 @stop
 
 {{-- ========================================= --}}
@@ -149,6 +151,8 @@ $ultimas = \App\Models\UserNotification::where('user_id', auth()->id())
     <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+    @stack('js')
+    @stack('scripts')
 @endpush
 
 {{-- ========================================= --}}

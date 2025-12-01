@@ -18,10 +18,7 @@
                     <span><i class="fas fa-list-ul me-2"></i>Termos de Referência</span>
                     <i class="fas fa-chevron-right"></i>
                 </a>
-                <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" href="{{ route('contratacoes.termos-referencia.create') }}">
-                    <span><i class="fas fa-plus-circle me-2"></i>Novo Termo de Referência</span>
-                    <i class="fas fa-chevron-right"></i>
-                </a>
+                
             </div>
         </div>
     </div>

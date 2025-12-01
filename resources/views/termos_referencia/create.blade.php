@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('plugins.Summernote', true)
-@section('title', 'Novo Termo de Referência')
+@section('title', 'Cadastrar Termo de Referência')
 
 @section('content_body')
 
@@ -14,7 +14,7 @@
 {{-- ======================================================= --}}
 <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
     <h3 class="m-0 fw-semibold text-primary">
-        <i class="fas fa-file-alt me-2"></i>Novo Termo de Referência
+        <i class="fas fa-file-alt me-2"></i>Cadastrar Termo de Referência
     </h3>
     <a href="{{ route('contratacoes.termos-referencia.index') }}" class="btn btn-outline-secondary btn-sm">
         <i class="fas fa-arrow-left me-1"></i>Voltar

@@ -1,20 +1,51 @@
 @extends('layouts.app')
-@section('title', 'Nova Nota de Empenho')
+@section('title', 'Cadastrar Nota de Empenho')
 
-@section('content')
+@section('content_body')
 <div class="container-fluid">
   @section('breadcrumb')
     @include('layouts.components.breadcrumbs', [
       'trail' => array_filter([
         ['label' => 'Contratos', 'icon' => 'fas fa-file-contract', 'url' => route('contratos.index')],
         isset($preContrato) && $preContrato ? ['label' => 'Contrato ' . ($preContrato->numero ?? ''), 'url' => route('contratos.show', $preContrato->id)] : null,
-        ['label' => 'Novo Empenho']
+        ['label' => 'Cadastrar Nota de Empenho']
       ])
     ])
   @endsection
   <div class="card rounded-4 shadow-sm">
     <div class="card-header bg-white"><h4 class="mb-0">Cadastrar Nota de Empenho</h4></div>
     <div class="card-body">
+      @if(isset($preContrato) && $preContrato)
+      <div class="card mb-3 contrato-card">
+        <div class="card-header"><strong>Dados do Contrato</strong></div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <dl class="row mb-0">
+                <dt class="col-sm-4">Número</dt>
+                <dd class="col-sm-8">{{ $preContrato->numero ?? '—' }}</dd>
+                <dt class="col-sm-4">Objeto</dt>
+                <dd class="col-sm-8">{{ $preContrato->objeto ?? '—' }}</dd>
+                <dt class="col-sm-4">Contratada</dt>
+                <dd class="col-sm-8">{{ $preContrato->empresa_razao_social ?? '—' }}</dd>
+                <dt class="col-sm-4">CNPJ</dt>
+                <dd class="col-sm-8">{{ $preContrato->empresa_cnpj ?? '—' }}</dd>
+              </dl>
+            </div>
+            <div class="col-md-6">
+              <dl class="row mb-0">
+                <dt class="col-sm-4">Início</dt>
+                <dd class="col-sm-8">{{ optional($preContrato->data_inicio_vigencia ?? $preContrato->data_inicio ?? $preContrato->data_assinatura)->format('d/m/Y') ?? '—' }}</dd>
+                <dt class="col-sm-4">Fim</dt>
+                <dd class="col-sm-8">{{ optional($preContrato->data_fim_vigencia ?? $preContrato->data_fim)->format('d/m/Y') ?? '—' }}</dd>
+                <dt class="col-sm-4">Valor Global</dt>
+                <dd class="col-sm-8">{{ $preContrato->valor_global !== null ? ('R$ ' . number_format((float)$preContrato->valor_global, 2, ',', '.')) : '—' }}</dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+      @endif
       <form method="POST" action="{{ route('empenhos.store') }}">
         @csrf
 
@@ -69,7 +100,7 @@
           </div>
 
           <div class="col-12 mt-4 d-flex justify-content-end gap-2">
-            <button type="submit" class="btn btn-success px-4"><i class="fas fa-save me-1"></i>Salvar</button>
+            <button type="submit" class="btn btn-success px-4"><i class="fas fa-save me-1"></i>Cadastrar Nota de Empenho</button>
             <a href="{{ isset($preContratoId) && $preContratoId ? route('contratos.show', $preContratoId) : url()->previous() }}" class="btn btn-outline-secondary">
               <i class="fas fa-times me-1"></i> Cancelar
             </a>

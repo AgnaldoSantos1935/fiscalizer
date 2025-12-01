@@ -2,8 +2,7 @@
 
 @section('title', 'Documentos')
 
-@section('content')
-@include('layouts.components.breadcrumbs')
+@section('content_body')
 <div class="container-fluid">
     <!-- 🔹 Filtros -->
     <div class="card shadow-sm border-0 rounded-4 mb-4">
@@ -13,7 +12,7 @@
             </h4>
         </div>
         <div class="card-body bg-white">
-            <form id="formFiltros" class="row g-3 bg-light p-3 rounded-4 shadow-sm align-items-end mb-3">
+            <form id="formFiltros" class="row g-3 bg-light p-3 rounded-4 shadow-sm align-items-end mb-3" method="GET" action="{{ route('documentos.index') }}">
                 <div class="col-md-4">
                     <label class="form-label fw-semibold text-secondary small">Tipo</label>
                     <input type="text" id="filtroTipo" class="form-control form-control-sm" placeholder="Ex: NF, Relatório...">
@@ -24,12 +23,12 @@
                 </div>
                 <div class="col-md-4 d-flex justify-content-end align-items-end">
                     <div class="d-flex w-100">
-                        <button type="button" id="btnAplicarFiltros" class="btn btn-primary btn-sm btn-sep flex-grow-1">
+                        <button type="submit" id="btnAplicarFiltros" class="btn btn-primary btn-sm btn-sep flex-grow-1">
                             <i class="fas fa-filter me-1"></i> Filtrar
                         </button>
-                        <button type="button" id="btnLimpar" class="btn btn-outline-secondary btn-sm btn-sep flex-grow-1">
+                        <a href="{{ route('documentos.index') }}" id="btnLimpar" class="btn btn-outline-secondary btn-sm btn-sep flex-grow-1">
                             <i class="fas fa-undo me-1"></i> Limpar
-                        </button>
+                        </a>
                     </div>
                 </div>
             </form>
@@ -40,9 +39,7 @@
     <div class="card shadow-sm border-0 rounded-4">
         <div class="card-header bg-white d-flex justify-content-between align-items-center">
             <h4 class="mb-0"><i class="fas fa-file-alt text-primary me-2"></i>Documentos</h4>
-            <a href="{{ route('documentos.create') }}" class="btn btn-primary btn-sm">
-                <i class="fas fa-plus me-1"></i> Novo Documento
-            </a>
+            
         </div>
         <div class="card-body">
             <!-- 🔹 Navbar de ações -->
@@ -78,7 +75,44 @@
                         <th>Arquivo</th>
                     </tr>
                 </thead>
-                <tbody></tbody>
+                <tbody>
+                    @foreach(($documentos ?? []) as $d)
+                        @php
+                            $path = $d->caminho_arquivo;
+                            $ext = strtolower(pathinfo($path ?? '', PATHINFO_EXTENSION));
+                            $icon = 'fa-file'; $color = '';
+                            switch ($ext) {
+                                case 'pdf': $icon = 'fa-file-pdf'; $color = 'text-danger'; break;
+                                case 'doc': case 'docx': $icon = 'fa-file-word'; $color = 'text-primary'; break;
+                                case 'xls': case 'xlsx': $icon = 'fa-file-excel'; $color = 'text-success'; break;
+                                case 'ppt': case 'pptx': $icon = 'fa-file-powerpoint'; $color = 'text-danger'; break;
+                                case 'zip': case 'rar': $icon = 'fa-file-archive'; $color = 'text-warning'; break;
+                                case 'jpg': case 'jpeg': case 'png': case 'gif': case 'webp': $icon = 'fa-file-image'; $color = 'text-info'; break;
+                                case 'txt': $icon = 'fa-file-alt'; break;
+                            }
+                        @endphp
+                        <tr>
+                            <td class="text-center"><input type="radio" name="docSelecionado" value="{{ $d->id }}"></td>
+                            <td>{{ $d->tipo }}</td>
+                            <td>{{ $d->titulo ?? '—' }}</td>
+                            <td>{{ $d->contrato->numero ?? $d->contrato_id }}</td>
+                            <td>{{ $d->data_upload ?? '—' }}</td>
+                            <td>{{ $d->versao ?? '—' }}</td>
+                            <td>
+                                @if($path)
+                                    <a href="{{ route('documentos.visualizar', $d->id) }}" class="btn btn-sm btn-outline-primary me-2">
+                                        <i class="fas fa-eye"></i> Abrir
+                                    </a>
+                                    <a href="{{ route('documentos.download', $d->id) }}" class="btn btn-sm btn-outline-success">
+                                        <i class="fas {{ $icon }} {{ $color }}"></i> Download
+                                    </a>
+                                @else
+                                    —
+                                @endif
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
             </table>
         </div>
     </div>
@@ -91,79 +125,31 @@
 </style>
 @endsection
 
-@section('js')
+@push('js')
 <script>
-$(function() {
-    const tabela = $('#tabelaDocumentos').DataTable({
-        processing: true,
-        serverSide: false,
-        ajax: {
-            url: '{{ route('documentos.data') }}',
-            dataSrc: 'data'
-        },
-        language: { url: '{{ asset('js/pt-BR.json') }}' },
-        dom: 't<"bottom"p>',
-        pageLength: 10,
-        order: [[1, 'asc']],
-        columns: [
-            { data: 'id', render: function(id){
-                return '<input type="radio" name="docSelecionado" value="'+id+'">';
-            }, orderable: false, searchable: false, className: 'text-center' },
-            { data: 'tipo' },
-            { data: 'titulo' },
-            { data: 'contrato' },
-            { data: 'data_upload' },
-            { data: 'versao' },
-            { data: 'arquivo', render: function(arquivo){
-                if(!arquivo) return '-';
-                return '<a href="'+arquivo.url+'" target="_blank" rel="noopener">'
-                    + '<i class="fas '+arquivo.icon+' '+arquivo.color+'"></i> Download'
-                    + '</a>';
-            }, orderable: false, searchable: false }
-        ]
-    });
-
-    let selecionado = null;
-    $('#tabelaDocumentos').on('change', 'input[name="docSelecionado"]', function () {
-        selecionado = $(this).val();
-        $('#navDetalhes, #navEditar, #navExcluir').removeClass('disabled');
-    });
-
-    $('#navDetalhes').on('click', function (e) {
-        e.preventDefault();
-        if (!selecionado) return;
-        window.location.href = '{{ url('documentos') }}' + '/' + selecionado;
-    });
-    $('#navEditar').on('click', function (e) {
-        e.preventDefault();
-        if (!selecionado) return;
-        window.location.href = '{{ url('documentos') }}' + '/' + selecionado + '/edit';
-    });
-    $('#navExcluir').on('click', function (e) {
-        e.preventDefault();
-        if (!selecionado) return;
-        if (!confirm('Deseja realmente excluir este documento?')) return;
-        fetch('{{ url('documentos') }}' + '/' + selecionado, {
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json'
-            }
-        }).then(() => location.reload());
-    });
-
-    $('#btnAplicarFiltros').on('click', function () {
-        tabela.column(1).search($('#filtroTipo').val());
-        tabela.column(3).search($('#filtroContrato').val());
-        tabela.draw();
-    });
-    $('#btnLimpar').on('click', function () {
-        $('#formFiltros')[0].reset();
-        tabela.search('').columns().search('');
-        tabela.order([1, 'asc']);
-        $('#navDetalhes, #navEditar, #navExcluir').addClass('disabled');
-        selecionado = null;
-    });
+$(function(){
+  let selecionado = null;
+  $('#tabelaDocumentos').on('change','input[name="docSelecionado"]',function(){
+    selecionado = $(this).val();
+    $('#navDetalhes, #navEditar, #navExcluir').removeClass('disabled');
+  });
+  $('#navDetalhes').on('click',function(e){
+    e.preventDefault();
+    if (!selecionado) return;
+    window.location.href = '{{ url('documentos') }}' + '/' + selecionado;
+  });
+  $('#navEditar').on('click',function(e){
+    e.preventDefault();
+    if (!selecionado) return;
+    window.location.href = '{{ url('documentos') }}' + '/' + selecionado + '/edit';
+  });
+  $('#navExcluir').on('click',function(e){
+    e.preventDefault();
+    if (!selecionado) return;
+    if (!confirm('Deseja realmente excluir este documento?')) return;
+    fetch('{{ url('documentos') }}' + '/' + selecionado, { method:'DELETE', headers:{ 'X-CSRF-TOKEN':'{{ csrf_token() }}', 'Accept':'application/json' } })
+      .then(() => location.reload());
+  });
 });
 </script>
-@endsection
+@endpush

@@ -216,7 +216,7 @@
                     </div>
                 </div>
                 <div class="card-footer bg-white d-flex justify-content-end">
-                    <button class="btn btn-primary btn-sm"><i class="fas fa-save me-1"></i>Inserir Item</button>
+                    <button class="btn btn-primary btn-sm"><i class="fas fa-save me-1"></i>Cadastrar Item</button>
                 </div>
             </form>
             @endif

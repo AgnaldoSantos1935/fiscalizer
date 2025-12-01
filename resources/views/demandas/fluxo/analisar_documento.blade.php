@@ -27,8 +27,8 @@
                     case 'txt': $__icon = 'fa-file-alt'; break;
                 }
             @endphp
-            <a href="{{ Storage::url($doc->arquivo_path) }}" class="btn btn-outline-primary" target="_blank" rel="noopener">
-                <i class="fas {{ $__icon }} {{ $__color }}"></i> Download
+            <a href="{{ route('arquivos.visualizar', ['path' => $doc->arquivo_path, 'return_to' => url()->current()]) }}" class="btn btn-outline-primary">
+                <i class="fas fa-eye"></i> Abrir
             </a>
 
             <a href="{{ route('demanda.reprocessar_ia', $demanda->id) }}" class="btn btn-outline-warning">

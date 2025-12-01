@@ -4,7 +4,7 @@
 <div class="container">
   <div class="row">
     <div class="col-md-12">
-      <h3>Registrar Pagamento</h3>
+      <h3>Cadastrar Pagamento</h3>
       <p class="text-muted">Empenho: <strong>{{ $empenho->numero }}</strong> · Contrato: <strong>{{ $empenho->contrato->numero ?? '—' }}</strong></p>
 
       <form method="POST" action="{{ route('financeiro.pagamentos.store', $empenho->id) }}" enctype="multipart/form-data">
@@ -44,7 +44,7 @@
           </div>
         </div>
         <div class="d-flex justify-content-end">
-          <button class="btn btn-success">Registrar Pagamento</button>
+          <button class="btn btn-success">Cadastrar Pagamento</button>
         </div>
       </form>
     </div>

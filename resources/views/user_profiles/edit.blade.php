@@ -7,8 +7,7 @@
     <h1><i class="fas fa-user-edit me-2"></i>Editar Perfil de {{ $profile->nome_completo }}</h1>
 @stop
 
-@section('content')
-@include('layouts.components.breadcrumbs')
+@section('content_body')
 <div class="card shadow-sm border-0 rounded-4">
     <div class="card-body">
         <!-- Área de notificações inline -->
@@ -223,7 +222,7 @@
         </form>
     </div>
 </div>
-@stop
+@endsection
 
 @section('js')
 <script>

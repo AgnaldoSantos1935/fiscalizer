@@ -37,11 +37,10 @@ class InventarioController extends Controller
                 'discos' => $data['discos'],
                 'origem_inventario' => 'agente_windows',
                 'ultimo_checkin' => now(),
-                'status' => 'ativo'
+                'status' => 'ativo',
             ]
         );
 
         return ['status' => 'ok', 'equipamento_id' => $equipamento->id];
     }
 }
-

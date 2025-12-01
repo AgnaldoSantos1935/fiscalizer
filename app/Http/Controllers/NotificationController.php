@@ -85,4 +85,17 @@ class NotificationController extends Controller
 
         return back()->with('success', 'Notificação de teste enviada. Abra o sino para visualizá-la.');
     }
+
+    public function count()
+    {
+        $userId = Auth::id();
+        abort_unless($userId, 401);
+
+        $unread = UserNotification::where('user_id', $userId)
+            ->where('lida', false)
+            ->count();
+        $total = UserNotification::where('user_id', $userId)->count();
+
+        return response()->json(['unread' => $unread, 'total' => $total]);
+    }
 }

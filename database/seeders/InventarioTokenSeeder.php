@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Database\Seeder;
 use App\Models\Unidade;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
 class InventarioTokenSeeder extends Seeder
@@ -17,4 +17,3 @@ class InventarioTokenSeeder extends Seeder
             });
     }
 }
-

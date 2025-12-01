@@ -18,9 +18,41 @@
 @section('content_body')
 <div class="container">
 
+  <div class="card mb-3">
+    <div class="card-header">
+      <strong>Dados do Contrato</strong>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <dl class="row mb-0">
+            <dt class="col-sm-4">Número</dt>
+            <dd class="col-sm-8">{{ $contrato->numero ?? '—' }}</dd>
+            <dt class="col-sm-4">Objeto</dt>
+            <dd class="col-sm-8">{{ $contrato->objeto ?? '—' }}</dd>
+            <dt class="col-sm-4">Contratada</dt>
+            <dd class="col-sm-8">{{ optional($contrato->contratada)->razao_social ?? ($contrato->empresa_razao_social ?? '—') }}</dd>
+            <dt class="col-sm-4">CNPJ</dt>
+            <dd class="col-sm-8">{{ optional($contrato->contratada)->cnpj ?? ($contrato->empresa_cnpj ?? '—') }}</dd>
+          </dl>
+        </div>
+        <div class="col-md-6">
+          <dl class="row mb-0">
+            <dt class="col-sm-4">Início</dt>
+            <dd class="col-sm-8">{{ optional($contrato->data_inicio ?? $contrato->data_inicio_vigencia ?? $contrato->data_assinatura)->format('d/m/Y') ?? '—' }}</dd>
+            <dt class="col-sm-4">Fim</dt>
+            <dd class="col-sm-8">{{ optional($contrato->data_fim)->format('d/m/Y') ?? '—' }}</dd>
+            <dt class="col-sm-4">Valor Global</dt>
+            <dd class="col-sm-8">{{ $contrato->valor_global !== null ? ('R$ ' . number_format((float)$contrato->valor_global, 2, ',', '.')) : '—' }}</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="card">
     <div class="card-header d-flex align-items-center justify-content-between">
-      <h5 class="mb-0"><i class="fas fa-file-upload me-2"></i>Novo Documento Vinculado</h5>
+      <h5 class="mb-0"><i class="fas fa-file-upload me-2"></i>Cadastrar Documento Vinculado</h5>
     </div>
     <div class="card-body">
       <form action="{{ route('contratos.pdf.upload', $contrato->id) }}" method="POST" enctype="multipart/form-data">

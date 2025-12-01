@@ -58,12 +58,12 @@ class TermoReferenciaController extends Controller
             'auto_fundamentacao' => 'nullable|boolean',
         ]);
 
-        if (!empty($data['auto_fundamentacao'])) {
+        if (! empty($data['auto_fundamentacao'])) {
             $rag = app(NormasRagService::class);
             $base = trim(($data['objeto'] ?? '') . ' ' . ($data['especificacao_produto'] ?? ''));
             if ($base !== '') {
                 $f = $rag->justificar($base, ['idioma' => 'pt-BR']);
-                $cit = collect($f['trechos'] ?? [])->map(function($t){
+                $cit = collect($f['trechos'] ?? [])->map(function ($t) {
                     return ($t['fonte'] ?? '') . ($t['referencia'] ? ', ' . $t['referencia'] : '');
                 })->filter()->implode('; ');
                 $data['fundamentacao_legal_texto'] = trim(($data['fundamentacao_legal_texto'] ?? '') . ' ' . ($f['conclusao'] ?? '') . ($cit ? ' — ' . $cit : ''));
@@ -83,7 +83,8 @@ class TermoReferenciaController extends Controller
         foreach ($tr->itens as $it) {
             $sugs[$it->id] = $rag->buscarFundamentacao((string) $it->descricao, 3, ['idioma' => 'pt-BR']);
         }
-        return view('termos_referencia.show', compact('tr','sugs'));
+
+        return view('termos_referencia.show', compact('tr', 'sugs'));
     }
 
     public function edit(TermoReferencia $tr)
@@ -130,12 +131,12 @@ class TermoReferenciaController extends Controller
             'auto_fundamentacao' => 'nullable|boolean',
         ]);
 
-        if (!empty($data['auto_fundamentacao'])) {
+        if (! empty($data['auto_fundamentacao'])) {
             $rag = app(NormasRagService::class);
             $base = trim(($data['objeto'] ?? '') . ' ' . ($data['especificacao_produto'] ?? ''));
             if ($base !== '') {
                 $f = $rag->justificar($base, ['idioma' => 'pt-BR']);
-                $cit = collect($f['trechos'] ?? [])->map(function($t){
+                $cit = collect($f['trechos'] ?? [])->map(function ($t) {
                     return ($t['fonte'] ?? '') . ($t['referencia'] ? ', ' . $t['referencia'] : '');
                 })->filter()->implode('; ');
                 $data['fundamentacao_legal_texto'] = trim(($data['fundamentacao_legal_texto'] ?? '') . ' ' . ($f['conclusao'] ?? '') . ($cit ? ' — ' . $cit : ''));

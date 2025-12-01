@@ -29,6 +29,6 @@ class Dre extends Model
 
     public function escolas()
     {
-        return $this->hasMany(Escola::class, 'dre');
+        return $this->hasMany(Escola::class, 'dre', 'codigodre');
     }
 }

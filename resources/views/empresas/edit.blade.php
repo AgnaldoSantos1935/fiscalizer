@@ -2,8 +2,7 @@
 
 @section('title', 'Editar Empresa')
 
-@section('content')
-@include('layouts.components.breadcrumbs')
+@section('content_body')
 <div class="container-fluid">
     <div class="card shadow-sm border-0 rounded-4">
         <div class="card-header bg-white border-0 d-flex align-items-center justify-content-between">

@@ -2,8 +2,7 @@
 
 @section('title', 'Boletim de Medição')
 
-@section('content')
-@include('layouts.components.breadcrumbs')
+@section('content_body')
 <div class="container-fluid">
 
   <!-- 🔹 Cabeçalho -->

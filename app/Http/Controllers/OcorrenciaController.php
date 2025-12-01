@@ -6,9 +6,22 @@ use Illuminate\Http\Request;
 
 class OcorrenciaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return view('ocorrencias.index');
+        $query = \App\Models\Ocorrencia::with('contrato');
+
+        if ($tipo = trim((string) $request->get('tipo'))) {
+            $query->where('tipo', 'like', "%{$tipo}%");
+        }
+        if ($contrato = trim((string) $request->get('contrato'))) {
+            $query->whereHas('contrato', function ($q) use ($contrato) {
+                $q->where('numero', 'like', "%{$contrato}%");
+            });
+        }
+
+        $ocorrencias = $query->orderByDesc('id')->paginate(20)->appends($request->query());
+
+        return view('ocorrencias.index', compact('ocorrencias'));
     }
 
     public function create()

@@ -7,6 +7,36 @@
       <h3>Registrar Empenho</h3>
       <p class="text-muted">Contrato: <strong>{{ $sol->contrato->numero ?? '—' }}</strong> · Solicitação #{{ $sol->id }}</p>
 
+      <div class="card mb-3 contrato-card">
+        <div class="card-header"><strong>Dados do Contrato</strong></div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <dl class="row mb-0">
+                <dt class="col-sm-4">Número</dt>
+                <dd class="col-sm-8">{{ $sol->contrato->numero ?? '—' }}</dd>
+                <dt class="col-sm-4">Objeto</dt>
+                <dd class="col-sm-8">{{ $sol->contrato->objeto ?? '—' }}</dd>
+                <dt class="col-sm-4">Contratada</dt>
+                <dd class="col-sm-8">{{ $sol->contrato->empresa_razao_social ?? '—' }}</dd>
+                <dt class="col-sm-4">CNPJ</dt>
+                <dd class="col-sm-8">{{ $sol->contrato->empresa_cnpj ?? '—' }}</dd>
+              </dl>
+            </div>
+            <div class="col-md-6">
+              <dl class="row mb-0">
+                <dt class="col-sm-4">Início</dt>
+                <dd class="col-sm-8">{{ optional($sol->contrato->data_inicio_vigencia ?? $sol->contrato->data_inicio ?? $sol->contrato->data_assinatura)->format('d/m/Y') ?? '—' }}</dd>
+                <dt class="col-sm-4">Fim</dt>
+                <dd class="col-sm-8">{{ optional($sol->contrato->data_fim_vigencia ?? $sol->contrato->data_fim)->format('d/m/Y') ?? '—' }}</dd>
+                <dt class="col-sm-4">Valor Global</dt>
+                <dd class="col-sm-8">{{ $sol->contrato->valor_global !== null ? ('R$ ' . number_format((float)$sol->contrato->valor_global, 2, ',', '.')) : '—' }}</dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <form method="POST" action="{{ route('financeiro.solicitacoes.registrar_empenho.store', $sol->id) }}" enctype="multipart/form-data">
         @csrf
         <div class="card mb-3">

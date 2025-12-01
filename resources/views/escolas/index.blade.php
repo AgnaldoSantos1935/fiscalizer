@@ -2,8 +2,7 @@
 
 @section('title', 'Escolas')
 
-@section('content')
-@include('layouts.components.breadcrumbs')
+@section('content_body')
 <div class="container-fluid">
 
     <!-- 🔍 Filtros -->
@@ -74,13 +73,7 @@
                         </li>
                     </ul>
 
-                    <ul class="navbar-nav ms-auto">
-                        <li class="nav-item">
-                            <a href="{{ route('escolas.create') }}" class="btn btn-primary btn-sm px-3">
-                                <i class="fas fa-plus-circle me-1"></i> Nova Escola
-                            </a>
-                        </li>
-                    </ul>
+
                 </div>
             </nav>
 
@@ -122,7 +115,6 @@
 @endsection
 
 @section('css')
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
 <style>
 .table-borderless tbody tr:hover {
     background-color: #f8f9fa;
@@ -174,25 +166,17 @@ div.dataTables_wrapper {
 .modal { z-index: 1050 !important; }
 
 </style>
-<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap4.min.css">
-
 @endsection
 
-@section('js')
-<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
-<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
-
-
-
+@push('js')
 <script>
 $(document).ready(function() {
     let escolaSelecionada = null;
 
     // Inicializa DataTable
-  const tabela = $('#tabelaEscolas').DataTable({
+  const tabela = $.fn.dataTable.isDataTable('#tabelaEscolas')
+    ? $('#tabelaEscolas').DataTable()
+    : $('#tabelaEscolas').DataTable({
     ajax: {
       url: '{{ route("escolas.data") }}',
       data: function(d){
@@ -213,8 +197,8 @@ $(document).ready(function() {
     searching: false,
     pageLength: 10,
     responsive: true,
-    language: { url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json' }
-});
+    language: { url: window.DataTablesLangUrl }
+  });
 
 
 // Delegação de evento segura
@@ -284,4 +268,4 @@ $('#navDetalhes').on('click', e => {
     });
 });
 </script>
-@endsection
+@endpush

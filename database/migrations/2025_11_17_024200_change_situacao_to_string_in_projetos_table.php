@@ -9,9 +9,10 @@ return new class extends Migration
     {
         $driver = config('database.default');
         if ($driver === 'pgsql') {
-            DB::statement("ALTER TABLE projetos ALTER COLUMN situacao TYPE VARCHAR(50) USING situacao::text");
+            DB::statement('ALTER TABLE projetos ALTER COLUMN situacao TYPE VARCHAR(50) USING situacao::text');
             DB::statement("ALTER TABLE projetos ALTER COLUMN situacao SET DEFAULT 'planejado'");
-            DB::statement("ALTER TABLE projetos ALTER COLUMN situacao SET NOT NULL");
+            DB::statement('ALTER TABLE projetos ALTER COLUMN situacao SET NOT NULL');
+
             return;
         }
         if ($driver === 'sqlite') {
@@ -24,7 +25,8 @@ return new class extends Migration
     {
         $driver = config('database.default');
         if ($driver === 'pgsql') {
-            DB::statement("ALTER TABLE projetos ALTER COLUMN situacao DROP DEFAULT");
+            DB::statement('ALTER TABLE projetos ALTER COLUMN situacao DROP DEFAULT');
+
             return;
         }
         if ($driver === 'sqlite') {

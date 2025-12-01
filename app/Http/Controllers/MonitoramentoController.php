@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Dre;
 use App\Models\Host;
 use App\Models\Indisponibilidade;
 use App\Models\Monitoramento;
@@ -233,14 +234,14 @@ class MonitoramentoController extends Controller
 
     public function matrix()
     {
-        $dres = DRE::orderBy('nome')->get();
+        $dres = Dre::orderBy('nome_dre')->get();
 
         return view('monitoramentos.matrix', compact('dres'));
     }
 
     public function apiMatrix()
     {
-        $dres = DRE::all();
+        $dres = Dre::all();
         $matrix = [];
 
         foreach ($dres as $origem) {
@@ -280,7 +281,7 @@ class MonitoramentoController extends Controller
         }
 
         return response()->json([
-            'dres' => $dres->pluck('nome'),
+            'dres' => $dres->pluck('nome_dre'),
             'matrix' => $matrix,
         ]);
     }

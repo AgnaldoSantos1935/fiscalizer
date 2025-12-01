@@ -59,6 +59,17 @@
 
 @yield('content')
 
+@if (session('success'))
+  <div class="alert alert-success container mt-3">
+    <i class="fas fa-check-circle me-1"></i> {{ session('success') }}
+  </div>
+@endif
+@if (session('error'))
+  <div class="alert alert-danger container mt-3">
+    <i class="fas fa-times-circle me-1"></i> {{ session('error') }}
+  </div>
+@endif
+
 <footer class="fixed-footer py-2">
   <div class="container d-flex align-items-center justify-content-between">
     <div class="small">© {{ date('Y') }} Governo do Pará • SEDUC • Fiscalizer</div>

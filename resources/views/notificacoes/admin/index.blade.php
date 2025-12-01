@@ -24,9 +24,7 @@
                     <i class="fas fa-sync-alt me-1"></i> Sincronizar Actions
                 </button>
             </form>
-            <a href="{{ route('admin.notificacoes.create') }}" class="btn btn-primary btn-sm">
-                <i class="fas fa-plus me-1"></i> Novo evento
-            </a>
+            
         </div>
     </div>
     <div class="card-body p-0">
@@ -82,7 +80,7 @@
                     @empty
                         <tr>
                             <td colspan="7" class="text-center text-muted py-4">
-                                Nenhum evento cadastrado. Importe do config ou crie um novo.
+                                Nenhum evento cadastrado. Importe do config ou cadastre um evento.
                             </td>
                         </tr>
                     @endforelse

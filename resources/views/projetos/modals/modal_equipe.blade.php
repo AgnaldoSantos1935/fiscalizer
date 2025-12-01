@@ -2,7 +2,7 @@
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content rounded-4 shadow-lg">
       <div class="modal-header bg-info text-white">
-        <h5 class="modal-title"><i class="fas fa-user-plus me-2"></i>Novo Membro da Equipe</h5>
+        <h5 class="modal-title"><i class="fas fa-user-plus me-2"></i>Cadastrar Membro da Equipe</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <form id="formEquipe" method="POST" action="{{ route('equipe.store') }}">
@@ -29,7 +29,7 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="submit" class="btn btn-info text-white"><i class="fas fa-save me-1"></i>Salvar</button>
+          <button type="submit" class="btn btn-info text-white"><i class="fas fa-save me-1"></i>Cadastrar Membro</button>
         </div>
       </form>
     </div>

@@ -131,7 +131,7 @@
 </div>
 @endsection
 
-@section('js')
+@push('js')
     {{-- Chart.js --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -141,7 +141,7 @@
             $('#tabela-monitoramentos').DataTable({
                 pageLength: 25,
                 order: [[5, 'desc']],
-                language: { url: '{{ asset("js/pt-BR.json") }}' },
+                language: { url: window.DataTablesLangUrl },
                 dom: 't<"bottom"ip>'
             });
         });
@@ -219,4 +219,4 @@
             }
         });
     </script>
-@endsection
+@endpush

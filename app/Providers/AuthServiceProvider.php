@@ -43,7 +43,7 @@ class AuthServiceProvider extends ServiceProvider
             return null;
         });
 
-        \Illuminate\Support\Facades\Gate::define('manage-contrato', function ($user, \App\Models\Contrato $contrato) {
+        Gate::define('manage-contrato', function ($user, \App\Models\Contrato $contrato) {
             return $contrato->usuarioVinculado($user);
         });
 
@@ -123,6 +123,9 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('view-index-projetos_soft', fn ($user) => $allowFiscal($user));
         Gate::define('view-show-projetos_soft', fn ($user) => $allowFiscal($user));
 
+        // Projetos de Software
+        Gate::define('view-index-equipamentos', fn ($user) => $allowFiscal($user));
+
         // Dashboard IA / Base de dados
         Gate::define('view-ia-dashboard', fn ($user) => $allowFiscal($user));
 
@@ -131,6 +134,7 @@ class AuthServiceProvider extends ServiceProvider
             try {
                 $profile = \App\Models\UserProfile::where('user_id', $user->id)->first();
                 $lotacao = trim(strtolower($profile->lotacao ?? ''));
+
                 return $lotacao === 'coordenação regional' || str_contains($lotacao, 'regional');
             } catch (\Throwable $e) {
                 return false;

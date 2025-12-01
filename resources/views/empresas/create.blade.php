@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Nova Empresa')
+@section('title', 'Cadastrar Empresa')
 
 @section('content')
 @include('layouts.components.breadcrumbs')
@@ -8,12 +8,12 @@
     'trail' => (request('return') === 'contratos.create')
       ? [
           ['label' => 'Contratos', 'icon' => 'fas fa-file-contract', 'url' => route('contratos.index')],
-          ['label' => 'Novo Contrato', 'url' => route('contratos.create')],
-          ['label' => 'Nova Empresa']
+          ['label' => 'Cadastrar Contrato', 'url' => route('contratos.create')],
+          ['label' => 'Cadastrar Empresa']
         ]
       : [
           ['label' => 'Empresas', 'icon' => 'fas fa-building', 'url' => route('empresas.index')],
-          ['label' => 'Nova Empresa']
+          ['label' => 'Cadastrar Empresa']
         ]
   ])
 @endsection
@@ -165,6 +165,11 @@ form .btn {
   const $uf = document.getElementById('uf');
   const $numero = document.getElementById('numero');
   const $complemento = document.getElementById('complemento');
+  const $cnpj = document.getElementById('cnpj');
+  const $razao = document.getElementById('razao_social');
+  const $fantasia = document.getElementById('nome_fantasia');
+  const $email = document.getElementById('email');
+  const $telefone = document.getElementById('telefone');
 
   function setAlert(type, title, message) {
     const icons = { success: 'fa-check-circle', error: 'fa-exclamation-triangle', warning: 'fa-exclamation-circle', info: 'fa-info-circle' };
@@ -182,7 +187,6 @@ form .btn {
   function limparEndereco(){
     if ($logradouro) $logradouro.value = '';
     if ($bairro) $bairro.value = '';
-    // mantém cidade/UF se já preenchidos
   }
   function consultaCep(rawCep){
     const d = (rawCep||'').replace(/\D/g,''); if(d.length!==8) return;
@@ -210,6 +214,81 @@ form .btn {
       });
   }
 
+  function maskCNPJ(v){
+    const d=(v||'').replace(/\D/g,'').slice(0,14);
+    let out='';
+    for(let i=0;i<d.length;i++){
+      out+=d[i];
+      if(i===1) out+='.';
+      if(i===4) out+='.';
+      if(i===7) out+='/';
+      if(i===11) out+='-';
+    }
+    return out;
+  }
+
+  function isValidCnpjDigits(c){
+    const d=(c||'').replace(/\D/g,'');
+    if(d.length!==14) return false;
+    if(/^([0-9])\1{13}$/.test(d)) return false;
+    const calc=(base,len)=>{
+      let sum=0; let pos=len-7;
+      for(let i=0;i<len;i++){ sum+=parseInt(base[i],10)*pos; pos--; if(pos<2) pos=9; }
+      const res=sum%11; return res<2?0:(11-res);
+    };
+    const d1=calc(d,12); if(parseInt(d[12],10)!==d1) return false;
+    const d2=calc(d,13); return parseInt(d[13],10)===d2;
+  }
+
+  function preencherCamposEmpresa(data){
+    if(!data) return;
+    if ($razao && data.razao_social) $razao.value = data.razao_social;
+    if ($fantasia && data.nome_fantasia) $fantasia.value = data.nome_fantasia;
+    if ($email && data.email) $email.value = data.email;
+    if ($telefone && (data.telefone || data.ddd_telefone_1)) $telefone.value = (data.telefone || data.ddd_telefone_1);
+    if ($cep && (data.cep)) { $cep.value = maskCEP(String(data.cep)); }
+    if ($logradouro && data.logradouro) $logradouro.value = data.logradouro;
+    if ($numero && data.numero) $numero.value = String(data.numero);
+    if ($complemento && data.complemento) $complemento.value = data.complemento;
+    if ($bairro && data.bairro) $bairro.value = data.bairro;
+    if ($cidade && (data.municipio || data.cidade)) $cidade.value = (data.municipio || data.cidade);
+    if ($uf && data.uf) $uf.value = String(data.uf).toUpperCase();
+  }
+
+  function consultarCnpj(raw){
+    const d=(raw||'').replace(/\D/g,'');
+    if(d.length!==14){ setAlert('warning','CNPJ inválido','Informe um CNPJ com 14 dígitos.'); return; }
+    if(!isValidCnpjDigits(d)){ setAlert('error','CNPJ inválido','Os dígitos do CNPJ não conferem.'); return; }
+    setAlert('info','Consultando CNPJ','Verificando cadastro e buscando dados...');
+    fetch(`${window.location.origin}/fiscalizer/public/empresas/verificar?cnpj=${d}`)
+      .then(r=>r.json())
+      .then(j=>{
+        if(j && j.found && j.data){
+          preencherCamposEmpresa(j.data);
+          setAlert('warning','Empresa já cadastrada','Os dados foram carregados do cadastro interno.');
+          if (typeof Swal !== 'undefined') { Swal.fire({icon:'warning', title:'Empresa já cadastrada', text:'Os dados foram carregados do cadastro interno.'}); }
+          return;
+        }
+        return fetch(`https://brasilapi.com.br/api/cnpj/v1/${d}`)
+          .then(r=>r.json())
+          .then(data=>{
+            if(data && data.razao_social){
+              preencherCamposEmpresa(data);
+              setAlert('success','Dados carregados','Campos preenchidos com dados da BrasilAPI.');
+            } else {
+              setAlert('warning','CNPJ não encontrado','Não foi possível obter dados para o CNPJ informado.');
+            }
+          })
+          .catch(()=>{
+            setAlert('error','Erro ao consultar CNPJ','Serviço BrasilAPI indisponível no momento.');
+            if (typeof Swal !== 'undefined') { Swal.fire({icon:'error', title:'Erro ao consultar CNPJ', text:'Serviço BrasilAPI indisponível no momento.'}); }
+          });
+      })
+      .catch(()=>{
+        setAlert('error','Erro ao verificar cadastro','Não foi possível verificar o cadastro interno.');
+      });
+  }
+
   document.addEventListener('DOMContentLoaded', function(){
     if($cep){
       $cep.addEventListener('input', function(){ this.value = maskCEP(this.value); });
@@ -224,6 +303,22 @@ form .btn {
         const d = (this.value||'').replace(/\D/g,'');
         if (d.length === 8) { consultaCep(d); }
         else { setAlert('warning','CEP inválido','Informe um CEP com 8 dígitos.'); }
+      });
+    }
+
+    if($cnpj){
+      $cnpj.addEventListener('input', function(){ this.value = maskCNPJ(this.value); });
+      $cnpj.addEventListener('keyup', function(){
+        const d=(this.value||'').replace(/\D/g,'');
+        clearTimeout(this.__cnpjTimer);
+        if(d.length===14 && isValidCnpjDigits(d)){
+          this.__cnpjTimer = setTimeout(()=>consultarCnpj(d), 250);
+        }
+      });
+      $cnpj.addEventListener('blur', function(){
+        const d=(this.value||'').replace(/\D/g,'');
+        if(d.length===14){ consultarCnpj(d); }
+        else { setAlert('warning','CNPJ inválido','Informe um CNPJ com 14 dígitos.'); }
       });
     }
   });

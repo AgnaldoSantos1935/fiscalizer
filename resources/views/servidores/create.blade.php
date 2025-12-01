@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title','Novo Servidor')
+@section('title','Cadastrar Servidor')
 
 @section('content')
 @include('layouts.components.breadcrumbs')
@@ -66,7 +66,7 @@
       </div>
       <div class="card-footer bg-white d-flex gap-2">
         <a href="{{ route('servidores.index') }}" class="btn btn-outline-secondary">Cancelar</a>
-        <button class="btn btn-primary"><i class="fas fa-save me-1"></i>Salvar</button>
+        <button class="btn btn-primary"><i class="fas fa-save me-1"></i>Cadastrar Servidor</button>
       </div>
     </form>
   </div>

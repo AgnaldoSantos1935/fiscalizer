@@ -145,7 +145,17 @@ class ProjetoController extends Controller
             'escola',
         ]);
 
-        return view('projetos.show', compact('projeto'));
+        $apfs = $projeto->apfs()->orderByDesc('created_at')->get();
+        $atividades = $projeto->atividades()->orderByDesc('data')->get();
+        $boletins = $projeto->boletins()->orderByDesc('data_emissao')->get();
+        $medicaoItens = $projeto->medicaoItens()->orderByDesc('id')->get();
+        $requisitos = $projeto->requisitos()->orderBy('titulo')->get();
+        $cronograma = $projeto->cronograma()->orderBy('data_inicio')->get();
+        $equipe = $projeto->equipe()->with('pessoa')->orderBy('perfil')->get();
+
+        return view('projetos.show', compact(
+            'projeto', 'apfs', 'atividades', 'boletins', 'medicaoItens', 'requisitos', 'cronograma', 'equipe'
+        ));
     }
 
     // =========================

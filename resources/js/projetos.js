@@ -1,7 +1,5 @@
 import axios from "axios";
 import $ from "jquery";
-import "datatables.net-bs5";
-import "datatables.net-responsive-bs5";
 import toastr from "toastr";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -26,12 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
     delete form.dataset.id;
   };
 
-  // 🔹 Função padrão de atualização de tabela
-  const atualizarTabela = (selector) => {
-    if ($.fn.DataTable.isDataTable(selector)) {
-      $(selector).DataTable().ajax.reload(null, false);
-    }
-  };
+  const reloadPage = () => window.location.reload();
 
   // 🔹 Configuração base
   const cfgPadrao = {
@@ -43,92 +36,22 @@ document.addEventListener("DOMContentLoaded", () => {
   // ===============================================================
   // 🔸 1. REQUISITOS
   // ===============================================================
-  const tabelaRequisitos = $("#tabelaRequisitos").DataTable({
-    ...cfgPadrao,
-    ajax: `/api/projetos/${projetoId}/requisitos`,
-    columns: [
-      { data: "descricao" },
-      { data: "tipo" },
-      { data: "complexidade" },
-      { data: "pontos_funcao", className: "text-end" },
-      { data: "responsavel" },
-      {
-        data: null,
-        className: "text-center",
-        render: (d) => `
-          <button class="btn btn-sm btn-primary btn-editar" data-id="${d.id}" data-tipo="requisito"><i class="fas fa-edit"></i></button>
-          <button class="btn btn-sm btn-danger btn-excluir" data-id="${d.id}" data-tipo="requisito"><i class="fas fa-trash"></i></button>
-        `,
-      },
-    ],
-  });
+  // Listas renderizadas server-side; sem DataTables
 
   // ===============================================================
   // 🔸 2. ATIVIDADES
   // ===============================================================
-  const tabelaAtividades = $("#tabelaAtividades").DataTable({
-    ...cfgPadrao,
-    ajax: `/api/projetos/${projetoId}/atividades`,
-    columns: [
-      { data: "etapa" },
-      { data: "analista" },
-      { data: "data", className: "text-center" },
-      { data: "horas", className: "text-end" },
-      {
-        data: null,
-        className: "text-center",
-        render: (d) => `
-          <button class="btn btn-sm btn-primary btn-editar" data-id="${d.id}" data-tipo="atividade"><i class="fas fa-edit"></i></button>
-          <button class="btn btn-sm btn-danger btn-excluir" data-id="${d.id}" data-tipo="atividade"><i class="fas fa-trash"></i></button>
-        `,
-      },
-    ],
-  });
+  
 
   // ===============================================================
   // 🔸 3. CRONOGRAMA
   // ===============================================================
-  const tabelaCronograma = $("#tabelaCronograma").DataTable({
-    ...cfgPadrao,
-    ajax: `/api/projetos/${projetoId}/cronograma`,
-    columns: [
-      { data: "etapa" },
-      { data: "responsavel" },
-      { data: "data_inicio", className: "text-center" },
-      { data: "data_fim", className: "text-center" },
-      { data: "status", className: "text-center" },
-      {
-        data: null,
-        className: "text-center",
-        render: (d) => `
-          <button class="btn btn-sm btn-primary btn-editar" data-id="${d.id}" data-tipo="cronograma"><i class="fas fa-edit"></i></button>
-          <button class="btn btn-sm btn-danger btn-excluir" data-id="${d.id}" data-tipo="cronograma"><i class="fas fa-trash"></i></button>
-        `,
-      },
-    ],
-  });
+  
 
   // ===============================================================
   // 🔸 4. EQUIPE
   // ===============================================================
-  const tabelaEquipe = $("#tabelaEquipe").DataTable({
-    ...cfgPadrao,
-    ajax: `/api/projetos/${projetoId}/equipe`,
-    columns: [
-      { data: "pessoa.nome_completo" },
-      { data: "perfil" },
-      { data: "horas_previstas", className: "text-end" },
-      { data: "horas_realizadas", className: "text-end" },
-      {
-        data: null,
-        className: "text-center",
-        render: (d) => `
-          <button class="btn btn-sm btn-primary btn-editar" data-id="${d.id}" data-tipo="equipe"><i class="fas fa-edit"></i></button>
-          <button class="btn btn-sm btn-danger btn-excluir" data-id="${d.id}" data-tipo="equipe"><i class="fas fa-trash"></i></button>
-        `,
-      },
-    ],
-  });
+  
 
   // ===============================================================
   // 🔸 CRUD Genérico (Adicionar / Editar)
@@ -160,10 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
         modal.hide();
         limparModal(formId);
 
-        if (tipo === "requisito") atualizarTabela("#tabelaRequisitos");
-        if (tipo === "atividade") atualizarTabela("#tabelaAtividades");
-        if (tipo === "cronograma") atualizarTabela("#tabelaCronograma");
-        if (tipo === "equipe") atualizarTabela("#tabelaEquipe");
+        reloadPage();
       } catch (err) {
         console.error(err);
         toastr.error("Erro ao salvar registro.");
@@ -199,10 +119,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       await axios.delete(url);
       toastr.success("Registro excluído com sucesso!");
-      if (tipo === "requisito") atualizarTabela("#tabelaRequisitos");
-      if (tipo === "atividade") atualizarTabela("#tabelaAtividades");
-      if (tipo === "cronograma") atualizarTabela("#tabelaCronograma");
-      if (tipo === "equipe") atualizarTabela("#tabelaEquipe");
+      reloadPage();
     } catch (err) {
       toastr.error("Erro ao excluir registro.");
     }

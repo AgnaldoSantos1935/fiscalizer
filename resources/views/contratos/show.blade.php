@@ -19,7 +19,7 @@
                     <span class="text-secondary">Empenhos</span>
                 </li>
                 <li class="breadcrumb-item active text-secondary fw-semibold">
-                    Novo Empenho
+                    Cadastrar Nota de Empenho
                 </li>
             @endif
         </ol>
@@ -44,7 +44,9 @@
   <div class="card card">
               <div class="card-header">
                 <div class="card-title">
-                 <h5 class="mb-0 text-with" id="tituloContrato"></h5>
+                 <h5 class="mb-0 text-with" id="tituloContrato">
+                   Contrato nº {{ $contrato->numero }} — {{ optional($contrato->contratada)->razao_social ?? '—' }}
+                 </h5>
                      </div>
  <div class="card-tools">
 
@@ -60,7 +62,7 @@
           <div class="col-lg-3 col-3">
                  <div class="small-box bg-success"  data-bs-toggle="tooltip" title="Valor global do contrato por ano">
               <div class="inner">
-              <h4 id="resumoGlobal">R$ 0,00</h4>
+              <h4 id="resumoGlobal">{{ $totais['valor_global_br'] ?? ('R$ ' . number_format((float) ($totais['valor_global'] ?? 0), 2, ',', '.')) }}</h4>
                <p></p>
               </div>
               <div class="icon">
@@ -72,7 +74,7 @@
             <div class="col-lg-3 col-3">
                              <div class="small-box bg-success"  data-bs-toggle="tooltip" title="Valor total empenhado até o momento">
               <div class="inner">
-                <h4 id="resumoEmpenhado">R$ 0,00</h4>
+                <h4 id="resumoEmpenhado">{{ $totais['valor_empenhado_br'] ?? ('R$ ' . number_format((float) ($totais['valor_empenhado'] ?? 0), 2, ',', '.')) }}</h4>
                   <p></p>
 
               </div>
@@ -85,7 +87,7 @@
             <div class="col-lg-3 col-3">
                   <div class="small-box bg-warning"  data-bs-toggle="tooltip" title="Total da soma dos pagamentos informados até o momento">
               <div class="inner">
-                <h4 id="resumoPago">R$ 0,00</h4>
+                <h4 id="resumoPago">{{ $totais['valor_pago_br'] ?? ('R$ ' . number_format((float) ($totais['valor_pago'] ?? 0), 2, ',', '.')) }}</h4>
                 <p></p>
 
               </div>
@@ -98,7 +100,7 @@
                <div class="col-lg-3 col-3">
                 <div class="small-box bg-danger" data-bs-toggle="tooltip" title="Saldo da somas dos valores empenhados">
               <div class="inner">
-                 <h4 id="resumoSaldo">R$ 0,00</h4>
+                 <h4 id="resumoSaldo">{{ $totais['saldo_br'] ?? ('R$ ' . number_format((float) ($totais['saldo'] ?? 0), 2, ',', '.')) }}</h4>
                 <p></p>
 
               </div>
@@ -115,49 +117,112 @@
   </div>
  </div>
 
+    <!-- 🔹 Detalhes do Contrato -->
+    <div class="row g-3 align-items-stretch">
+      <div class="col-12">
+        <div class="card contrato-card h-100">
+          <div class="card-header">
+            <div class="card-title">
+              <h5 class="mb-0 text-with">Detalhes:</h5>
+            </div>
+            <div class="card-tools">
+              <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+                <i class="fas fa-minus"></i>
+              </button>
+            </div>
+          </div>
+          <div class="card-body" id="detalhesContrato">
+            <div class="row">
+              <div class="col-md-6">
+                <dl class="row mb-0">
+                  <dt class="col-sm-4">Situação</dt>
+                  <dd class="col-sm-8">{{ optional($contrato->situacaoContrato)->nome ?? '—' }}</dd>
+                  <dt class="col-sm-4">Fiscais</dt>
+                  <dd class="col-sm-8">Téc.: {{ optional($contrato->fiscalTecnico)->nome_completo ?? '—' }} | Adm.: {{ optional($contrato->fiscalAdministrativo)->nome_completo ?? '—' }}</dd>
+                  <dt class="col-sm-4">Gestor</dt>
+                  <dd class="col-sm-8">{{ optional($contrato->gestor)->nome_completo ?? '—' }}</dd>
+                  <dt class="col-sm-4">Número</dt>
+                  <dd class="col-sm-8">{{ $contrato->numero ?? '—' }}</dd>
+                  <dt class="col-sm-4">Processo Origem</dt>
+                  <dd class="col-sm-8">{{ $contrato->processo_origem ?? '—' }}</dd>
+                  <dt class="col-sm-4">Modalidade</dt>
+                  <dd class="col-sm-8">{{ $contrato->modalidade ?? '—' }}</dd>
+                  <dt class="col-sm-4">Data Assinatura</dt>
+                  <dd class="col-sm-8">{{ $contrato->data_assinatura ?? '—' }}</dd>
+                  <dt class="col-sm-4">Início Vigência</dt>
+                  <dd class="col-sm-8">{{ $contrato->data_inicio_vigencia ?? '—' }}</dd>
+                  <dt class="col-sm-4">Fim Vigência</dt>
+                  <dd class="col-sm-8">{{ $contrato->data_fim_vigencia ?? '—' }}</dd>
+                  <dt class="col-sm-4">Valor Global</dt>
+                  <dd class="col-sm-8">{{ $contrato->valor_global !== null ? ('R$ ' . number_format((float)$contrato->valor_global, 2, ',', '.')) : '—' }}</dd>
+                  <dt class="col-sm-4">Valor Mensal</dt>
+                  <dd class="col-sm-8">{{ $contrato->valor_mensal !== null ? ('R$ ' . number_format((float)$contrato->valor_mensal, 2, ',', '.')) : '—' }}</dd>
+                  <dt class="col-sm-4">Meses Contratados</dt>
+                  <dd class="col-sm-8">{{ $contrato->quantidade_meses ?? '—' }}</dd>
+                  <dt class="col-sm-4">Contratada</dt>
+                  <dd class="col-sm-8">{{ optional($contrato->contratada)->razao_social ?? ($contrato->empresa_razao_social ?? '—') }}</dd>
+                  <dt class="col-sm-4">CNPJ</dt>
+                  <dd class="col-sm-8">{{ optional($contrato->contratada)->cnpj ?? ($contrato->empresa_cnpj ?? '—') }}</dd>
+                  <dt class="col-sm-4">E-mail</dt>
+                  <dd class="col-sm-8">{{ optional($contrato->contratada)->email ?? ($contrato->empresa_email ?? '—') }}</dd>
+                  <dt class="col-sm-4">Representante</dt>
+                  <dd class="col-sm-8">{{ $contrato->empresa_representante ?? '—' }}</dd>
+                  <dt class="col-sm-4">Contato</dt>
+                  <dd class="col-sm-8">{{ $contrato->empresa_contato ?? '—' }}</dd>
+                  <dt class="col-sm-4">Endereço</dt>
+                  <dd class="col-sm-8">{{ $contrato->empresa_endereco ?? '—' }}</dd>
+                </dl>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <div class="text-muted small">Objeto</div>
+                  <div>{{ $contrato->objeto ?? '—' }}</div>
+                </div>
+                <div class="mb-3">
+                  <div class="text-muted small">Local de Prestação do Serviço</div>
+                  <div>{{ $contrato->empresa_endereco ?? '—' }}</div>
+                </div>
+                <div class="mb-3">
+                  <div class="text-muted small">Vigência</div>
+                  <div>{{ $totais['vigencia_periodo'] ?? '—' }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- 🔹 Vigência do Contrato (dias restantes) -->
     <div class="row g-3 align-items-stretch">
-    <div class="col-md-6">
-     <div class="card card mb-3 h-100">
-      <div class="card-header">
-        <div class="card-title">
-          <h5 class="mb-0 text-with">Vigência:</h5>
-        </div>
-        <div class="card-tools">
-          <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
-            <i class="fas fa-minus"></i>
-          </button>
+      <div class="col-12">
+        <div class="card contrato-card mb-3 h-100">
+          <div class="card-header">
+            <div class="card-title">
+              <h5 class="mb-0 text-with">Vigência:</h5>
+            </div>
+            <div class="card-tools">
+              <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+                <i class="fas fa-minus"></i>
+              </button>
+            </div>
+          </div>
+          <div class="card-body" id="cardContadorVigencia">
+            @php $tipo = $totais['vigencia_tipo'] ?? null; $texto = $totais['vigencia_texto'] ?? 'Vigência não disponível.'; @endphp
+            @if($tipo === 'restante')
+              <p class="mb-1">{{ $texto }}</p>
+            @elseif($tipo === 'vencido')
+              <p class="text-danger mb-0">{{ $texto }}</p>
+            @else
+              <p class="text-muted mb-0">{{ $texto }}</p>
+            @endif
+          </div>
         </div>
       </div>
-      <div class="card-body" id="cardContadorVigencia">
-        <p class="text-muted mb-0">Calculando dias de vigência...</p>
-      </div>
     </div>
-    </div>
-
-     <!-- 🔹 Detalhes do Contrato -->
-<div class="col-md-6">
-<div class="card card h-100">
-              <div class="card-header">
-                <div class="card-title">
-                 <h5 class="mb-0 text-with">Informações:</h5>
-                     </div>
- <div class="card-tools">
-                  <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
-                    <i class="fas fa-minus"></i>
-                  </button>
-                </div>
-        </div><!-- /.card-header -->
-
-        <div class="card-body" id="detalhesContrato">
-            <p class="text-muted mb-0">Carregando informações do contrato...</p>
-    </div>
-    </div>
-     </div>
-    </div> <!-- /.row -->
 
      <!-- 🔹 Itens Contratados -->
-    <div class="card card mt-4">
+    <div class="card contrato-card mt-4">
       <div class="card-header">
         <div class="card-title">
           <h5 class="mb-0 text-with">Itens Contratados: </h5>
@@ -166,15 +231,41 @@
           <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
             <i class="fas fa-minus"></i>
           </button>
+          <a id="btnInserirItens" href="{{ route('contratos.itens', $id) }}" class="btn btn-light btn-sm">
+            <i class="fas fa-plus-circle me-1"></i> Inserir Itens
+          </a>
         </div>
       </div><!-- /.card-header -->
       <div class="card-body" id="tabelaItens">
-        <p class="text-muted mb-0">Carregando itens...</p>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Descrição</th>
+              <th>Unid.</th>
+              <th class="text-end">Qtd</th>
+              <th class="text-end">Meses</th>
+              <th class="text-end">Valor Unit.</th>
+              <th class="text-end">Valor Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach(($itens_list ?? []) as $i)
+              <tr>
+                <td>{{ $i['descricao'] }}</td>
+                <td>{{ $i['unidade'] }}</td>
+                <td class="text-end">{{ $i['quantidade_br'] }}</td>
+                <td class="text-end">{{ $i['meses'] ?? '—' }}</td>
+                <td class="text-end">{{ $i['valor_unitario_br'] }}</td>
+                <td class="text-end">{{ $i['valor_total_br'] }}</td>
+              </tr>
+            @endforeach
+          </tbody>
+        </table>
       </div>
     </div>
 
      <!-- 🔹 Documentos -->
-    <div class="card card mt-4">
+    <div class="card contrato-card mt-4">
       <div class="card-header">
         <div class="card-title">
           <h5 class="mb-0 text-with">Documentos:</h5>
@@ -185,13 +276,38 @@
           </button>
           @can('contratos.anexar_documento')
           <a id="btnNovoDocumento" href="{{ route('contratos.documentos.create', $id) }}" class="btn btn-outline-info btn-sm">
-            <i class="fas fa-file-upload"></i> Inserir Documento
+            <i class="fas fa-file-upload"></i> Cadastrar Documento
           </a>
           @endcan
         </div>
       </div>
       <div class="card-body" id="tabelaDocumentosRelacionados">
-        <p class="text-muted mb-0">Carregando documentos...</p>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Título</th>
+              <th>Tipo</th>
+              <th>Upload</th>
+              <th>Arquivo</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach(($documentos_list ?? []) as $d)
+              <tr>
+                <td>{{ $d['titulo'] }}</td>
+                <td>{{ $d['tipo_nome'] }}</td>
+                <td>{{ $d['data_upload_br'] }}</td>
+                <td>
+                  @if(!empty($d['arquivo_url']))
+                    <a href="{{ $d['arquivo_url'] }}" target="_blank" rel="noopener">Abrir</a>
+                  @else
+                    —
+                  @endif
+                </td>
+              </tr>
+            @endforeach
+          </tbody>
+        </table>
       </div>
     </div>
     </div>
@@ -213,7 +329,24 @@
                 </div>
         </div><!-- /.card-header -->
      <div class="card-body" id="tabelaEmpenhos">
-          <p class="text-muted mb-0">Carregando empenhos...</p>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Número</th>
+              <th class="text-end">Valor Total</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach(($empenhos_list ?? []) as $e)
+              <tr>
+                <td>{{ $e['numero'] }}</td>
+                <td class="text-end">{{ $e['valor_total_br'] }}</td>
+                <td>{{ $e['status'] }}</td>
+              </tr>
+            @endforeach
+          </tbody>
+        </table>
       </div>
    </div>
 
@@ -230,7 +363,26 @@
         </div>
       </div><!-- /.card-header -->
       <div class="card-body" id="tabelaPagamentos">
-        <p class="text-muted mb-0">Carregando pagamentos...</p>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Empenho</th>
+              <th>Documento</th>
+              <th class="text-end">Valor</th>
+              <th>Data</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach(($pagamentos_list ?? []) as $p)
+              <tr>
+                <td>{{ $p['empenho_numero'] }}</td>
+                <td>{{ $p['documento'] }}</td>
+                <td class="text-end">{{ $p['valor_br'] }}</td>
+                <td>{{ $p['data_br'] }}</td>
+              </tr>
+            @endforeach
+          </tbody>
+        </table>
       </div>
     </div>
 
@@ -265,16 +417,17 @@
   </div>
 </div>
 
-<!-- 🔹 Modal Novo Pagamento -->
+<!-- 🔹 Modal Cadastrar Pagamento -->
 <div class="modal fade" id="modalPagamento" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-md modal-dialog-centered">
       <div class="modal-content">
           <div class="modal-header bg-success text-white">
-              <h5 class="modal-title"><i class="fas fa-money-bill-wave me-2"></i>Novo Pagamento</h5>
+              <h5 class="modal-title"><i class="fas fa-money-bill-wave me-2"></i>Cadastrar Pagamento</h5>
               <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" data-dismiss="modal"></button>
           </div>
           <div class="modal-body">
-              <form id="formPagamento">
+              <form id="formPagamento" method="POST" enctype="multipart/form-data">
+                  @csrf
                   <input type="hidden" id="empenhoId">
                   <div class="mb-3">
                       <label class="form-label">Empenho</label>
@@ -282,25 +435,25 @@
                   </div>
                   <div class="mb-3">
                       <label class="form-label">Valor do Pagamento (R$)</label>
-                      <input type="text" class="form-control money-br-input" id="valorPagamento" required>
+                      <input type="text" name="valor" class="form-control money-br-input" required>
                   </div>
                   <div class="mb-3">
                       <label class="form-label">Data do Pagamento</label>
-                      <input type="date" class="form-control" id="dataPagamento">
+                      <input type="date" name="data_pagamento" class="form-control" required>
                   </div>
                   <div class="mb-3">
-                      <label class="form-label">Documento/OB</label>
-                      <input type="text" class="form-control" id="documentoPagamento">
+                      <label class="form-label">Comprovante (PDF)</label>
+                      <input type="file" name="arquivo_comprovante_pdf" class="form-control" accept="application/pdf">
                   </div>
                   <div class="mb-3">
                       <label class="form-label">Observação</label>
-                      <textarea class="form-control" id="obsPagamento" rows="2"></textarea>
+                      <textarea class="form-control" name="observacao" rows="2"></textarea>
                   </div>
               </form>
           </div>
           <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-dismiss="modal">Cancelar</button>
-              <button type="button" class="btn btn-success" id="btnSalvarPagamento">Salvar</button>
+              <button type="button" class="btn btn-success" id="btnSalvarPagamento">Cadastrar Pagamento</button>
           </div>
 </div>
 </div>
@@ -373,7 +526,7 @@
             </div>
         </div>
     </div>
-}</div>
+</div>
 <!-- 🔹 Modal Solicitação de Empenho -->
 <div class="modal fade" id="modalSolicitarEmpenho" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -629,6 +782,12 @@ document.addEventListener("DOMContentLoaded", function() {
       const modalEl = document.getElementById('modalPagamento');
       document.getElementById('empenhoId').value = empenhoId;
       document.getElementById('empenhoNumero').value = numeroEmpenho;
+      const formEl = document.getElementById('formPagamento');
+      if (formEl) {
+        formEl.action = `{{ route('financeiro.pagamentos.store', '__ID__') }}`.replace('__ID__', empenhoId);
+        formEl.method = 'POST';
+        formEl.enctype = 'multipart/form-data';
+      }
       reativarBootstrapComponentes();
       showModal(modalEl);
     };
@@ -649,69 +808,7 @@ document.addEventListener("DOMContentLoaded", function() {
       showModal(modalEl);
     };
 
-    // ========== FUNÇÃO PARA RECARREGAR O CONTRATO ==========
-    function carregarContrato() {
-        const url = '{{ route("api.contratos.detalhes", [ $id]) }}';
-        fetch(url)
-            .then(resp => {
-                const ct = resp.headers.get('content-type') || '';
-                if (!resp.ok) {
-                    // Converte texto para diagnóstico
-                    return resp.text().then(txt => { throw new Error(`HTTP ${resp.status}: ${txt.slice(0,200)}`); });
-                }
-                if (ct.includes('application/json')) {
-                    return resp.json();
-                }
-                // Quando a API retorna HTML (login/erro), gera mensagem amigável
-                return resp.text().then(html => {
-                    const isHtml = /<!DOCTYPE|<html/i.test(html);
-                    if (isHtml) {
-                        throw new Error('Sessão expirada ou sem permissão para acessar os detalhes do contrato.');
-                    }
-                    throw new Error('Resposta inesperada do servidor (não-JSON).');
-                });
-            })
-            .then(data => {
-                // Limpa alerta de erro quando dados chegam
-                const alertErro = document.getElementById('alertErroContrato');
-                if (alertErro) alertErro.innerHTML = '';
-                atualizarResumo(data);
-                preencherDetalhes(data);
-                preencherItens(data);
-                preencherEmpenhos(data);
-                preencherPagamentos(data);
-                preencherDocumentosRelacionados(data);
-                atualizarNovaVigencia(data);
-                atualizarContadorVigencia(data);
-                   atualizarCardDinamico('resumoGlobal', data.valor_global);
-        atualizarCardDinamico('resumoEmpenhado', data.totais?.valor_empenhado || 0);
-        atualizarCardDinamico('resumoPago', data.totais?.valor_pago || 0);
-        atualizarCardDinamico('resumoSaldo', data.totais?.saldo || 0);
-        inicializarTooltips();// Atualiza dados e tooltips
-            })
-            .catch(err => {
-                console.error('Erro ao carregar contrato:', err);
-                const alertErro = document.getElementById('alertErroContrato');
-                if (alertErro) {
-                    alertErro.innerHTML = `
-                      <div class="alert alert-warning d-flex align-items-center" role="alert">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        <div>
-                          ${err.message || 'Falha ao carregar detalhes do contrato.'}
-                        </div>
-                      </div>`;
-                }
-                // Coloca mensagens informativas nas seções
-                const setMsg = (id, msg) => {
-                    const el = document.getElementById(id);
-                    if (el) el.innerHTML = `<p class="text-muted mb-0">${msg}</p>`;
-                };
-                setMsg('detalhesContrato', 'Não foi possível carregar os detalhes do contrato.');
-                setMsg('tabelaItens', 'Não foi possível carregar os itens do contrato.');
-                setMsg('tabelaEmpenhos', 'Não foi possível carregar os empenhos vinculados.');
-                setMsg('tabelaDocumentosRelacionados', 'Não foi possível carregar os documentos relacionados.');
-            });
-    }
+    // Renderização 100% server-side: removido carregamento AJAX de contrato
 
 // Inicializa ou reativa tooltips
 function inicializarTooltips() {
@@ -726,134 +823,11 @@ function inicializarTooltips() {
         const isFiscalAdm = {{ auth()->user() && auth()->user()->hasRole(['Fiscal','Fiscal de contrato']) ? 'true' : 'false' }};
 
 
-    // ========== 1️⃣ Atualiza resumo financeiro ==========
-    function atualizarResumo(data) {
-        const t = data.totais;
-        setText('resumoGlobal', 'R$ ' + parseFloat(data.valor_global).toLocaleString('pt-BR', {minimumFractionDigits:2}));
-        setText('resumoEmpenhado', 'R$ ' + parseFloat(t.valor_empenhado).toLocaleString('pt-BR', {minimumFractionDigits:2}));
-        setText('resumoPago', 'R$ ' + parseFloat(t.valor_pago).toLocaleString('pt-BR', {minimumFractionDigits:2}));
-        setText('resumoSaldo', 'R$ ' + parseFloat(t.saldo).toLocaleString('pt-BR', {minimumFractionDigits:2}));
-    }
+    // Mantido apenas utilitários visuais e modais
 
-    // ========== 2️⃣ Preenche informações gerais ==========
-    function preencherDetalhes(data) {
-        setHTML('tituloContrato', `<i class="fas fa-file-contract me-2"></i>Contrato nº ${data.numero}`);
-        setText('breadcrumbContrato', `Contrato nº ${data.numero}`);
 
-        const situacao = data.situacao_contrato?.nome ?? 'Indefinida';
-        const cor = data.situacao_contrato?.cor ?? 'secondary';
-        const badge = `<span class="badge bg-${cor}">${situacao}</span>`;
 
-        // Formatação amigável de vigência em meses
-        const fmtMeses = (v) => {
-            const n = Number(v);
-            if (isNaN(n)) return '—';
-            return n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        };
-        // Converte meses decimais em "X mês(es) e Y dia(s)"
-        const fmtMesesDias = (v) => {
-            const n = Number(v);
-            if (isNaN(n)) return '';
-            const mesesInt = Math.floor(Math.max(0, n));
-            const dias = Math.round((n - mesesInt) * 30.4375);
-            const mesesStr = mesesInt === 1 ? 'mês' : 'meses';
-            const diasStr = dias === 1 ? 'dia' : 'dias';
-            return `${mesesInt} ${mesesStr} e ${dias} ${diasStr}`;
-        };
-        // Detalhe aproximado em meses e dias a partir das datas
-        const detalharPeriodo = (iniISO, fimISO) => {
-            if (!iniISO || !fimISO) return '';
-            try {
-                const ini = new Date(iniISO);
-                const fim = new Date(fimISO);
-                if (isNaN(ini) || isNaN(fim) || fim < ini) return '';
-                const diffDias = Math.round((fim - ini) / (1000 * 60 * 60 * 24));
-                const meses = Math.floor(diffDias / 30.4375);
-                const dias = Math.max(0, Math.round(diffDias - meses * 30.4375));
-                return ` <small class="text-muted">(aprox. ${meses} mês(es) e ${dias} dia(s))</small>`;
-            } catch { return ''; }
-        };
 
-        // Considera aditivos de prazo para obter a maior data fim calculada
-        const baseFim = data.data_final ? new Date(data.data_final) : null;
-        let fimCalc = baseFim;
-        const aditivosPrazo = (data.documentos ?? []).filter(d => d.tipo === 'termo_aditivo' && d.nova_data_fim);
-        aditivosPrazo.forEach(d => {
-            try {
-                const nd = new Date(d.nova_data_fim);
-                if (nd && !isNaN(nd) && (!fimCalc || nd > fimCalc)) {
-                    fimCalc = nd;
-                }
-            } catch {}
-        });
-
-        const vigMesesLabel = fmtMeses(data.vigencia_meses);
-        const vigMesesDias = fmtMesesDias(data.vigencia_meses);
-        const detalheVigencia = detalharPeriodo(data.data_inicio, fimCalc ? fimCalc.toISOString() : data.data_final);
-
-        document.getElementById('detalhesContrato').innerHTML = `
-            <div class="row">
-                <div class="col-md-6">
-                    <p><strong>Empresa:</strong> ${data.contratada?.razao_social ?? '—'}</p>
-                    <p><strong>CNPJ:</strong> ${data.contratada?.cnpj ?? '—'}</p>
-                    <p><strong>Objeto:</strong> ${data.objeto ?? '—'}</p>
-                    <p><strong>Vigente há:</strong> ${vigMesesDias || '—'}</p>
-                     <p><strong>Processo de contratação:</strong> ${data.num_processo}</p>
-                </div>
-                <div class="col-md-6">
-                    <p><strong>Valor Global:</strong> R$ ${parseFloat(data.valor_global).toLocaleString('pt-BR', {minimumFractionDigits:2})}</p>
-                    <p><strong>Período:</strong>
-                        ${data.data_inicio ? new Date(data.data_inicio).toLocaleDateString('pt-BR') : '—'}
-                        a
-                        ${data.data_fim ? new Date(data.data_fim).toLocaleDateString('pt-BR') : '—'}
-                    </p>
-                    <p><strong>Situação:</strong> ${badge}</p>
-                    <p><strong>Final da vigência:</strong> ${formatarDataBR(data.data_final) ?? '—'}</p>
-                    <p><strong>Modalidade de Licitação:</strong> ${data.modalidade}</p>
-
-                </div>
-            </div>
-        `;
-        // Removido: ações de "Cadastrar Documento" e "Ver PDF do Contrato" na tela de detalhes
-    }
-
-    // ========== 3️⃣ Tabela de Itens ==========
-    function preencherItens(data) {
-        const itens = data.itens ?? [];
-        if (!itens.length) {
-            document.getElementById('tabelaItens').innerHTML = `<p class="text-muted">Nenhum item vinculado a este contrato.</p>`;
-            return;
-        }
-        let linhas = '';
-        itens.forEach((item, i) => {
-            linhas += `
-                <tr>
-                    <td>${i+1}</td>
-                    <td class="text-truncate" style="max-width:250px">${item.descricao_item ?? '—'}</td>
-                    <td>${item.quantidade ?? '—'}</td>
-                    <td data-format="currency" data-value="${item.valor_total}"></td>
-                    <td>
-                        <button class="btn btn-outline-primary btn-sm ver-item"
-                                data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}'>
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </td>
-                </tr>`;
-        });
-        document.getElementById('tabelaItens').innerHTML = `
-            <table class="table table-striped align-middle">
-                <thead class="table-light">
-                    <tr><th>#</th><th>Descrição</th><th>Quantidade</th><th>Valor Total (R$)</th><th>Ações</th></tr>
-                </thead><tbody>${linhas}</tbody>
-            </table>`;
-        document.querySelectorAll('.ver-item').forEach(btn => {
-            btn.addEventListener('click', e => {
-                const item = JSON.parse(e.currentTarget.getAttribute('data-item'));
-                // Usa o módulo de modais para preencher e abrir
-                abrirModalItem(item);
-            });
-        });
-    }
 
     // Confirma solicitação: envia para aprovação (sem gerar PDF agora)
     const btnConfirmSolicitacao = document.getElementById('btnConfirmSolicitacao');
@@ -902,7 +876,7 @@ function inicializarTooltips() {
     }
 
     // ========== 4️⃣ Tabela de Empenhos ==========
-    function preencherEmpenhos(data){
+    /* Removido preenchimento dinâmico de Empenhos (SSR) */
         const emp = data.empenhos ?? [];
         const destino = document.getElementById('tabelaEmpenhos');
         const mesesNome = ['', 'Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -1211,7 +1185,7 @@ function inicializarTooltips() {
     }
 
     // ========== 4️⃣b Tabela de Pagamentos ==========
-    function preencherPagamentos(data) {
+    /* Removido preenchimento dinâmico de Pagamentos (SSR) */
         const destino = document.getElementById('tabelaPagamentos');
         if (!destino) return;
 
@@ -1276,64 +1250,18 @@ function inicializarTooltips() {
             });
     }
 
-    // ========== 5️⃣ Salvar Pagamento ==========
+    // ========== 5️⃣ Salvar Pagamento (SSR via formulário) ==========
     document.getElementById('btnSalvarPagamento').addEventListener('click',()=>{
-        const payload={
-            empenho_id:document.getElementById('empenhoId').value,
-            valor_pagamento:document.getElementById('valorPagamento').value,
-            data_pagamento:document.getElementById('dataPagamento').value,
-            documento:document.getElementById('documentoPagamento').value,
-            observacao:document.getElementById('obsPagamento').value,
-            _token:'{{ csrf_token() }}'
-        };
-        fetch('/api/pagamentos',{
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify(payload)
-        })
-        .then(resp=>resp.json())
-        .then(()=>{
-            bootstrap.Modal.getInstance
-            (document.getElementById('modalPagamento')).show();
-        }).then(resp => resp.json())
-        .then(() => {
-
-            // ✅ Fecha o modal
-            const modal = bootstrap.Modal.getInstance(document.getElementById('modalPagamento'));
-            modal.hide();
-
-            // ✅ Limpa o formulário
-            document.getElementById('formPagamento').reset();
-
-            // ✅ Mensagem de sucesso
-            const alert = document.createElement('div');
-            alert.className = 'alert alert-success alert-dismissible fade show mt-3';
-            alert.innerHTML = `
-                <i class="fas fa-check-circle me-2"></i>
-                Pagamento registrado com sucesso!
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            document.getElementById('cardEmpenhos').prepend(alert);
-
-            // ✅ Recarrega o contrato para atualizar saldos
-            carregarContrato();
-        })
-        .catch(error => {
-            console.error('Erro ao registrar pagamento:', error);
-            const alert = document.createElement('div');
-            alert.className = 'alert alert-danger alert-dismissible fade show mt-3';
-            alert.innerHTML = `
-                <i class="fas fa-exclamation-triangle me-2"></i>
-                Erro ao registrar pagamento. Verifique os dados e tente novamente.
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            document.getElementById('cardEmpenhos').prepend(alert);
-        });
+        const formEl = document.getElementById('formPagamento');
+        if (!formEl || !formEl.action) return;
+        formEl.submit();
     });
 
-    // Carrega o contrato ao abrir a página
-    carregarContrato();
-
+    // Atualiza visual dos cards com os valores SSR ao abrir
+    atualizarCardDinamico('resumoGlobal', {{ (float) ($totais['valor_global'] ?? 0) }});
+    atualizarCardDinamico('resumoEmpenhado', {{ (float) ($totais['valor_empenhado'] ?? 0) }});
+    atualizarCardDinamico('resumoPago', {{ (float) ($totais['valor_pago'] ?? 0) }});
+    atualizarCardDinamico('resumoSaldo', {{ (float) ($totais['saldo'] ?? 0) }});
 function atualizarCardDinamico(id, valor) {
     const elemento = document.getElementById(id);
     const box = elemento.closest('.small-box');
@@ -1386,7 +1314,7 @@ function atualizarCardDinamico(id, valor) {
     // Removida a listagem separada de termos aditivos; eles aparecem em Documentos Relacionados
 
     // ========== 6️⃣ Documentos Relacionados ==========
-    function preencherDocumentosRelacionados(data) {
+    /* Removido preenchimento dinâmico de Documentos (SSR) */
         const el = document.getElementById('tabelaDocumentosRelacionados');
         if (!el) return;
         const allDocs = (data.documentos ?? []).slice();
@@ -1478,7 +1406,8 @@ function atualizarCardDinamico(id, valor) {
     }
 
     // ========== 7️⃣ Nova Vigência calculada ==========
-    function atualizarNovaVigencia(data) {
+    /* Removido cálculo dinâmico de vigência (SSR) */
+        return;
         const baseFim = data.data_final ? new Date(data.data_final) : null;
         const aditivosPrazo = (data.documentos ?? []).filter(d => d.tipo === 'termo_aditivo' && d.nova_data_fim);
         let maxFim = baseFim;
@@ -1505,7 +1434,8 @@ function atualizarCardDinamico(id, valor) {
     }
 
     // ========== 8️⃣ Contador de dias para fim da vigência ==========
-    function atualizarContadorVigencia(data) {
+    /* Removido contador dinâmico de vigência (SSR) */
+        return;
         const baseFim = data.data_final ? new Date(data.data_final) : null;
         const aditivosPrazo = (data.documentos ?? []).filter(d => d.tipo === 'termo_aditivo' && d.nova_data_fim);
         let fim = baseFim;

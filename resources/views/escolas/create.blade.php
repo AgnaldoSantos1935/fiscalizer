@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Nova Escola')
+@section('title', 'Cadastrar Escola')
 
 @section('content')
 @include('layouts.components.breadcrumbs')
@@ -7,7 +7,7 @@
   @include('layouts.components.breadcrumbs', [
     'trail' => [
       ['label' => 'Escolas', 'icon' => 'fas fa-school', 'url' => route('escolas.index')],
-      ['label' => 'Nova Escola']
+      ['label' => 'Cadastrar Escola']
     ]
   ])
 @endsection
@@ -15,7 +15,7 @@
     <div class="card shadow-sm border-0 rounded-4">
         <div class="card-header bg-white border-0 d-flex align-items-center justify-content-between">
             <h4 class="mb-0 text-secondary fw-semibold">
-                <i class="fas fa-plus-circle me-2 text-primary"></i>Nova Escola
+                <i class="fas fa-plus-circle me-2 text-primary"></i>Cadastrar Escola
             </h4>
         </div>
 

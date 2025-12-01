@@ -10,11 +10,39 @@ class DreController extends Controller
     /**
      * Lista todas as DREs.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $dres = Dre::all();
+        $query = Dre::query();
 
-        return view('dres.index', compact('dres'));
+        if ($codigo = trim((string) $request->get('codigo'))) {
+            $query->where('codigodre', 'like', "%{$codigo}%");
+        }
+        if ($nome = trim((string) $request->get('nome'))) {
+            $query->where('nome_dre', 'like', "%{$nome}%");
+        }
+        if ($municipio = trim((string) $request->get('municipio'))) {
+            $query->where('municipio_sede', $municipio);
+        }
+        if ($email = trim((string) $request->get('email'))) {
+            $query->where('email', 'like', "%{$email}%");
+        }
+        if ($uf = strtoupper((string) $request->get('uf'))) {
+            if (strlen($uf) === 2) {
+                $query->where('uf', $uf);
+            }
+        }
+        if ($cep = preg_replace('/\D+/', '', (string) $request->get('cep'))) {
+            if ($cep) {
+                $query->where('cep', 'like', "%{$cep}%");
+            }
+        }
+
+        $municipios = Dre::select('municipio_sede')->distinct()->orderBy('municipio_sede')->pluck('municipio_sede')->filter();
+        $ufs = Dre::select('uf')->distinct()->orderBy('uf')->pluck('uf')->filter();
+
+        $dres = $query->orderBy('nome_dre')->paginate(20)->appends($request->query());
+
+        return view('dres.index', compact('dres', 'municipios', 'ufs'));
     }
 
     /**
@@ -37,6 +65,14 @@ class DreController extends Controller
             'email' => 'nullable|email|max:150',
             'telefone' => 'nullable|string|max:50',
             'endereco' => 'nullable|string|max:255',
+            'cep' => 'nullable|string|max:9',
+            'logradouro' => 'nullable|string|max:200',
+            'numero' => 'nullable|string|max:20',
+            'complemento' => 'nullable|string|max:150',
+            'bairro' => 'nullable|string|max:100',
+            'uf' => 'nullable|string|size:2',
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
         ]);
         $logradouro = trim($request->input('logradouro', ''));
         $numero = trim($request->input('numero', ''));
@@ -104,6 +140,14 @@ class DreController extends Controller
             'email' => 'nullable|email|max:150',
             'telefone' => 'nullable|string|max:50',
             'endereco' => 'nullable|string|max:255',
+            'cep' => 'nullable|string|max:9',
+            'logradouro' => 'nullable|string|max:200',
+            'numero' => 'nullable|string|max:20',
+            'complemento' => 'nullable|string|max:150',
+            'bairro' => 'nullable|string|max:100',
+            'uf' => 'nullable|string|size:2',
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
         ]);
         $logradouro = trim($request->input('logradouro', ''));
         $numero = trim($request->input('numero', ''));

@@ -16,18 +16,12 @@ class DatabaseSeeder extends Seeder
     {
         // Roles e perfis/usuários
         $this->call(RoleSeeder::class);
-        \App\Models\User::updateOrCreate(
-            ['email' => 'agnaldosantos1935@gmail.com'],
-            [
-                'name' => 'agnaldo santos',
-                'password' => bcrypt('S@n%tos123'),
-                'role_id' => 1,
-            ]
-        );
+        $this->call(AdminUserSeeder::class);
         // RBAC: Actions e vínculo Role↔Action
         $this->call(ActionsSeeder::class);
         $this->call(RoleActionsSeeder::class);
         $this->call(UserProfileSeeder::class);
+        $this->call(UsersFactorySeeder::class);
 
         // Hosts de monitoramento
         $this->call(HostSeeder::class);
@@ -57,5 +51,10 @@ class DatabaseSeeder extends Seeder
 
         // Normas técnicas indexadas para demonstração
         $this->call(NormaTrechoSeeder::class);
+        // Equipamentos cadastrados
+        $this->call(EquipamentoSeeder::class);
+        $this->call(DresPdfSeeder::class);
+        $this->call(EscolasSeeder::class);
+        $this->call(EscolasDreBackfillSeeder::class);
     }
 }

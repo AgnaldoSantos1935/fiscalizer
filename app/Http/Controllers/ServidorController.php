@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Pessoa;
 use App\Models\Servidor;
 use Illuminate\Http\Request;
-use Yajra\DataTables\Facades\DataTables;
 
 class ServidorController extends Controller
 {
@@ -14,29 +13,41 @@ class ServidorController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->ajax()) {
-            $query = Servidor::with('pessoa');
+        $query = Servidor::with('pessoa');
 
-            return DataTables::of($query)
-                ->addColumn('nome', fn ($s) => $s->pessoa->nome_completo ?? '—')
-                ->addColumn('matricula', fn ($s) => $s->matricula ?? '—')
-                ->addColumn('cargo', fn ($s) => $s->cargo ?? '—')
-                ->addColumn('situacao', fn ($s) => ucfirst($s->situacao))
-                ->addColumn('acoes', function ($s) {
-                    return '
-                        <a href="' . route('servidores.edit', $s->id) . '" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></a>
-                        <form method="POST" action="' . route('servidores.destroy', $s->id) . '" style="display:inline;">
-                            ' . csrf_field() . method_field('DELETE') . '
-                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm(\'Excluir este servidor?\')">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </form>';
-                })
-                ->rawColumns(['acoes'])
-                ->make(true);
+        if ($mat = trim((string) $request->get('matricula'))) {
+            $query->where('matricula', 'like', "%{$mat}%");
+        }
+        if ($nome = trim((string) $request->get('nome'))) {
+            $query->whereHas('pessoa', function ($q) use ($nome) {
+                $q->where('nome_completo', 'like', "%{$nome}%");
+            });
+        }
+        if ($cargo = trim((string) $request->get('cargo'))) {
+            $query->where('cargo', 'like', "%{$cargo}%");
+        }
+        if ($lotacao = trim((string) $request->get('lotacao'))) {
+            $query->where('lotacao', 'like', "%{$lotacao}%");
+        }
+        if ($vinculo = trim((string) $request->get('vinculo'))) {
+            $query->where('vinculo', $vinculo);
+        }
+        if ($situacao = trim((string) $request->get('situacao'))) {
+            $query->where('situacao', $situacao);
+        }
+        if ($admissaoIni = $request->get('admissao_ini')) {
+            $query->whereDate('data_admissao', '>=', $admissaoIni);
+        }
+        if ($admissaoFim = $request->get('admissao_fim')) {
+            $query->whereDate('data_admissao', '<=', $admissaoFim);
         }
 
-        return view('servidores.index');
+        $situacoes = Servidor::select('situacao')->distinct()->pluck('situacao')->filter()->values();
+        $vinculos = Servidor::select('vinculo')->distinct()->pluck('vinculo')->filter()->values();
+
+        $servidores = $query->orderByDesc('id')->paginate(20)->appends($request->query());
+
+        return view('servidores.index', compact('servidores', 'situacoes', 'vinculos'));
     }
 
     /**

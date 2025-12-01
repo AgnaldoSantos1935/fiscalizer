@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Contrato;
+use App\Models\ContratoItem;
 use App\Models\Documento;
 use App\Models\Empresa;
 use App\Models\Pessoa;
@@ -12,6 +13,7 @@ use App\Services\LeitorDocumentoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -127,13 +129,194 @@ class ContratoController extends Controller
 
     public function index(Request $request)
     {
+        $query = Contrato::with([
+            'contratada:id,razao_social,cnpj',
+            'situacaoContrato:id,nome,cor,slug',
+        ]);
 
-        return view('contratos.index');
+        if ($request->filled('numero')) {
+            $numero = trim((string) $request->input('numero'));
+            $query->where('numero', 'like', "%{$numero}%");
+        }
+
+        if ($request->filled('empresa')) {
+            $empresa = trim((string) $request->input('empresa'));
+            $query->whereHas('contratada', function ($q) use ($empresa) {
+                $q->where('razao_social', 'like', "%{$empresa}%");
+            });
+        }
+
+        if ($request->filled('situacao')) {
+            $situacao = trim((string) $request->input('situacao'));
+            $query->whereHas('situacaoContrato', function ($q) use ($situacao) {
+                $q->where('slug', $situacao);
+            });
+        }
+
+        $contratos = $query->orderBy('id', 'desc')->limit(500)->get();
+        $situacoes = \App\Models\SituacaoContrato::orderBy('nome')->get(['id', 'nome', 'slug', 'descricao', 'cor']);
+
+        return view('contratos.index', compact('contratos', 'situacoes'));
     }
 
     public function show($id)
     {
-        return view('contratos.show', compact('id'));
+        $contrato = Contrato::with([
+            'contratada:id,razao_social,cnpj',
+            'situacaoContrato:id,nome,cor,slug,descricao',
+            'fiscalTecnico:id,nome_completo',
+            'suplenteFiscalTecnico:id,nome_completo',
+            'fiscalAdministrativo:id,nome_completo',
+            'suplenteFiscalAdministrativo:id,nome_completo',
+            'gestor:id,nome_completo',
+            'itens:id,contrato_id,descricao_item,unidade_medida,quantidade,valor_unitario,valor_total,tipo_item',
+            'empenhos.pagamentos:id,empenho_id,valor_pagamento,data_pagamento,documento,observacao',
+            'documentos:id,contrato_id,documento_tipo_id,tipo,titulo,descricao,caminho_arquivo,data_upload,nova_data_fim',
+            'documentos.documentoTipo:id,nome,slug,permite_nova_data_fim',
+        ])->findOrFail($id);
+
+        $valorEmpenhado = $contrato->empenhos->sum(function ($e) {
+            return (float) ($e->valor_total ?? 0);
+        });
+        $valorPago = $contrato->empenhos->sum(function ($e) {
+            $pagos = $e->pagamentos->sum('valor_pagamento');
+            if ($pagos > 0) {
+                return (float) $pagos;
+            }
+
+            return $e->pago_at ? (float) ($e->valor_total ?? 0) : 0.0;
+        });
+        $saldo = (float) ($contrato->valor_global ?? 0) - $valorPago;
+
+        $dataFim = $contrato->data_fim
+            ?? $contrato->data_final
+            ?? $contrato->data_fim_vigencia
+            ?? optional($contrato->documentos->whereNotNull('nova_data_fim')->sortByDesc('nova_data_fim')->first())->nova_data_fim;
+        $dataFimObj = null;
+        $diasVigencia = null;
+        if ($dataFim) {
+            try {
+                $dataFimObj = $dataFim instanceof \Carbon\Carbon ? $dataFim : new \Carbon\Carbon($dataFim);
+                $diasVigencia = now()->diffInDays($dataFimObj, false);
+            } catch (\Throwable $e) {
+                $dataFimObj = null;
+                $diasVigencia = null;
+            }
+        }
+
+        $vigenciaPercentual = 0;
+        $inicio = $contrato->data_inicio
+            ?? $contrato->data_inicio_vigencia
+            ?? $contrato->data_assinatura;
+        $inicioObj = null;
+        if ($inicio) {
+            try {
+                $inicioObj = $inicio instanceof \Carbon\Carbon ? $inicio : new \Carbon\Carbon($inicio);
+            } catch (\Throwable $e) {
+                $inicioObj = null;
+            }
+        }
+        $fim = $dataFimObj;
+        if ($inicioObj && $fim) {
+            try {
+                $totalDias = max($inicioObj->diffInDays($fim), 1);
+                if (is_int($diasVigencia)) {
+                    $decorrido = $totalDias - max(0, $diasVigencia);
+                } else {
+                    $decorrido = $inicioObj->diffInDays(now());
+                }
+                if ($decorrido < 0) $decorrido = 0;
+                if ($decorrido > $totalDias) $decorrido = $totalDias;
+                $vigenciaPercentual = (int) round(($decorrido / $totalDias) * 100);
+            } catch (\Throwable $e) {
+                $vigenciaPercentual = 0;
+            }
+        }
+
+        $vigenciaDataFimFormatada = null;
+        if ($dataFimObj) {
+            try {
+                $vigenciaDataFimFormatada = $dataFimObj->format('d/m/Y');
+            } catch (\Throwable $e) {
+                $vigenciaDataFimFormatada = null;
+            }
+        }
+
+        $vigenciaTipo = 'indisponivel';
+        $vigenciaTexto = 'Vigência não disponível.';
+        if (is_int($diasVigencia)) {
+            if ($diasVigencia >= 0) {
+                $vigenciaTipo = 'restante';
+                $vigenciaTexto = $vigenciaDataFimFormatada
+                    ? (string) ($diasVigencia . ' dias restantes até ' . $vigenciaDataFimFormatada)
+                    : (string) ($diasVigencia . ' dias restantes');
+            } else {
+                $vigenciaTipo = 'vencido';
+                $vigenciaTexto = 'Contrato vencido há ' . abs($diasVigencia) . ' dias.';
+            }
+        }
+
+        return view('contratos.show', [
+            'id' => $id,
+            'contrato' => $contrato,
+            'totais' => [
+                'valor_global' => (float) ($contrato->valor_global ?? 0),
+                'valor_empenhado' => $valorEmpenhado,
+                'valor_pago' => $valorPago,
+                'saldo' => $saldo,
+                'dias_vigencia' => $diasVigencia,
+                'vigencia_percentual' => $vigenciaPercentual,
+                'vigencia_tipo' => $vigenciaTipo,
+                'vigencia_texto' => $vigenciaTexto,
+                'vigencia_data_fim' => $vigenciaDataFimFormatada,
+                'valor_global_br' => 'R$ ' . number_format((float) ($contrato->valor_global ?? 0), 2, ',', '.'),
+                'valor_empenhado_br' => 'R$ ' . number_format((float) $valorEmpenhado, 2, ',', '.'),
+                'valor_pago_br' => 'R$ ' . number_format((float) $valorPago, 2, ',', '.'),
+                'saldo_br' => 'R$ ' . number_format((float) $saldo, 2, ',', '.'),
+                'vigencia_periodo' => (
+                    ($inicioObj ? $inicioObj->format('d/m/Y') : '—') .
+                    ' — ' .
+                    ($dataFimObj ? $dataFimObj->format('d/m/Y') : '—')
+                ),
+            ],
+            'itens_list' => $contrato->itens->map(function ($i) {
+                return [
+                    'descricao' => $i->descricao_item ?? '—',
+                    'unidade' => $i->unidade_medida ?? '—',
+                    'quantidade_br' => number_format((float) ($i->quantidade ?? 0), 2, ',', '.'),
+                    'meses' => $i->meses ?? null,
+                    'valor_unitario_br' => 'R$ ' . number_format((float) ($i->valor_unitario ?? 0), 2, ',', '.'),
+                    'valor_total_br' => 'R$ ' . number_format((float) ($i->valor_total ?? 0), 2, ',', '.'),
+                ];
+            })->values(),
+            'documentos_list' => $contrato->documentos->map(function ($d) {
+                $path = $d->caminho_arquivo;
+
+                return [
+                    'titulo' => $d->titulo ?? '—',
+                    'tipo_nome' => optional($d->documentoTipo)->nome ?? ($d->tipo ?? '—'),
+                    'data_upload_br' => optional($d->data_upload)->format('d/m/Y') ?? '—',
+                    'arquivo_url' => $path ? route('documentos.visualizar', $d->id) : null,
+                ];
+            })->values(),
+            'empenhos_list' => $contrato->empenhos->map(function ($e) {
+                return [
+                    'numero' => $e->numero ?? '—',
+                    'valor_total_br' => 'R$ ' . number_format((float) ($e->valor_total ?? 0), 2, ',', '.'),
+                    'status' => $e->status ?? ($e->pago_at ? 'Pago' : '—'),
+                ];
+            })->values(),
+            'pagamentos_list' => $contrato->empenhos->flatMap(function ($e) {
+                return ($e->pagamentos ?? collect())->map(function ($p) use ($e) {
+                    return [
+                        'empenho_numero' => $e->numero ?? '—',
+                        'documento' => $p->documento ?? '—',
+                        'valor_br' => 'R$ ' . number_format((float) ($p->valor_pagamento ?? 0), 2, ',', '.'),
+                        'data_br' => optional($p->data_pagamento)->format('d/m/Y') ?? '—',
+                    ];
+                });
+            })->values(),
+        ]);
     }
 
     public function detalhesContrato($id)
@@ -146,7 +329,7 @@ class ContratoController extends Controller
             'fiscalAdministrativo:id,nome_completo',
             'suplenteFiscalAdministrativo:id,nome_completo',
             'gestor:id,nome_completo',
-            'itens:id,contrato_id,descricao_item,unidade_medida,quantidade,valor_unitario,valor_total,tipo_item',
+            'itens:id,contrato_id,descricao_item,unidade_medida,quantidade,meses,valor_unitario,valor_total,tipo_item',
             'empenhos.pagamentos:id,empenho_id,valor_pagamento,data_pagamento,documento,observacao',
             'empenhos.solicitacoes:id,empenho_id,status,mes,ano,periodo_referencia,solicitado_at,solicitado_by,aprovado_at,aprovado_by,pdf_path',
             'empenhos.solicitacoes.solicitante:id,name',
@@ -211,6 +394,13 @@ class ContratoController extends Controller
 
     }
 
+    public function getItens($id)
+    {
+        $contrato = Contrato::findOrFail($id);
+
+        return redirect()->route('contratos.edit', $contrato->id);
+    }
+
     /**
      * 🔹 Exibe o formulário de criação
      */
@@ -227,6 +417,13 @@ class ContratoController extends Controller
      */
     public function store(Request $request)
     {
+        try {
+        $valorBr = $request->input('valor_global');
+        $valorDec = $this->brToDecimal(is_string($valorBr) ? $valorBr : null);
+        if ($valorDec !== null) {
+            $request->merge(['valor_global' => $valorDec]);
+        }
+
         $validated = $request->validate([
             'numero' => 'required|string|max:30|unique:contratos',
             'objeto' => 'required|string',
@@ -243,11 +440,80 @@ class ContratoController extends Controller
             'tipo' => 'nullable|string|in:TI,Serviço,Obra,Material',
             'situacao_id' => 'nullable|exists:situacoes,id',
             'documento_pdf_id' => 'nullable|exists:documentos,id',
+            'itens_fornecimento' => 'nullable',
         ]);
 
-        $validated['created_by'] = Auth::id();
+        $contrato = new Contrato;
+        $contrato->numero = $validated['numero'];
+        $contrato->objeto = $validated['objeto'];
+        $contrato->valor_global = $validated['valor_global'];
+        if (Schema::hasColumn('contratos', 'created_by')) {
+            $contrato->created_by = Auth::id();
+        }
 
-        $contrato = Contrato::create($validated);
+        if (Schema::hasColumn('contratos', 'contratada_id')) {
+            $contrato->contratada_id = $validated['contratada_id'];
+        } else {
+            $empresa = \App\Models\Empresa::find($validated['contratada_id']);
+            if ($empresa) {
+                if (Schema::hasColumn('contratos', 'empresa_razao_social')) {
+                    $contrato->empresa_razao_social = $empresa->razao_social;
+                }
+                if (Schema::hasColumn('contratos', 'empresa_cnpj')) {
+                    $contrato->empresa_cnpj = $empresa->cnpj;
+                }
+                if (Schema::hasColumn('contratos', 'empresa_email')) {
+                    $contrato->empresa_email = $empresa->email;
+                }
+                if (Schema::hasColumn('contratos', 'empresa_endereco')) {
+                    $contrato->empresa_endereco = trim(($empresa->logradouro ?? '') . ' ' . ($empresa->numero ?? '') . ' ' . ($empresa->bairro ?? '') . ' ' . ($empresa->cidade ?? '') . ' ' . ($empresa->uf ?? ''));
+                }
+            }
+        }
+
+        if (Schema::hasColumn('contratos', 'data_inicio')) {
+            $contrato->data_inicio = $validated['data_inicio'] ?? null;
+        } elseif (Schema::hasColumn('contratos', 'data_inicio_vigencia')) {
+            $contrato->data_inicio_vigencia = $validated['data_inicio'] ?? null;
+        }
+        if (Schema::hasColumn('contratos', 'data_fim')) {
+            $contrato->data_fim = $validated['data_fim'] ?? null;
+        } elseif (Schema::hasColumn('contratos', 'data_fim_vigencia')) {
+            $contrato->data_fim_vigencia = $validated['data_fim'] ?? null;
+        }
+
+        if (Schema::hasColumn('contratos', 'fiscal_tecnico_id')) {
+            $contrato->fiscal_tecnico_id = $validated['fiscal_tecnico_id'] ?? null;
+        } elseif (Schema::hasColumn('contratos', 'fiscal_tecnico')) {
+            if (! empty($validated['fiscal_tecnico_id'])) {
+                $p = \App\Models\Pessoa::find($validated['fiscal_tecnico_id']);
+                $contrato->fiscal_tecnico = $p?->nome_completo;
+            }
+        }
+        if (Schema::hasColumn('contratos', 'fiscal_administrativo_id')) {
+            $contrato->fiscal_administrativo_id = $validated['fiscal_administrativo_id'] ?? null;
+        } elseif (Schema::hasColumn('contratos', 'fiscal_administrativo')) {
+            if (! empty($validated['fiscal_administrativo_id'])) {
+                $p = \App\Models\Pessoa::find($validated['fiscal_administrativo_id']);
+                $contrato->fiscal_administrativo = $p?->nome_completo;
+            }
+        }
+        if (Schema::hasColumn('contratos', 'gestor_id')) {
+            $contrato->gestor_id = $validated['gestor_id'] ?? null;
+        } elseif (Schema::hasColumn('contratos', 'gestor')) {
+            if (! empty($validated['gestor_id'])) {
+                $p = \App\Models\Pessoa::find($validated['gestor_id']);
+                $contrato->gestor = $p?->nome_completo;
+            }
+        }
+
+        $contrato->save();
+
+        // 🔸 Persiste itens do contrato a partir do JSON enviado na criação
+        if ($request->filled('itens_fornecimento')) {
+            $items = $this->decodeJsonSafely($request->input('itens_fornecimento'));
+            $this->syncItensFornecimento($contrato, is_array($items) ? $items : []);
+        }
 
         // Vincula documento PDF (se veio do fluxo de extração)
         if (! empty($validated['documento_pdf_id'])) {
@@ -266,8 +532,12 @@ class ContratoController extends Controller
         ], $contrato);
 
         return redirect()
-            ->route('contratos.index')
-            ->with('success', 'Contrato cadastrado com sucesso!');
+            ->route('contratos.create')
+            ->with('success', 'Contrato cadastrado com sucesso!')
+            ->with('redirect_to', route('contratos.index'));
+        } catch (\Throwable $e) {
+            return redirect()->back()->withInput()->with('error', 'Erro ao cadastrar contrato: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -279,7 +549,21 @@ class ContratoController extends Controller
         $empresas = Empresa::orderBy('razao_social')->get();
         $pessoas = Pessoa::orderBy('nome_completo')->get();
 
-        return view('contratos.edit', compact('contrato', 'empresas', 'pessoas'));
+        $itensJs = $contrato->itens->map(function ($i) {
+            return [
+                'descricao' => $i->descricao_item,
+                'unidade' => $i->unidade_medida,
+                'quantidade' => (float) ($i->quantidade ?? 0),
+                'meses' => (int) ($i->meses ?? 1),
+                'valor_unitario' => (float) ($i->valor_unitario ?? 0),
+                'valor_unitario_br' => number_format((float) ($i->valor_unitario ?? 0), 2, ',', '.'),
+                'aliquota_percent' => 0,
+                'desconto_percent' => 0,
+            ];
+        })->values()->toArray();
+
+        return view('contratos.edit', compact('contrato', 'empresas', 'pessoas'))
+            ->with('itensJs', $itensJs);
     }
 
     /**
@@ -287,8 +571,13 @@ class ContratoController extends Controller
      */
     public function pdf(Contrato $contrato)
     {
+        $tipoContratoPdf = \App\Models\DocumentoTipo::where('slug', 'contrato_pdf')->first();
         $doc = Documento::where('contrato_id', $contrato->id)
-            ->where('tipo', 'contrato_pdf')
+            ->when($tipoContratoPdf, function ($q) use ($tipoContratoPdf) {
+                $q->where('documento_tipo_id', $tipoContratoPdf->id);
+            }, function ($q) {
+                $q->where('tipo', 'OUTROS');
+            })
             ->orderByDesc('id')
             ->first();
 
@@ -322,6 +611,7 @@ class ContratoController extends Controller
      */
     public function update(Request $request, Contrato $contrato)
     {
+        try {
         Gate::authorize('manage-contrato', $contrato);
 
         $data = $request->validate([
@@ -387,6 +677,12 @@ class ContratoController extends Controller
 
         $contrato->update($data);
 
+        // 🔸 Persiste itens do contrato a partir do JSON enviado na edição
+        $items = $data['itens_fornecimento'] ?? $this->decodeJsonSafely($request->input('itens_fornecimento'));
+        if (is_array($items)) {
+            $this->syncItensFornecimento($contrato, $items);
+        }
+
         // Notificação: contrato atualizado
         notify_event('notificacoes.contratos.contrato_atualizado', [
             'titulo' => 'Contrato atualizado',
@@ -396,6 +692,9 @@ class ContratoController extends Controller
         return redirect()
             ->route('contratos.edit', $contrato->id)
             ->with('success', 'Contrato atualizado com sucesso!');
+        } catch (\Throwable $e) {
+            return redirect()->back()->withInput()->with('error', 'Erro ao atualizar contrato: ' . $e->getMessage());
+        }
     }
 
     private function brToDecimal(?string $val): ?float
@@ -411,6 +710,48 @@ class ContratoController extends Controller
         $clean = str_replace(',', '.', $clean);
 
         return is_numeric($clean) ? (float) $clean : null;
+    }
+
+    /**
+     * 🔧 Sincroniza os itens de fornecimento com a tabela contrato_itens
+     */
+    private function syncItensFornecimento(Contrato $contrato, array $items): void
+    {
+        // Remove os itens atuais e recria com base no array recebido
+        $contrato->itens()->delete();
+
+        foreach ($items as $x) {
+            $item = new ContratoItem();
+            $item->contrato_id = $contrato->id;
+            $item->descricao_item = (string) ($x['descricao'] ?? ($x['descricao_item'] ?? ''));
+            $item->unidade_medida = (string) ($x['unidade'] ?? ($x['unidade_medida'] ?? ''));
+            $item->quantidade = (float) ($x['quantidade'] ?? 0);
+            $item->meses = isset($x['meses']) ? (int) $x['meses'] : null;
+            $item->valor_unitario = (float) ($x['valor_unitario'] ?? 0);
+            $item->tipo_item = 'servico';
+            $item->status = 'ativo';
+            $item->created_by = \Illuminate\Support\Facades\Auth::id();
+            $item->save(); // valor_total é calculado no model
+        }
+    }
+
+    /**
+     * 🛡️ Decodifica JSON com proteção contra erros
+     */
+    private function decodeJsonSafely(?string $text)
+    {
+        if (! $text || ! is_string($text)) {
+            return null;
+        }
+        try {
+            return json_decode($text, true, 512, JSON_THROW_ON_ERROR);
+        } catch (\Throwable $e) {
+            try {
+                return json_decode($text, true);
+            } catch (\Throwable $e2) {
+                return null;
+            }
+        }
     }
 
     /**
@@ -590,9 +931,11 @@ class ContratoController extends Controller
         }
 
         // Registra o documento na tabela 'documentos' (sem contrato ainda)
+        $tipoContratoPdf = \App\Models\DocumentoTipo::where('slug', 'contrato_pdf')->first();
         $documento = Documento::create([
             'contrato_id' => null,
-            'tipo' => 'contrato_pdf',
+            'tipo' => 'OUTROS',
+            'documento_tipo_id' => $tipoContratoPdf?->id,
             'titulo' => $file->getClientOriginalName(),
             'descricao' => 'Cópia do contrato em PDF enviada na criação',
             'caminho_arquivo' => $savedPath,
@@ -646,9 +989,11 @@ class ContratoController extends Controller
 
         $novaDataFim = $tipoEntidade->permite_nova_data_fim ? ($data['nova_data_fim'] ?? null) : null;
 
+        $tiposEnum = ['TR', 'ETP', 'PARECER', 'NOTA_TECNICA', 'RELATORIO', 'OUTROS'];
+        $tipoEnum = in_array($tipoEntidade->slug, $tiposEnum, true) ? $tipoEntidade->slug : 'OUTROS';
         Documento::create([
             'contrato_id' => $contrato->id,
-            'tipo' => $tipoEntidade->slug,
+            'tipo' => $tipoEnum,
             'documento_tipo_id' => $tipoEntidade->id,
             'titulo' => $request->input('titulo') ?: $file->getClientOriginalName(),
             'descricao' => $request->input('descricao') ?: 'Documento anexado na tela de detalhes do contrato',

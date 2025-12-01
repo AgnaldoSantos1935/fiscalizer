@@ -11,9 +11,23 @@ use Illuminate\Http\Request;
 
 class MedicaoController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $medicoes = Medicao::with('contrato')->latest()->paginate(20);
+        $query = Medicao::with('contrato');
+
+        if ($contratoTxt = trim((string) $request->get('contrato'))) {
+            $query->whereHas('contrato', function ($q) use ($contratoTxt) {
+                $q->where('numero', 'like', "%{$contratoTxt}%");
+            });
+        }
+        if ($comp = trim((string) $request->get('competencia'))) {
+            $query->where('competencia', 'like', "%{$comp}%");
+        }
+        if ($status = trim((string) $request->get('status'))) {
+            $query->where('status', 'like', "%{$status}%");
+        }
+
+        $medicoes = $query->latest()->paginate(20)->appends($request->query());
 
         return view('medicoes.index', compact('medicoes'));
     }

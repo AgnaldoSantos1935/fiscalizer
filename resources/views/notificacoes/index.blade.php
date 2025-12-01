@@ -55,14 +55,18 @@
 </div>
 @endsection
 
-@section('js')
+@push('js')
 <script>
 $(function() {
-    const tabela = $('#tabelaNotificacoes').DataTable({
+    let tabela;
+    if ($.fn.dataTable.isDataTable('#tabelaNotificacoes')) {
+        tabela = $('#tabelaNotificacoes').DataTable();
+    } else {
+        tabela = $('#tabelaNotificacoes').DataTable({
         processing: true,
         serverSide: false,
         ajax: { url: '{{ route('notificacoes.data') }}', dataSrc: 'data' },
-        language: { url: '{{ asset('js/pt-BR.json') }}' },
+        language: { url: window.DataTablesLangUrl },
         dom: 't<"bottom"p>',
         pageLength: 10,
         order: [[4, 'desc']],
@@ -87,6 +91,7 @@ $(function() {
             }, orderable: false, searchable: false }
         ]
     });
+    }
 
     $('#tabelaNotificacoes').on('click', '.btn-marcar-lida', function(){
         const id = $(this).data('id');
@@ -97,4 +102,4 @@ $(function() {
     });
 });
 </script>
-@endsection
+@endpush

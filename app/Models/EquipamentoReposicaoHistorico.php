@@ -9,7 +9,7 @@ class EquipamentoReposicaoHistorico extends Model
     protected $table = 'equipamento_reposicao_historicos';
 
     protected $fillable = [
-        'unidade_id','equipamento_id','reposicao_id','novo_equipamento_id','evento','usuario_id','observacoes',
+        'unidade_id', 'equipamento_id', 'reposicao_id', 'novo_equipamento_id', 'evento', 'usuario_id', 'observacoes',
     ];
 
     public function unidade()
@@ -32,4 +32,3 @@ class EquipamentoReposicaoHistorico extends Model
         return $this->belongsTo(ReposicaoSolicitacao::class, 'reposicao_id');
     }
 }
-

@@ -3,8 +3,7 @@
 @section('plugins.Sweetalert2', true)
 @section('title', 'Perfis de Usuário')
 
-@section('content')
-@include('layouts.components.breadcrumbs')
+@section('content_body')
 <div class="container-fluid">
     <!-- Área de notificações inline -->
     <div id="alertArea" class="mb-3" aria-live="polite"></div>
@@ -47,9 +46,7 @@
     <div class="card shadow-sm border-0 rounded-4">
         <div class="card-header bg-white d-flex justify-content-between align-items-center">
             <h4 class="mb-0"><i class="fas fa-users text-primary me-2"></i>Perfis de Usuários</h4>
-            <a href="{{ route('user_profiles.create') }}" class="btn btn-primary btn-sm">
-                <i class="fas fa-plus me-1"></i> Novo Perfil
-            </a>
+
         </div>
         <div class="card-body">
             <!-- 🔹 Navbar de ações -->
@@ -83,10 +80,14 @@
 @section('css')
 @endsection
 
-@section('js')
+@push('js')
 <script>
 $(function() {
-    const tabela = $('#tabelaPerfis').DataTable({
+    let tabela;
+    if ($.fn.dataTable.isDataTable('#tabelaPerfis')) {
+        tabela = $('#tabelaPerfis').DataTable();
+    } else {
+        tabela = $('#tabelaPerfis').DataTable({
         processing: false,
         serverSide: true,
         ajax: {
@@ -108,7 +109,7 @@ $(function() {
                 $('#alertArea').html(alertHtml);
             }
         },
-        language: { url: '{{ asset("js/pt-BR.json") }}' },
+        language: { url: window.DataTablesLangUrl },
         dom: 't<"bottom"p>',
         pageLength: 10,
         order: [[1, 'asc']],
@@ -121,6 +122,7 @@ $(function() {
             { data: 'celular', defaultContent: '' }
         ]
     });
+    }
 
     let perfilSelecionado = null;
     $('#tabelaPerfis').on('click', 'tbody tr', function () {
@@ -173,4 +175,4 @@ $(function() {
     });
 });
 </script>
-@endsection
+@endpush

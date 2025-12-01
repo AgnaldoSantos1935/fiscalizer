@@ -64,7 +64,11 @@ class PessoaController extends Controller
         ]);
 
         // Cria o registro da pessoa
-        $pessoa = Pessoa::create($validated);
+        try {
+            $pessoa = Pessoa::create($validated);
+        } catch (\Throwable $e) {
+            return back()->withInput()->with('error', 'Erro ao cadastrar pessoa: ' . $e->getMessage());
+        }
 
         // RCSB: Criação/gestão de conta de usuário deve ser feita no módulo RCSB
         // Apenas administradores podem vincular/gerar conta de usuário a partir de Pessoa
@@ -117,7 +121,11 @@ class PessoaController extends Controller
             'uf' => 'nullable|string|max:2',
         ]);
 
-        $pessoa->update($validated);
+        try {
+            $pessoa->update($validated);
+        } catch (\Throwable $e) {
+            return back()->withInput()->with('error', 'Erro ao atualizar pessoa: ' . $e->getMessage());
+        }
 
         // RCSB: Criação/gestão de conta de usuário deve ser feita no módulo RCSB
         // Apenas administradores podem vincular/atualizar conta de usuário a partir de Pessoa

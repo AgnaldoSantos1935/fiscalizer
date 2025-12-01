@@ -7,7 +7,7 @@
   @include('layouts.components.breadcrumbs', [
     'trail' => [
       ['label' => 'Projetos', 'icon' => 'fas fa-project-diagram', 'url' => route('projetos.index')],
-      ['label' => 'Novo Projeto']
+      ['label' => 'Cadastrar Projeto']
     ]
   ])
 @endsection
@@ -16,7 +16,7 @@
     <div class="card card-default mt-3">
 
         <div class="card-header">
-            <h3 class="card-title">Cadastrar projeto</h3>
+            <h3 class="card-title">Cadastrar Projeto</h3>
             <div class="card-tools">
               <button type="button" class="btn btn-tool" data-card-widget="collapse">
                 <i class="fas fa-minus"></i>

@@ -5,7 +5,8 @@
             <i class="fas fa-bell text-warning"></i>
             <span class="badge bg-warning navbar-badge" id="notifCountBadge">{{ $notiCount ?? 0 }}</span>
         @else
-            <i class="far fa-bell text-white"></i>
+            <i class="fas fa-bell text-secondary"></i>
+            <span class="badge bg-secondary navbar-badge" id="notifCountBadge">0</span>
         @endif
     </a>
 
@@ -134,13 +135,41 @@ document.addEventListener('DOMContentLoaded', function() {
     el.addEventListener('click', function(ev) {
       const id = this.dataset.id;
       const link = this.dataset.link || '#';
-      // Marca como lida e navega em seguida
       if (id) markNotificationRead(id);
-      // Delay pequeno para evitar bloquear navegação
       setTimeout(function(){ window.location.href = link; }, 50);
       ev.preventDefault();
     });
   });
+  function refreshNotifBadge() {
+    fetch("{{ route('notificacoes.count') }}", { headers: { 'Accept': 'application/json' }})
+      .then(function(r){ return r.json(); })
+      .then(function(json){
+        var n = parseInt(json && json.unread ? json.unread : 0, 10);
+        if (isNaN(n)) n = 0;
+        var badge = document.getElementById('notifCountBadge');
+        if (badge) {
+          badge.textContent = String(n);
+          if (n > 0) {
+            badge.classList.remove('bg-secondary');
+            badge.classList.add('bg-warning');
+          } else {
+            badge.classList.remove('bg-warning');
+            badge.classList.add('bg-secondary');
+          }
+        }
+        var li = document.querySelector('li.notif-dropdown');
+        if (li) {
+          if (n > 0) { li.classList.add('notif-pulse'); } else { li.classList.remove('notif-pulse'); }
+        }
+        var bell = document.querySelector('li.notif-dropdown a.nav-link i.fa-bell');
+        if (bell) {
+          if (n > 0) { bell.classList.add('text-warning'); bell.classList.remove('text-secondary'); }
+          else { bell.classList.add('text-secondary'); bell.classList.remove('text-warning'); }
+        }
+      }).catch(function(){});
+  }
+  refreshNotifBadge();
+  setInterval(refreshNotifBadge, 15000);
 });
 </script>
 @endpush

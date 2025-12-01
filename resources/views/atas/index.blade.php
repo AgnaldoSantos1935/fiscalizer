@@ -1,11 +1,10 @@
 @extends('layouts.app')
 @section('title','Atas de Registro de Preços')
-@section('content')
-@include('layouts.components.breadcrumbs')
+@section('content_body')
 <div class="container-fluid">
   <div class="d-flex justify-content-between mb-3">
     <h3>Atas de Registro de Preços</h3>
-    <a href="{{ route('atas.create') }}" class="btn btn-primary">Nova Ata</a>
+    
   </div>
   <table class="table table-striped">
     <thead><tr><th>Número</th><th>Órgão Gerenciador</th><th>Fornecedor</th><th>Vigência</th><th>Situação</th><th>Saldo disponível</th><th></th></tr></thead>

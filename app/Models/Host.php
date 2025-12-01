@@ -82,6 +82,7 @@ class Host extends Model
     {
         return $this->hasMany(Indisponibilidade::class, 'host_id');
     }
+
     public function unidade()
     {
         return $this->belongsTo(Unidade::class);

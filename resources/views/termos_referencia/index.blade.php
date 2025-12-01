@@ -6,9 +6,7 @@
     <div class="card shadow-sm border-0 rounded-4">
         <div class="card-header bg-white d-flex align-items-center justify-content-between">
             <h4 class="mb-0 text-secondary fw-semibold"><i class="fas fa-list-ul text-primary me-2"></i>Termos de Referência</h4>
-            <a href="{{ route('contratacoes.termos-referencia.create') }}" class="btn btn-primary btn-sm">
-                <i class="fas fa-plus me-1"></i> Novo Termo
-            </a>
+            
         </div>
         <div class="card-body bg-white">
             <!-- 🔹 Navbar de ações -->
@@ -19,11 +17,7 @@
                             <i class="fas fa-eye text-info me-2"></i> Exibir Detalhes
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="{{ route('contratacoes.termos-referencia.create') }}" class="nav-link active" aria-current="page">
-                            <i class="fas fa-plus-circle me-1"></i> Novo Termo
-                        </a>
-                    </li>
+                    
                 </ul>
             </nav>
             <table class="table table-striped table-hover align-middle no-inner-borders w-100" id="trs-table">
@@ -46,45 +40,50 @@
 @push('css')
 @endpush
 
-@push('scripts')
+@push('js')
 <script>
 $(function(){
-    const tabela = $('#trs-table').DataTable({
-        ajax: {
-            url: "{{ route('contratacoes.termos-referencia.api') }}",
-            dataSrc: 'data'
-        },
-        dom: 't<"bottom"ip>',
-        pageLength: 10,
-        order: [[1, 'asc']],
-        responsive: true,
-        columns: [
-            {
-                data: null,
-                className: 'text-center', orderable: false,
-                render: function(row){
-                    return `<input type="radio" name="trSelecionado" value="${row.show_url}">`;
-                }
+    let tabela;
+    if ($.fn.dataTable.isDataTable('#trs-table')) {
+        tabela = $('#trs-table').DataTable();
+    } else {
+        tabela = $('#trs-table').DataTable({
+            ajax: {
+                url: "{{ route('contratacoes.termos-referencia.api') }}",
+                dataSrc: 'data'
             },
-            { data: 'titulo' },
-            { data: 'status', render: function(val){ return `<span class="badge bg-secondary">${val ?? '—'}</span>`; } },
-            { data: 'valor_estimado', render: function(val){
-                if (val === null || val === undefined || val === '') return '—';
-                var num = parseFloat(val);
-                if (isNaN(num)) return val;
-                return 'R$ ' + num.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-            } },
-            { data: null, orderable: false, render: function(row){
-                return `
-                    <div class="text-end">
-                        <a href="${row.show_url}" class="btn btn-outline-primary btn-sm">Detalhes</a>
-                        <a href="${row.edit_url}" class="btn btn-outline-warning btn-sm">Editar</a>
-                        <a href="${row.pdf_url}" target="_blank" rel="noopener" class="btn btn-outline-success btn-sm"><i class="fas fa-file-pdf me-1"></i>Download PDF</a>
-                    </div>`;
-            }}
-        ],
-        language: { url: "{{ asset('js/pt-BR.json') }}" }
-    });
+            dom: 't<"bottom"ip>',
+            pageLength: 10,
+            order: [[1, 'asc']],
+            responsive: true,
+            columns: [
+                {
+                    data: null,
+                    className: 'text-center', orderable: false,
+                    render: function(row){
+                        return `<input type="radio" name="trSelecionado" value="${row.show_url}">`;
+                    }
+                },
+                { data: 'titulo' },
+                { data: 'status', render: function(val){ return `<span class="badge bg-secondary">${val ?? '—'}</span>`; } },
+                { data: 'valor_estimado', render: function(val){
+                    if (val === null || val === undefined || val === '') return '—';
+                    var num = parseFloat(val);
+                    if (isNaN(num)) return val;
+                    return 'R$ ' + num.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+                } },
+                { data: null, orderable: false, render: function(row){
+                    return `
+                        <div class="text-end">
+                            <a href="${row.show_url}" class="btn btn-outline-primary btn-sm">Detalhes</a>
+                            <a href="${row.edit_url}" class="btn btn-outline-warning btn-sm">Editar</a>
+                            <a href="${row.pdf_url}" target="_blank" rel="noopener" class="btn btn-outline-success btn-sm"><i class="fas fa-file-pdf me-1"></i>Download PDF</a>
+                        </div>`;
+                }}
+            ],
+            language: { url: window.DataTablesLangUrl }
+        });
+    }
 
     let trSelecionado = null;
     $('#trs-table').on('change', 'input[name="trSelecionado"]', function () {

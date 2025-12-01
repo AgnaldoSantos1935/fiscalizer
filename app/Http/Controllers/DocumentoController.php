@@ -9,9 +9,20 @@ use Illuminate\Support\Facades\Storage;
 
 class DocumentoController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $documentos = Documento::with('contrato')->get();
+        $query = Documento::with('contrato')->orderByDesc('id');
+
+        if ($tipo = trim((string) $request->get('tipo'))) {
+            $query->where('tipo', 'like', "%{$tipo}%");
+        }
+        if ($contrato = trim((string) $request->get('contrato'))) {
+            $query->whereHas('contrato', function ($q) use ($contrato) {
+                $q->where('numero', 'like', "%{$contrato}%");
+            });
+        }
+
+        $documentos = $query->paginate(20)->appends($request->query());
 
         return view('documentos.index', compact('documentos'));
     }
@@ -27,12 +38,51 @@ class DocumentoController extends Controller
     {
         $validated = $request->validate([
             'contrato_id' => 'required|exists:contratos,id',
-            'tipo' => 'required|string',
+            'tipo' => 'nullable|string',
+            'documento_tipo_id' => 'nullable|exists:documento_tipos,id',
             'titulo' => 'nullable|string|max:200',
+            'descricao' => 'nullable|string|max:500',
+            'versao' => 'nullable|string|max:20',
             'caminho_arquivo' => 'nullable|file',
         ]);
 
-        $documento = Documento::create($validated);
+        $tiposEnum = ['TR', 'ETP', 'PARECER', 'NOTA_TECNICA', 'RELATORIO', 'OUTROS'];
+        $tipoEnum = 'OUTROS';
+        if (! empty($validated['tipo']) && in_array($validated['tipo'], $tiposEnum, true)) {
+            $tipoEnum = $validated['tipo'];
+        }
+        if (! empty($validated['documento_tipo_id'])) {
+            $tipoEnt = \App\Models\DocumentoTipo::find($validated['documento_tipo_id']);
+            if ($tipoEnt) {
+                $tipoEnum = in_array($tipoEnt->slug, $tiposEnum, true) ? $tipoEnt->slug : 'OUTROS';
+            }
+        }
+
+        $savedPath = null;
+        if ($request->hasFile('caminho_arquivo')) {
+            $file = $request->file('caminho_arquivo');
+            $ext = strtolower($file->getClientOriginalExtension() ?? 'pdf');
+            $uuid = (string) \Illuminate\Support\Str::uuid();
+            $safeOriginal = preg_replace('/[^a-zA-Z0-9_\-\.]+/', '_', pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
+            $finalName = $safeOriginal ? ("{$safeOriginal}_{$uuid}.{$ext}") : ("documento_{$uuid}.{$ext}");
+            $savedPath = $file->storeAs('documentos', $finalName, 'public');
+        }
+
+        try {
+        $documento = Documento::create([
+            'contrato_id' => $validated['contrato_id'],
+            'tipo' => $tipoEnum,
+            'documento_tipo_id' => $validated['documento_tipo_id'] ?? null,
+            'titulo' => $validated['titulo'] ?? null,
+            'descricao' => $validated['descricao'] ?? null,
+            'caminho_arquivo' => $savedPath,
+            'versao' => $validated['versao'] ?? null,
+            'data_upload' => now(),
+            'created_by' => auth()->id(),
+        ]);
+        } catch (\Throwable $e) {
+            return back()->withInput()->with('error', 'Erro ao cadastrar documento: ' . $e->getMessage());
+        }
 
         // Notificação: documento anexado ao contrato
         notify_event('notificacoes.contratos.documento_anexado', [
@@ -86,7 +136,7 @@ class DocumentoController extends Controller
                 'data_upload' => $d->data_upload ?? '-',
                 'versao' => $d->versao ?? '-',
                 'arquivo' => $path ? [
-                    'url' => \Illuminate\Support\Facades\Storage::url($path),
+                    'url' => route('documentos.visualizar', $d->id),
                     'icon' => $icon,
                     'color' => $color,
                 ] : null,
@@ -134,11 +184,15 @@ class DocumentoController extends Controller
         if (! $path || ! $disk->exists($path)) {
             abort(404, 'Arquivo não encontrado.');
         }
-        $full = $disk->path($path);
-
-        return response()->file($full, [
+        $stream = $disk->readStream($path);
+        return response()->stream(function () use ($stream) {
+            if (is_resource($stream)) {
+                fpassthru($stream);
+                fclose($stream);
+            }
+        }, 200, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="' . basename($full) . '"',
+            'Content-Disposition' => 'inline; filename="' . basename($path) . '"',
         ]);
     }
 
@@ -172,5 +226,68 @@ class DocumentoController extends Controller
 
         // Renderiza uma página simples com iframe que aciona a impressão
         return view('documentos.print', compact('documento'));
+    }
+
+    /**
+     * Visualiza um arquivo do disco público por caminho (sem registro de Documento).
+     */
+    public function visualizarPath(Request $request)
+    {
+        $path = (string) $request->query('path', '');
+        $path = ltrim($path, '/\\');
+        if ($path === '' || str_contains($path, '..')) {
+            abort(404);
+        }
+        $disk = Storage::disk('public');
+        if (! $disk->exists($path)) {
+            abort(404, 'Arquivo não encontrado.');
+        }
+
+        $return_to = $request->input('return_to');
+        if (! $return_to) {
+            $prev = url()->previous();
+            $return_to = $prev ?: route('documentos.index');
+        }
+
+        $documento = (object) [
+            'titulo' => basename($path),
+            'tipo' => 'ARQUIVO',
+            'caminho_arquivo' => $path,
+            'contrato' => null,
+        ];
+
+        $stream_url = route('arquivos.stream', ['path' => $path]);
+        $download_url = Storage::url($path);
+
+        return view('documentos.visualizar', compact('documento', 'return_to', 'stream_url', 'download_url'));
+    }
+
+    /**
+     * Stream de arquivo por caminho (sem registro de Documento).
+     */
+    public function streamPath(Request $request)
+    {
+        $path = (string) $request->query('path', '');
+        $path = ltrim($path, '/\\');
+        if ($path === '' || str_contains($path, '..')) {
+            abort(404);
+        }
+        $disk = Storage::disk('public');
+        if (! $disk->exists($path)) {
+            abort(404);
+        }
+
+        $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+        $contentType = $ext === 'pdf' ? 'application/pdf' : 'application/octet-stream';
+        $stream = $disk->readStream($path);
+        return response()->stream(function () use ($stream) {
+            if (is_resource($stream)) {
+                fpassthru($stream);
+                fclose($stream);
+            }
+        }, 200, [
+            'Content-Type' => $contentType,
+            'Content-Disposition' => 'inline; filename="' . basename($path) . '"',
+        ]);
     }
 }

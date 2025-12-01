@@ -1,8 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Empresas Cadastradas')
 
-@section('content')
-@include('layouts.components.breadcrumbs')
+@section('content_body')
 <div class="container-fluid">
 
     <!-- 🔹 Card de Filtros -->
@@ -14,7 +13,7 @@
         </div>
 
         <div class="card-body bg-white">
-            <form id="formFiltros" class="row g-3 bg-light p-3 rounded-4 shadow-sm">
+            <form id="formFiltros" class="row g-3 bg-light p-3 rounded-4 shadow-sm" method="GET" action="{{ route('empresas.index') }}">
                 <div class="col-md-3">
                     <label for="filtroRazao" class="form-label fw-semibold text-secondary small">Razão Social</label>
                     <input type="text" id="filtroRazao" class="form-control form-control-sm" placeholder="Ex: Montreal, Prodepa...">
@@ -33,12 +32,12 @@
                 </div>
 
                 <div class="col-12 text-end mt-2">
-                    <button type="button" id="btnAplicarFiltros" class="btn btn-primary btn-sm px-3 me-2">
+                    <button type="submit" id="btnAplicarFiltros" class="btn btn-primary btn-sm px-3 me-2">
                         <i class="fas fa-filter me-1"></i> Aplicar
                     </button>
-                    <button type="button" id="btnLimparFiltros" class="btn btn-outline-secondary btn-sm px-3">
+                    <a href="{{ route('empresas.index') }}" id="btnLimparFiltros" class="btn btn-outline-secondary btn-sm px-3">
                         <i class="fas fa-undo me-1"></i> Limpar
-                    </button>
+                    </a>
                 </div>
             </form>
         </div>
@@ -73,13 +72,7 @@
                             </a>
                         </li>
                     </ul>
-                    <ul class="navbar-nav ms-auto">
-                        <li class="nav-item">
-                            <a href="{{ route('empresas.create') }}" class="btn btn-primary btn-sm px-3">
-                                <i class="fas fa-plus-circle me-1"></i> Nova Empresa
-                            </a>
-                        </li>
-                    </ul>
+
                 </div>
             </nav>
 
@@ -96,7 +89,19 @@
                         <th>UF</th>
                     </tr>
                 </thead>
-                <tbody></tbody>
+                <tbody>
+                    @foreach(($empresas ?? []) as $e)
+                        <tr>
+                            <td class="text-center"><input type="radio" name="empresaSelecionada" value="{{ $e->id }}"></td>
+                            <td class="fw-semibold text-dark">{{ $e->razao_social }}</td>
+                            <td>{{ $e->cnpj }}</td>
+                            <td class="text-muted small">{{ $e->email ?? '—' }}</td>
+                            <td class="text-muted small">{{ $e->telefone ?? '—' }}</td>
+                            <td>{{ $e->cidade ?? '—' }}</td>
+                            <td>{{ $e->uf ?? '—' }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
             </table>
         </div>
     </div>
@@ -124,134 +129,54 @@
 
 @section('css')
 <style>
-.nav-link.disabled {
-    opacity: 0.5;
-    pointer-events: none;
-}
-.table-borderless tbody tr:hover {
-    background-color: #f8f9fa;
-    transition: background-color 0.2s ease-in-out;
-}
-/* Bordas externas */
-table.dataTable {
-  border: 1px solid #dee2e6 !important;
-  border-collapse: collapse !important;
-}
-table.dataTable th, table.dataTable td {
-  border: none !important;
-  vertical-align: middle !important;
-  white-space: nowrap !important;
-}
-/* Responsividade */
-div.dataTables_wrapper {
-  width: 100%;
-  overflow-x: auto;
-}
+.nav-link.disabled { opacity: .5; pointer-events: none; }
+.table-borderless tbody tr:hover { background-color: #f8f9fa; transition: background-color .2s ease-in-out; }
 </style>
 @endsection
 
-@section('js')
+@push('js')
 <script>
-$(document).ready(function() {
-    const tabela = $('#tabelaEmpresas').DataTable({
-        language: { url: '{{ asset("js/pt-BR.json") }}' },
-        pageLength: 10,
-        order: [[1, 'asc']],
-        dom: 't<"bottom"ip>',
-        ajax: {
-            url: '{{ route('empresas.data') }}',
-            data: function (d) {
-                d.razao = $('#filtroRazao').val();
-                d.cnpj = $('#filtroCNPJ').val();
-                d.cidade = $('#filtroCidade').val();
-                d.uf = $('#filtroUF').val();
-            }
-        },
-        columns: [
-            { data: 'id', orderable: false, searchable: false, className: 'text-center', width: '45px',
-              render: function(data){ return `<input type="radio" name="empresaSelecionada" value="${data}">`; }
-            },
-            { data: 'razao_social', className: 'fw-semibold text-dark' },
-            { data: 'cnpj' },
-            { data: 'email', className: 'text-muted small' },
-            { data: 'telefone', className: 'text-muted small' },
-            { data: 'cidade' },
-            { data: 'uf' }
-        ]
-    });
-
-    let empresaSelecionada = null;
-
-    // Seleção de empresa
-    $('#tabelaEmpresas').on('change', 'input[name="empresaSelecionada"]', function() {
-        empresaSelecionada = $(this).val();
-        $('#navDetalhes, #navEditar, #navExcluir').removeClass('disabled');
-    });
-
-    // 🔹 Detalhes
-    $('#navDetalhes').on('click', function(e) {
-        e.preventDefault();
-        if (!empresaSelecionada) return;
-
-        fetch('{{ url("empresas") }}/' + empresaSelecionada, {
-            headers: { 'Accept': 'application/json' }
-        })
-            .then(resp => resp.json())
-            .then(data => {
-                const e = data.empresa;
-                const enderecoParts = [e.logradouro, e.numero, e.complemento, e.bairro].filter(v => !!v);
-                const enderecoTxt = enderecoParts.length ? enderecoParts.join(', ') : (e.endereco ?? '-');
-                $('#detalhesEmpresa').html(`
-                    <tr><th>Razão Social</th><td>${e.razao_social}</td></tr>
-                    <tr><th>CNPJ</th><td>${e.cnpj}</td></tr>
-                    <tr><th>Email</th><td>${e.email ?? '-'}</td></tr>
-                    <tr><th>Telefone</th><td>${e.telefone ?? '-'}</td></tr>
-                    <tr><th>Cidade</th><td>${e.cidade ?? '-'}</td></tr>
-                    <tr><th>UF</th><td>${e.uf ?? '-'}</td></tr>
-                    <tr><th>Endereço</th><td>${enderecoTxt}</td></tr>
-                `);
-                new bootstrap.Modal(document.getElementById('modalDetalhesEmpresa')).show();
-            })
-            .catch(err => console.error('Erro ao carregar detalhes:', err));
-    });
-
-    // 🔹 Editar
-    $('#navEditar').on('click', function(e) {
-        e.preventDefault();
-        if (empresaSelecionada)
-            window.location.href = `/empresas/${empresaSelecionada}/edit`;
-    });
-
-    // 🔹 Excluir
-    $('#navExcluir').on('click', function(e) {
-        e.preventDefault();
-        if (!empresaSelecionada) return;
-        if (confirm('Deseja realmente excluir esta empresa?')) {
-            fetch(`/empresas/${empresaSelecionada}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                }
-            })
-            .then(resp => resp.json())
-            .then(() => location.reload())
-            .catch(err => alert('Erro ao excluir empresa.'));
-        }
-    });
-
-    // 🔍 Filtros
-    $('#btnAplicarFiltros').on('click', function() {
-        tabela.ajax.reload();
-    });
-
-    // 🔄 Limpar filtros
-    $('#btnLimparFiltros').on('click', function() {
-        $('#formFiltros')[0].reset();
-        tabela.ajax.reload();
-        $('#navDetalhes, #navEditar, #navExcluir').addClass('disabled');
-        empresaSelecionada = null;
-    });
+$(function(){
+  let empresaSelecionada = null;
+  $('#tabelaEmpresas').on('change','input[name="empresaSelecionada"]',function(){
+    empresaSelecionada = $(this).val();
+    $('#navDetalhes, #navEditar, #navExcluir').removeClass('disabled');
+  });
+  $('#navEditar').on('click',function(e){
+    e.preventDefault();
+    if (!empresaSelecionada) return;
+    window.location.href = '/empresas/' + empresaSelecionada + '/edit';
+  });
+  $('#navExcluir').on('click',function(e){
+    e.preventDefault();
+    if (!empresaSelecionada) return;
+    if (!confirm('Deseja realmente excluir esta empresa?')) return;
+    fetch('/empresas/' + empresaSelecionada, {
+      method: 'DELETE',
+      headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' }
+    }).then(() => location.reload());
+  });
+  $('#navDetalhes').on('click',function(e){
+    e.preventDefault();
+    if (!empresaSelecionada) return;
+    fetch('{{ url("empresas") }}' + '/' + empresaSelecionada, { headers: { 'Accept':'application/json' } })
+      .then(r => r.json())
+      .then(data => {
+        const e = data.empresa;
+        const enderecoParts = [e.logradouro, e.numero, e.complemento, e.bairro].filter(v => !!v);
+        const enderecoTxt = enderecoParts.length ? enderecoParts.join(', ') : (e.endereco ?? '-');
+        $('#detalhesEmpresa').html(`
+          <tr><th>Razão Social</th><td>${e.razao_social}</td></tr>
+          <tr><th>CNPJ</th><td>${e.cnpj}</td></tr>
+          <tr><th>Email</th><td>${e.email ?? '-'}</td></tr>
+          <tr><th>Telefone</th><td>${e.telefone ?? '-'}</td></tr>
+          <tr><th>Cidade</th><td>${e.cidade ?? '-'}</td></tr>
+          <tr><th>UF</th><td>${e.uf ?? '-'}</td></tr>
+          <tr><th>Endereço</th><td>${enderecoTxt}</td></tr>
+        `);
+        new bootstrap.Modal(document.getElementById('modalDetalhesEmpresa')).show();
+      });
+  });
 });
 </script>
-@endsection
+@endpush

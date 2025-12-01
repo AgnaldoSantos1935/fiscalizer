@@ -1,4 +1,4 @@
-@extends('adminlte::page')
+@extends('layouts.app')
 
 @section('title', 'Perfil do Usuário')
 
@@ -8,8 +8,7 @@
     </h1>
 @stop
 
-@section('content')
-@include('layouts.components.breadcrumbs')
+@section('content_body')
 <div class="card shadow-sm border-0 rounded-4 mb-4">
     <div class="card-body">
         <div class="row align-items-center">
@@ -107,4 +106,4 @@
         <i class="fas fa-edit me-1"></i>{{ ($isAdmin ?? false) ? 'Editar' : 'Atualizar Foto' }}
     </a>
 </div>
-@stop
+@endsection

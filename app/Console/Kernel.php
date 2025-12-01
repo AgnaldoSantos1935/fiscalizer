@@ -26,6 +26,8 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('hosts:testar')->everyFiveMinutes();
         $schedule->command('atas:atualizar-vigencia')->dailyAt('01:15');
+        $schedule->command('queue:work --stop-when-empty')->everyMinute()->withoutOverlapping();
+        $schedule->command('horizon:snapshot')->everyFiveMinutes();
     }
 
     /**
