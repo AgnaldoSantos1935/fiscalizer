@@ -8,8 +8,8 @@
     <div class="brand">
       <img src="{{ asset('img/logo/fiscalizer-sistema.svg') }}" alt="Fiscalizer" height="32">
       <div class="d-flex flex-column">
-        <strong>Governo do Pará</strong>
-        <span class="small">SEDUC • Fiscalizer</span>
+        <strong>Governo do Estado de Exemplo</strong>
+        <span class="small">SEDUC-EX • Fiscalizer</span>
       </div>
     </div>
     <nav class="d-flex align-items-center gap-3">

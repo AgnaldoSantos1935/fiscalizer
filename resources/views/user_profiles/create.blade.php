@@ -187,7 +187,7 @@
 </div>
 @endsection
 
-@section('js')
+@push('js')
 <script>
 // ==== BcryptJS para pré-visualização de hash ====
 (function() {
@@ -380,4 +380,4 @@ $('#formCreateProfile').on('submit', function(e) {
     });
 });
 </script>
-@stop
+@endpush

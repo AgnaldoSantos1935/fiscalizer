@@ -1,6 +1,9 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 
+const host = process.env.VITE_HOST || '127.0.0.1';
+const port = Number(process.env.VITE_PORT || process.env.PORT || 5180);
+
 export default defineConfig({
     plugins: [
         laravel({
@@ -13,12 +16,12 @@ export default defineConfig({
         }),
     ],
     server: {
-        host: '127.0.0.1',
-        port: 5173,
+        host,
+        port,
         strictPort: true,
         hmr: {
-            host: '127.0.0.1',
-            port: 5173,
+            host,
+            port,
         },
     },
 resolve: {

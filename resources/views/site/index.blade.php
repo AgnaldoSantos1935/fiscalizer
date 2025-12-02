@@ -8,8 +8,8 @@
     <div class="brand">
       <img src="{{ asset('img/logo/fiscalizer-sistema.png') }}" alt="Fiscalizer" height="32">
       <div class="d-flex flex-column">
-        <strong>Governo do Pará</strong>
-        <span class="small">SEDUC • Fiscalizer</span>
+        <strong>Governo do Estado de Exemplo</strong>
+        <span class="small">SEDUC-EX • Fiscalizer</span>
       </div>
     </div>
     <nav class="d-flex align-items-center gap-3">
@@ -28,7 +28,7 @@
     <div class="row align-items-center g-4">
       <div class="col-lg-7">
         <h1 class="fw-bold">Fiscalizer — Plataforma Integrada de Governança de Contratos</h1>
-        <p class="lead mt-2">Transparência, controle e inteligência a serviço da SEDUC/PA</p>
+        <p class="lead mt-2">Transparência, controle e inteligência a serviço da SEDUC-EX</p>
         <div class="mt-3 d-flex gap-2">
           <a href="{{ Route::has('login') ? route('login') : route('home') }}" class="btn btn-light btn-lg"><i class="fa-solid fa-right-to-bracket me-2"></i>Entrar no Sistema</a>
         </div>

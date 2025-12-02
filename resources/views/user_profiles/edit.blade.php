@@ -159,7 +159,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">E-mail</label>
-                            <input type="email" name="email" value="{{ old('email', $profile->user?->email) }}" class="form-control" @if(! $isAdmin) disabled @endif required>
+                            <input type="email" name="email" value="{{ old('email', $profile->user?->email) }}" class="form-control" @if(! $isAdmin) disabled @endif @if($isAdmin) required @endif>
                         </div>
                     </div>
                 </div>
