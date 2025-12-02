@@ -27,21 +27,24 @@
         <div class="col-md-6">
           <dl class="row mb-0">
             <dt class="col-sm-4">Número</dt>
-            <dd class="col-sm-8">{{ $contrato->numero ?? '—' }}</dd>
+            <dd class="col-sm-8">{{ isset($contrato->numero) ? $contrato->numero : '—' }}</dd>
             <dt class="col-sm-4">Objeto</dt>
-            <dd class="col-sm-8">{{ $contrato->objeto ?? '—' }}</dd>
+            <dd class="col-sm-8">{{ isset($contrato->objeto) ? $contrato->objeto : '—' }}</dd>
             <dt class="col-sm-4">Contratada</dt>
-            <dd class="col-sm-8">{{ optional($contrato->contratada)->razao_social ?? ($contrato->empresa_razao_social ?? '—') }}</dd>
+            @php $razao = optional($contrato->contratada)->razao_social ?: (isset($contrato->empresa_razao_social) ? $contrato->empresa_razao_social : null); @endphp
+            <dd class="col-sm-8">{{ $razao ?: '—' }}</dd>
             <dt class="col-sm-4">CNPJ</dt>
-            <dd class="col-sm-8">{{ optional($contrato->contratada)->cnpj ?? ($contrato->empresa_cnpj ?? '—') }}</dd>
+            @php $cnpj = optional($contrato->contratada)->cnpj ?: (isset($contrato->empresa_cnpj) ? $contrato->empresa_cnpj : null); @endphp
+            <dd class="col-sm-8">{{ $cnpj ?: '—' }}</dd>
           </dl>
         </div>
         <div class="col-md-6">
           <dl class="row mb-0">
             <dt class="col-sm-4">Início</dt>
-            <dd class="col-sm-8">{{ optional($contrato->data_inicio ?? $contrato->data_inicio_vigencia ?? $contrato->data_assinatura)->format('d/m/Y') ?? '—' }}</dd>
+            @php $dataIni = $contrato->data_inicio ?: ($contrato->data_inicio_vigencia ?: $contrato->data_assinatura); @endphp
+            <dd class="col-sm-8">{{ optional($dataIni)->format('d/m/Y') ?: '—' }}</dd>
             <dt class="col-sm-4">Fim</dt>
-            <dd class="col-sm-8">{{ optional($contrato->data_fim)->format('d/m/Y') ?? '—' }}</dd>
+            <dd class="col-sm-8">{{ optional($contrato->data_fim)->format('d/m/Y') ?: '—' }}</dd>
             <dt class="col-sm-4">Valor Global</dt>
             <dd class="col-sm-8">{{ $contrato->valor_global !== null ? ('R$ ' . number_format((float)$contrato->valor_global, 2, ',', '.')) : '—' }}</dd>
           </dl>
@@ -62,7 +65,7 @@
             <label class="form-label">Tipo do Documento</label>
             <select name="documento_tipo_id" id="documento_tipo_id" class="form-select" required>
               <option value="">Selecione...</option>
-              @foreach(($tipos ?? []) as $tipo)
+              @foreach((isset($tipos) ? $tipos : []) as $tipo)
                 <option value="{{ $tipo->id }}" data-permite-nova-data-fim="{{ $tipo->permite_nova_data_fim ? '1' : '0' }}">
                   {{ $tipo->nome }}
                 </option>

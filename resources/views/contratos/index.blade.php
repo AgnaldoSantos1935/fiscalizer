@@ -20,44 +20,38 @@ use Illuminate\Support\Str;
         <div class="card-body bg-white">
 
 <form id="formFiltros" class="row g-3 bg-light p-3 rounded-4 shadow-sm align-items-end mb-3" method="GET" action="{{ route('contratos.index') }}">
-  <div class="col-md-3">
-
-
+  <div class="col-12 col-md-3">
     <label for="filtroNumero" class="form-label ui-form-label small">Número</label>
     <input type="text" id="filtroNumero" name="numero"
            value="{{ request('numero') }}" class="form-control form-control-sm" type="text"
            placeholder="Ex: 065/2025">
   </div>
 
-  <div class="col-md-4">
+  <div class="col-12 col-md-4">
     <label for="filtroEmpresa" class="form-label ui-form-label small">Empresa</label>
     <input type="text" id="filtroEmpresa" name="empresa"
            value="{{ request('empresa') }}" class="form-control form-control-sm" type="text"
            placeholder="Digite parte do nome">
   </div>
 
-  <div class="col-md-3">
+  <div class="col-12 col-md-3">
     <label for="filtroSituacao" class="form-label ui-form-label small">Situação</label>
     <select id="filtroSituacao" name="situacao" class="ui-select">
-  <option value="">Todas</option>
-  @foreach(($situacoes ?? []) as $s)
-    <option value="{{ $s->slug }}" @selected(request('situacao')===$s->slug)>{{ $s->nome }}</option>
-  @endforeach
-</select>
+      <option value="">Todas</option>
+      @foreach((isset($situacoes) ? $situacoes : []) as $s)
+        <option value="{{ $s->slug }}" @selected(request('situacao')===$s->slug)>{{ $s->nome }}</option>
+      @endforeach
+    </select>
   </div>
 
-<div class="col-md-2 d-flex justify-content-end align-items-end">
-  <div class="d-flex w-100">
-    <button type="submit" id="btnAplicarFiltros" class="btn btn-sm ui-btn btn-sep flex-grow-1">
-      <i class="fas fa-filter me-1"></i> Filtrar
+  <div class="col-12 col-md-2 d-flex justify-content-end gap-2">
+    <button type="submit" id="btnAplicarFiltros" class="btn btn-primary btn-icon btn-sm" aria-label="Filtrar" title="Filtrar">
+      <i class="fas fa-filter"></i>
     </button>
-    <a href="{{ route('contratos.index') }}" id="btnLimpar" class="btn btn-sm ui-btn outline btn-sep flex-grow-1">
-      <i class="fas fa-undo me-1"></i> Limpar
+    <a href="{{ route('contratos.index') }}" id="btnLimpar" class="btn btn-warning text-dark btn-icon btn-sm" aria-label="Limpar" title="Limpar">
+      <i class="fas fa-undo"></i>
     </a>
   </div>
-</div>
-
-
 </form>
 
         </div>
@@ -93,7 +87,7 @@ use Illuminate\Support\Str;
   <div id="listaLegendas" class="d-flex flex-wrap gap-2 ms-2">
     @foreach(($situacoes ?? []) as $s)
       @php
-        $map = [
+        $map = array(
           'azul' => 'primary',
           'verde' => 'success',
           'amarelo' => 'warning',
@@ -103,13 +97,13 @@ use Illuminate\Support\Str;
           'branco' => 'light',
           'ciano' => 'info',
           'roxo' => 'secondary',
-          'laranja' => 'warning',
-        ];
-        $slugColor = strtolower(preg_replace('/[^a-z]/','', Str::ascii($s->cor ?? '')));
-        $clsBase = $map[$slugColor] ?? 'secondary';
-        $needsDark = in_array($clsBase, ['warning','light']);
+          'laranja' => 'warning'
+        );
+        $slugColor = strtolower(preg_replace('/[^a-z]/','', Str::ascii(isset($s->cor) ? $s->cor : '')));
+        $clsBase = isset($map[$slugColor]) ? $map[$slugColor] : 'secondary';
+        $needsDark = in_array($clsBase, array('warning','light'));
         $cls = 'badge bg-'.$clsBase.($needsDark ? ' text-dark' : '');
-        $descricao = $s->descricao ?? 'Sem descrição.';
+        $descricao = isset($s->descricao) ? $s->descricao : 'Sem descrição.';
       @endphp
       <span class="{{ $cls }} px-3 py-2 shadow-sm d-flex align-items-center gap-1" title="{{ $descricao }}">
         <i class="fas fa-tag"></i> {{ $s->nome }}
@@ -132,20 +126,20 @@ use Illuminate\Support\Str;
           </tr>
         </thead>
         <tbody>
-          @foreach(($contratos ?? []) as $c)
+          @foreach((isset($contratos) ? $contratos : []) as $c)
             <tr>
               <td class="text-center">
                 <input type="radio" name="contratoSelecionado" value="{{ $c->id }}">
               </td>
               <td>{{ $c->numero }}</td>
               <td>{{ Str::limit($c->objeto, 80) }}</td>
-              <td>{{ optional($c->contratada)->razao_social ?? '—' }}</td>
-              <td class="text-end">R$ {{ number_format((float) ($c->valor_global ?? 0), 2, ',', '.') }}</td>
-              <td>{{ optional($c->data_inicio)->format('d/m/Y') ?? '—' }}</td>
+              <td>{{ optional($c->contratada)->razao_social ?: '—' }}</td>
+              <td class="text-end">R$ {{ number_format((float) (isset($c->valor_global) ? $c->valor_global : 0), 2, ',', '.') }}</td>
+              <td>{{ optional($c->data_inicio)->format('d/m/Y') ?: '—' }}</td>
               <td>
                 @php
                   $s = $c->situacaoContrato;
-                  $map = [
+                  $map = array(
                     'azul' => 'primary',
                     'verde' => 'success',
                     'amarelo' => 'warning',
@@ -155,14 +149,14 @@ use Illuminate\Support\Str;
                     'branco' => 'light',
                     'ciano' => 'info',
                     'roxo' => 'secondary',
-                    'laranja' => 'warning',
-                  ];
-                  $slugColor = strtolower(preg_replace('/[^a-z]/','', Str::ascii(optional($s)->cor ?? '')));
-                  $clsBase = $map[$slugColor] ?? 'secondary';
-                  $needsDark = in_array($clsBase, ['warning','light']);
+                    'laranja' => 'warning'
+                  );
+                  $slugColor = strtolower(preg_replace('/[^a-z]/','', Str::ascii(optional($s)->cor ?: '')));
+                  $clsBase = isset($map[$slugColor]) ? $map[$slugColor] : 'secondary';
+                  $needsDark = in_array($clsBase, array('warning','light'));
                   $cls = 'badge bg-'.$clsBase.($needsDark ? ' text-dark' : '');
                 @endphp
-                <span class="{{ $cls }}">{{ optional($s)->nome ?? '—' }}</span>
+                <span class="{{ $cls }}">{{ optional($s)->nome ?: '—' }}</span>
               </td>
             </tr>
           @endforeach

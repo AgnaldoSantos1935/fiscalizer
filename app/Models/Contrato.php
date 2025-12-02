@@ -4,12 +4,12 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Pagamentos;
 use Illuminate\Support\Facades\DB;
 
 class Contrato extends Model
 {
-    use SoftDeletes;
+
 
     protected $table = 'contratos';
 
@@ -316,4 +316,27 @@ class Contrato extends Model
 
         return $meses;
     }
+    /**
+ * Medições mensais do contrato de serviço
+ */
+public function medicoes()
+{
+    return $this->hasMany(Medicao::class, 'contrato_id');
+}
+/**
+ * Pagamentos do contrato via empenhos intermediários
+ */
+public function pagamentos()
+{
+    return $this->hasManyThrough(
+        Pagamentos::class,
+        Empenho::class,
+        'contrato_id',
+        'empenho_id',
+        'id',
+        'id'
+    );
+}
+
+
 }

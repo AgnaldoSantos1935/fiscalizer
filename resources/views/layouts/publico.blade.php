@@ -49,9 +49,9 @@
         .ripple-effect { position: absolute; border-radius: 50%; transform: scale(0); animation: ripple 600ms linear; background: rgba(255,255,255,.4); pointer-events: none; }
         @keyframes ripple { to { transform: scale(15); opacity: 0; } }
 
-        .fixed-footer { position: fixed; left: 0; right: 0; bottom: 0; background: #0f172a; color: #fff; border-top: 1px solid #0ea5e9; z-index: 1040; }
+        .fixed-footer { position: fixed; left: 0; right: 0; bottom: 0; background: #000000; color: #9ca3af; border-top: 1px solid #000000; z-index: 1040; }
         .fixed-footer .container { min-height: 56px; }
-        .fixed-footer a { color: #e2e8f0; }
+        .fixed-footer a { color: #9ca3af; }
         .fixed-footer a:hover { color: #ffffff; }
     </style>
 </head>
@@ -70,22 +70,7 @@
   </div>
 @endif
 
-<footer class="fixed-footer py-2">
-  <div class="container d-flex align-items-center justify-content-between">
-    <div class="small">© {{ date('Y') }} Governo do Estado de Exemplo • SEDUC-EX • Fiscalizer</div>
-    <div class="d-none d-md-flex align-items-center gap-3">
-      <a href="#" class="text-decoration-none small">Privacidade</a>
-      <a href="#" class="text-decoration-none small">Termos</a>
-      <a href="#contato" class="text-decoration-none small">Contato</a>
-    </div>
-    <div class="d-flex align-items-center gap-2">
-      <a href="#" class="text-decoration-none"><i class="fa-brands fa-instagram"></i></a>
-      <a href="#" class="text-decoration-none"><i class="fa-brands fa-facebook"></i></a>
-      <a href="#" class="text-decoration-none"><i class="fa-brands fa-linkedin"></i></a>
-      <a href="#" class="text-decoration-none"><i class="fa-brands fa-twitter"></i></a>
-    </div>
-  </div>
-  </footer>
+ 
 
 </body>
 <div id="chatWidget" style="position:fixed; right:18px; bottom:78px; z-index:1100;">

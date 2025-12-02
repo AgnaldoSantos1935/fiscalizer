@@ -50,12 +50,6 @@ $ultimas = \App\Models\UserNotification::where('user_id', auth()->id())
     ->latest()->limit(5)->get();
 @endphp
 
-
-    <li class="nav-item">
-        <a class="nav-link" href="#" id="toggleA11y" aria-label="Acessibilidade">
-            <i class="fas fa-universal-access fa-2x" id="toggleA11yIcon"></i>
-        </a>
-    </li>
     @include('layouts.components.notificacoes')
 
     @endsection
@@ -118,15 +112,6 @@ $ultimas = \App\Models\UserNotification::where('user_id', auth()->id())
 {{-- 🔹 Rodapé Comum --}}
 {{-- ========================================= --}}
 @section('footer')
-    <div class="float-right text-muted small">
-        <b>Versão:</b> {{ config('app.version', '1.0.0') }}
-    </div>
-
-    <strong>
-        <a href="{{ config('app.company_url', '#') }}" target="_blank">
-            {{ config('app.company_name', 'Fiscalizer - Sistema de fiscalização e acompanhamento de contratos') }}
-        </a>
-    </strong>
 @stop
 
 {{-- ========================================= --}}
@@ -147,10 +132,6 @@ $ultimas = \App\Models\UserNotification::where('user_id', auth()->id())
   window.CSRFToken = @json(csrf_token());
   window.DataTablesLangUrl = @json(asset('js/pt-BR.json'));
     </script>
-    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
     @stack('js')
     @stack('scripts')
 @endpush
